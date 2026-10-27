@@ -31,10 +31,11 @@ export default function HeroBackdrop() {
                         "radial-gradient(ellipse 28% 34% at 52% 66%, rgba(255, 204, 0, 0.20), transparent 70%), radial-gradient(ellipse 60% 45% at 50% 85%, rgba(255, 204, 0, 0.08), transparent 70%)",
                 }}
                 data-anim="glow"
+                data-depth="4"
             />
 
             {/* Dim copy: all letters, behind the character (desktop) */}
-            <div aria-hidden="true" className={`${BOX} z-[2]`} style={POSITION} data-anim="giant">
+            <div aria-hidden="true" className={`${BOX} z-[2]`} style={POSITION} data-anim="giant" data-depth="-8">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={GIANT.src}
@@ -46,7 +47,7 @@ export default function HeroBackdrop() {
             </div>
 
             {/* Bright copy: golden Z only, fully visible (desktop) */}
-            <div aria-hidden="true" className={`${BOX} z-[5]`} style={POSITION} data-anim="giant">
+            <div aria-hidden="true" className={`${BOX} z-[5]`} style={POSITION} data-anim="giant" data-depth="-8">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={GIANT.src} alt="" draggable={false} className="block h-auto w-full" style={{ clipPath: GIANT.zClip }} />
             </div>

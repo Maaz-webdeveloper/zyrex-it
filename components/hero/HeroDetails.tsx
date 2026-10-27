@@ -2,11 +2,11 @@
 // two floating side cards with dotted lines that "draw" themselves to the character.
 
 const CARD =
-    "absolute z-[7] hidden w-[clamp(170px,13vw,230px)] rounded-[22px] border border-white/10 p-[clamp(14px,1.2vw,20px)] text-left shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-md animate-zx-float min-[900px]:block";
+    "absolute z-[7] hidden w-[clamp(150px,11vw,200px)] rounded-[22px] border border-white/10 p-[clamp(12px,1vw,17px)] text-left shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-md animate-zx-float min-[900px]:block";
 const CARD_BG = { background: "linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))" };
 
-const TITLE = "text-[clamp(15px,1.15vw,19px)] leading-snug font-extrabold text-white";
-const SMALL = "mt-2 text-[12px] leading-snug text-white/55";
+const TITLE = "text-[clamp(14px,1.05vw,17px)] leading-snug text-white";
+const SMALL = "mt-2 text-[11px] leading-snug text-white/50";
 
 // Each line starts at a card and ends at the character
 const LINES = [
@@ -56,8 +56,8 @@ export default function HeroDetails() {
             </svg>
 
             {/* Left card: rating */}
-            <div data-anim="card" className={`${CARD} top-[36%] left-[7%] -rotate-[4deg]`} style={CARD_BG}>
-                <div className="mb-3 text-[13px] tracking-[3px] text-accent" aria-label="5 star rating">
+            <div data-anim="card" data-depth="22" className={`${CARD} top-[36%] left-[7%] -rotate-[4deg]`} style={CARD_BG}>
+                <div className="mb-3 text-[12px] tracking-[3px] text-accent" aria-label="5 star rating">
                     ★★★★★
                 </div>
                 <p className={TITLE}>
@@ -75,11 +75,12 @@ export default function HeroDetails() {
             {/* Right card: clients */}
             <div
                 data-anim="card"
+                data-depth="22"
                 className={`${CARD} top-[40%] right-[7%] rotate-[5deg]`}
                 style={{ ...CARD_BG, animationDelay: "-3s" }}
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/hero/clients-avatars.svg" alt="Happy clients" className="mb-3 h-8 w-auto" draggable={false} />
+                <img src="/hero/clients-avatars.svg" alt="Happy clients" className="mb-3 h-7 w-auto" draggable={false} />
                 <p className={TITLE}>
                     50+ happy
                     <br />

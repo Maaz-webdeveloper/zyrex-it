@@ -19,6 +19,8 @@ gsap.registerPlugin(useGSAP);
 // Images the preloader should wait for
 const HERO_IMAGES = ["/hero/character.svg", "/hero/golden-z.png", "/hero/clients-avatars.svg"];
 
+const MAGNET = 0.3; // how strongly buttons follow the mouse (0 = off)
+
 export default function Hero() {
     const rootRef = useRef<HTMLDivElement>(null);
     const pathname = usePathname();
@@ -56,11 +58,58 @@ export default function Hero() {
         { scope: rootRef }
     );
 
-    // 3. Entrance: plays when the preloader starts revealing the page
+    // 3. Entrance, then mouse parallax + magnetic buttons (mouse devices only)
     useGSAP(
         () => {
-            if (!preloaderDone) return;
-            const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 1 } });
+            if (!preloaderDone || !rootRef.current) return;
+            const root = rootRef.current;
+            const cleanups: (() => void)[] = [];
+
+            const startInteractions = () => {
+                const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+                const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                if (!fine || reduce) return;
+
+                // Parallax: every [data-depth] layer moves by its depth (px) toward/away from the mouse
+                const layers = gsap.utils.toArray<HTMLElement>("[data-depth]", root).map((el) => ({
+                    depth: parseFloat(el.dataset.depth || "0"),
+                    x: gsap.quickTo(el, "x", { duration: 0.9, ease: "power3.out" }),
+                    y: gsap.quickTo(el, "y", { duration: 0.9, ease: "power3.out" }),
+                }));
+                const onMove = (e: MouseEvent) => {
+                    const nx = e.clientX / window.innerWidth - 0.5;
+                    const ny = e.clientY / window.innerHeight - 0.5;
+                    layers.forEach((l) => {
+                        l.x(nx * l.depth);
+                        l.y(ny * l.depth);
+                    });
+                };
+                window.addEventListener("mousemove", onMove);
+                cleanups.push(() => window.removeEventListener("mousemove", onMove));
+
+                // Magnetic buttons
+                gsap.utils.toArray<HTMLElement>('[data-anim="cta"]', root).forEach((btn) => {
+                    const xTo = gsap.quickTo(btn, "x", { duration: 0.4, ease: "power3.out" });
+                    const yTo = gsap.quickTo(btn, "y", { duration: 0.4, ease: "power3.out" });
+                    const move = (e: MouseEvent) => {
+                        const r = btn.getBoundingClientRect();
+                        xTo((e.clientX - (r.left + r.width / 2)) * MAGNET);
+                        yTo((e.clientY - (r.top + r.height / 2)) * MAGNET);
+                    };
+                    const leave = () => {
+                        xTo(0);
+                        yTo(0);
+                    };
+                    btn.addEventListener("mousemove", move);
+                    btn.addEventListener("mouseleave", leave);
+                    cleanups.push(() => {
+                        btn.removeEventListener("mousemove", move);
+                        btn.removeEventListener("mouseleave", leave);
+                    });
+                });
+            };
+
+            const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 1 }, onComplete: startInteractions });
             tl.fromTo('[data-anim="glow"]', { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.6 }, 0)
                 .fromTo('[data-anim="giant"]', { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 1.4 }, 0.1)
                 .fromTo(
@@ -86,6 +135,8 @@ export default function Hero() {
                     { strokeDashoffset: 0, duration: 1.2, ease: "power2.inOut", stagger: 0.15 },
                     1.35
                 );
+
+            return () => cleanups.forEach((fn) => fn());
         },
         { scope: rootRef, dependencies: [preloaderDone] }
     );
