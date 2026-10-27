@@ -11,7 +11,7 @@ const EASE = "ease-[cubic-bezier(0.76,0,0.24,1)]";
 
 export default function Navbar({ open, onToggle }: NavbarProps) {
     return (
-        <header className="absolute inset-x-0 top-0 z-50 flex items-center justify-between px-4 py-3.5 sm:px-[clamp(12px,2.5vw,40px)] sm:py-[22px]">
+        <header className="absolute inset-x-0 top-0 z-50 flex items-center justify-between px-4 py-3.5 sm:px-[clamp(12px,2.5vw,40px)] sm:py-[22px]" data-anim="nav">
             {/* Logo: scrolls the GHL page back to the top */}
             <a
                 href="#top"

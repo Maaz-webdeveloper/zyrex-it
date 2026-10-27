@@ -5,7 +5,7 @@ export default function HeroStage() {
   return (
     <div className="relative mt-4 flex w-full flex-1 flex-col justify-end min-[900px]:mt-auto min-[900px]:h-[clamp(320px,calc(var(--zx-vh,100svh)*0.46),620px)] min-[900px]:flex-none">
       {/* Character */}
-      <div className="relative z-[3] mx-auto h-[clamp(240px,calc(var(--zx-vh,100svh)*0.42),380px)] w-full [mask-image:linear-gradient(to_bottom,#000_80%,transparent_100%)] min-[900px]:absolute min-[900px]:inset-0 min-[900px]:h-auto min-[900px]:[mask-image:none]">
+      <div className="relative z-[3] mx-auto h-[clamp(240px,calc(var(--zx-vh,100svh)*0.42),380px)] w-full [mask-image:linear-gradient(to_bottom,#000_80%,transparent_100%)] min-[900px]:absolute min-[900px]:inset-0 min-[900px]:h-auto min-[900px]:[mask-image:none]" data-anim="character">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/hero/character.svg"

@@ -20,6 +20,7 @@ export default function HeroButtons() {
                 href="#contact"
                 onClick={go("#contact")}
                 className={`${BASE} group bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent))] pr-[34px] pl-3.5 text-black hover:shadow-[0_10px_30px_rgba(255,204,0,0.35)] max-[560px]:pr-7 max-[560px]:pl-2`}
+                data-anim="cta"
             >
                 Book a call
                 <span
@@ -46,6 +47,7 @@ export default function HeroButtons() {
                 href="#services"
                 onClick={go("#services")}
                 className={`${BASE} bg-[url('/hero/btn-outline.svg')] bg-size-[100%_100%] bg-center bg-no-repeat px-3.5 text-[#f9f3f3] hover:opacity-90 hover:shadow-[0_5px_20px_rgba(255,204,0,0.3)] max-[560px]:px-2`}
+                data-anim="cta"
             >
                 Explore services
             </a>
