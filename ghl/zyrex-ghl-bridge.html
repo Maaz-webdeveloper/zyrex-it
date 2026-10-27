@@ -1,0 +1,222 @@
+<!-- ═══════════════════════════════════════════════════════════
+     ZYREX IT | GHL Bridge
+     Paste ONCE per page, in a Custom HTML element placed right after the preloader.
+
+     What it does:
+     1. Resizes every Next.js iframe to its content height
+     2. Sends the real screen height to the Next.js sections
+     3. Lenis smooth scroll for the whole GHL page (also over the iframes)
+     4. Locks scrolling while the preloader or the menu is open
+     5. Scrolls to a section when a menu link is clicked inside an iframe
+     6. One golden cursor ball across GHL sections and Next.js sections
+     7. Answers the Next.js "is the preloader gone?" question
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+  /* Lenis basics (own version: no rule that blocks clicks on iframes) */
+  html.lenis, html.lenis body { height: auto; }
+  html.lenis.lenis-stopped { overflow: clip; }
+
+  /* Menu open -> page cannot scroll */
+  html.zx-menu-lock, html.zx-menu-lock body { overflow: hidden !important; }
+
+  /* Cursor ball (desktop / mouse only) */
+  .zx-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 999998;
+    background: radial-gradient(circle, rgba(255,204,0,0.85) 0%, rgba(255,204,0,0.2) 70%, transparent 100%);
+    border: 1.5px solid rgba(255,204,0,0.6);
+    box-shadow: 0 0 15px rgba(255,204,0,0.4);
+    opacity: 0;
+    will-change: transform;
+    transition: width 0.3s ease, height 0.3s ease, background 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+  }
+  .zx-cursor.is-visible { opacity: 1; }
+  .zx-cursor.is-hover {
+    width: 45px;
+    height: 45px;
+    background: radial-gradient(circle, rgba(255,204,0,0.4) 0%, rgba(255,204,0,0.1) 70%, transparent 100%);
+    border-color: rgba(255,204,0,0.9);
+  }
+</style>
+
+<script>
+(function () {
+  if (window.__zyrexBridge) return; // never run twice
+  window.__zyrexBridge = true;
+
+  /* ---------- Settings ---------- */
+  var EMBED_ORIGIN = 'https://zyrex-it.vercel.app';
+  var LENIS_SRC    = 'https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js';
+  var SCROLL_TO_DURATION = 1.4; // seconds, for menu links
+
+  var html  = document.documentElement;
+  var lenis = null;
+
+  /* ---------- Helpers ---------- */
+  function frames() { return document.querySelectorAll('iframe[data-zyrex-embed]'); }
+  function frameOf(win) {
+    var f = frames();
+    for (var i = 0; i < f.length; i++) if (f[i].contentWindow === win) return f[i];
+    return null;
+  }
+  function post(win, msg) { try { win.postMessage(msg, EMBED_ORIGIN); } catch (e) {} }
+  function broadcast(msg) {
+    var f = frames();
+    for (var i = 0; i < f.length; i++) post(f[i].contentWindow, msg);
+  }
+  function noPreloader() { return !document.getElementById('zyrex-preloader'); }
+
+  /* ---------- 1. Screen height -> embeds (ignores mobile URL-bar jumps) ---------- */
+  var coarse = window.matchMedia('(pointer: coarse)').matches;
+  var vw = window.innerWidth, vh = window.innerHeight;
+  function viewportMsg() { return { type: 'zyrex-viewport', height: vh }; }
+  window.addEventListener('resize', function () {
+    if (coarse && window.innerWidth === vw) return;
+    vw = window.innerWidth;
+    vh = window.innerHeight;
+    broadcast(viewportMsg());
+  });
+
+  /* ---------- 2. Scroll lock (preloader adds zx-lock, menu adds zx-menu-lock) ---------- */
+  var lockedNow = null;
+  function isLocked() {
+    return html.classList.contains('zx-lock') || html.classList.contains('zx-menu-lock');
+  }
+  function syncLock() {
+    if (!lenis) return;
+    var locked = isLocked();
+    if (locked === lockedNow) return;
+    lockedNow = locked;
+    if (locked) lenis.stop(); else lenis.start();
+  }
+  new MutationObserver(syncLock).observe(html, { attributes: true, attributeFilter: ['class'] });
+
+  /* ---------- 3. Lenis smooth scroll ---------- */
+  function initLenis() {
+    if (lenis || !window.Lenis) return;
+    lenis = new window.Lenis({ autoRaf: true, anchors: true, lerp: 0.1 });
+    window.zyrexLenis = lenis;
+    lockedNow = null;
+    syncLock();
+  }
+  if (window.Lenis) initLenis();
+  else {
+    var s = document.createElement('script');
+    s.src = LENIS_SRC;
+    s.async = true;
+    s.onload = initLenis;
+    document.head.appendChild(s);
+  }
+
+  function scrollByWheel(dy) {
+    if (isLocked()) return;
+    if (lenis) lenis.scrollTo(lenis.targetScroll + dy);
+    else window.scrollBy(0, dy);
+  }
+
+  function scrollToTarget(target) {
+    var toTop = !target || target === '#' || target === '#top';
+    var el = null;
+    if (!toTop) {
+      try { el = document.querySelector(target); } catch (e) { return; }
+      if (!el) return;
+    }
+    if (lenis) {
+      lenis.scrollTo(toTop ? 0 : el, { duration: SCROLL_TO_DURATION, force: true });
+    } else if (toTop) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  /* ---------- 4. Cursor ball (one ball for GHL + Next.js sections) ---------- */
+  var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var ball = null, mx = -100, my = -100, bx = -100, by = -100, t = 0;
+
+  function setHover(on) { if (ball) ball.classList.toggle('is-hover', !!on); }
+  function showBall() { if (ball) ball.classList.add('is-visible'); }
+
+  function startBall() {
+    ball = document.createElement('div');
+    ball.className = 'zx-cursor';
+    ball.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(ball);
+
+    document.addEventListener('mousemove', function (e) {
+      mx = e.clientX;
+      my = e.clientY;
+      showBall();
+      setHover(e.target && e.target.closest && e.target.closest('a, button, [data-cursor-hover]'));
+    }, { passive: true });
+
+    document.addEventListener('mouseout', function (e) {
+      if (!e.relatedTarget) ball.classList.remove('is-visible'); // mouse left the window
+    });
+
+    (function loop() {
+      bx += (mx - bx) * 0.15;
+      by += (my - by) * 0.15;
+      t += 0.05;
+      var scale = 1 + Math.sin(t) * 0.06;
+      ball.style.transform = 'translate3d(' + bx + 'px,' + by + 'px,0) translate(-50%,-50%) scale(' + scale + ')';
+      requestAnimationFrame(loop);
+    })();
+  }
+  if (fine) {
+    if (document.body) startBall();
+    else document.addEventListener('DOMContentLoaded', startBall);
+  }
+
+  /* ---------- 5. Messages from the Next.js sections ---------- */
+  window.addEventListener('message', function (e) {
+    if (e.origin !== EMBED_ORIGIN) return;
+    var d = e.data;
+    if (!d || typeof d !== 'object' || typeof d.type !== 'string') return;
+    var frame = frameOf(e.source);
+
+    switch (d.type) {
+      case 'zyrex-embed-height':
+        if (frame && typeof d.height === 'number') frame.style.height = d.height + 'px';
+        break;
+
+      case 'zyrex-hello':
+        post(e.source, viewportMsg());
+        if (noPreloader()) post(e.source, { type: 'zyrex-preloader-done' });
+        break;
+
+      case 'zyrex-preloader-status':
+        if (noPreloader()) post(e.source, { type: 'zyrex-preloader-done' });
+        break;
+
+      case 'zyrex-wheel':
+        if (typeof d.deltaY === 'number') scrollByWheel(d.deltaY);
+        break;
+
+      case 'zyrex-lock':
+        html.classList.toggle('zx-menu-lock', !!d.locked);
+        break;
+
+      case 'zyrex-scroll-to':
+        if (typeof d.target === 'string') scrollToTarget(d.target);
+        break;
+
+      case 'zyrex-pointer':
+        if (ball && frame && typeof d.x === 'number' && typeof d.y === 'number') {
+          var r = frame.getBoundingClientRect();
+          mx = r.left + d.x;
+          my = r.top + d.y;
+          showBall();
+          setHover(d.hover);
+        }
+        break;
+    }
+  });
+})();
+</script>
