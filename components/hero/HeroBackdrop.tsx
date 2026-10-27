@@ -1,61 +1,56 @@
-// Background layers: gold glow, subtle giant "ZYREX IT", bright golden 3D Z (desktop)
+// Background layers: gold glow + giant "ZYREX IT" image across the full width (desktop).
+// Same image drawn twice: dim copy (all letters, behind the character)
+// and bright copy clipped to the golden Z only (in front of the bottom fade).
 
 const GIANT = {
-  opacity: 0.35, // giant letters stay subtle so the character is the focus
-  shift: "translate-y-[27%]", // how much of the giant text hides below the bottom edge
+    src: "/hero/golden-z.png",
+    lettersOpacity: 0.35, // grey letters stay subtle
+    zClip: "inset(0 78% 0 0)", // bright copy shows only the golden Z (raise 78% if part of the Y shows)
+    side: "-11%", // how far the image reaches past the screen edges (more negative = bigger letters)
+    bottom: "calc(2% - 10.3vw)", // pushes the image down past its empty bottom space (less negative vw = text goes higher)
 };
 
-const GOLDEN_Z = {
-  src: "/hero/golden-z.png",
-  left: "0.5%", // move the golden Z left/right to sit on the grey Z
-  width: "14%", // size of the golden Z
-  bottom: "-4%", // move it up/down
-};
+// Soft fade only on the grey letters, so they stay fully readable
+const LETTERS_FADE = "linear-gradient(to bottom, #000 60%, rgba(0, 0, 0, 0.45) 100%)";
+
+const BOX = "pointer-events-none absolute hidden select-none min-[900px]:block";
+const POSITION = { left: GIANT.side, right: GIANT.side, bottom: GIANT.bottom };
 
 export default function HeroBackdrop() {
-  return (
-    <>
-      {/* Warm gold glow behind the character */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background: "radial-gradient(ellipse 55% 45% at 50% 78%, rgba(255, 204, 0, 0.16), transparent 70%)",
-        }}
-      />
+    return (
+        <>
+            {/* Warm gold glow behind the character */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-0"
+                style={{
+                    background: "radial-gradient(ellipse 55% 45% at 50% 78%, rgba(255, 204, 0, 0.16), transparent 70%)",
+                }}
+            />
 
-      {/* Giant ZYREX IT + golden Z (hidden on mobile) */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -inset-x-[6%] bottom-0 z-[2] hidden select-none min-[900px]:block"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero/giant-text.svg"
-          alt=""
-          draggable={false}
-          className={`block h-auto w-full ${GIANT.shift}`}
-          style={{
-            opacity: GIANT.opacity,
-            maskImage: "linear-gradient(to bottom, #000 30%, transparent 95%)",
-            WebkitMaskImage: "linear-gradient(to bottom, #000 30%, transparent 95%)",
-          }}
-        />
+            {/* Dim copy: all letters, behind the character (hidden on mobile) */}
+            <div aria-hidden="true" className={`${BOX} z-[2]`} style={POSITION}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src={GIANT.src}
+                    alt=""
+                    draggable={false}
+                    className="block h-auto w-full"
+                    style={{ opacity: GIANT.lettersOpacity, maskImage: LETTERS_FADE, WebkitMaskImage: LETTERS_FADE }}
+                />
+            </div>
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={GOLDEN_Z.src}
-          alt=""
-          draggable={false}
-          className="absolute h-auto"
-          style={{
-            left: GOLDEN_Z.left,
-            width: GOLDEN_Z.width,
-            bottom: GOLDEN_Z.bottom,
-            filter: "drop-shadow(0 0 30px rgba(255, 204, 0, 0.35))",
-          }}
-        />
-      </div>
-    </>
-  );
+            {/* Bright copy: golden Z only, fully visible (hidden on mobile) */}
+            <div aria-hidden="true" className={`${BOX} z-[5]`} style={POSITION}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src={GIANT.src}
+                    alt=""
+                    draggable={false}
+                    className="block h-auto w-full"
+                    style={{ clipPath: GIANT.zClip }}
+                />
+            </div>
+        </>
+    );
 }

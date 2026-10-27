@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Brand colors + animations */
 @theme {
   --color-accent: #ffcc00;
   --color-accent-light: #ffdd65;
@@ -7,10 +8,31 @@
   --color-dark-2: #2d2d2d;
   --color-black: #000000;
   --color-white: #ffffff;
+
   --animate-zx-shine: zx-shine 8s linear infinite alternate;
 }
 
+/* Site font: Garet (loaded in app/layout.tsx) */
+@theme inline {
+  --font-sans: var(--font-garet), Arial, sans-serif;
+}
+
+/* Heading shine */
 @keyframes zx-shine {
-  from { background-position: 0% 0; }
-  to { background-position: 100% 0; }
+  from {
+    background-position: 0% 0;
+  }
+
+  to {
+    background-position: 100% 0;
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #1d1d1d;
+  color: #ffffff;
+  font-family: var(--font-garet), Arial, sans-serif;
 }
