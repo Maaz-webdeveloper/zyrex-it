@@ -239,7 +239,7 @@ export default function Team() {
                         {TEAM.map((member) => (
                             <div
                                 key={member.name}
-                                className="min-w-0 shrink-0 grow-0 basis-[78%] pl-[clamp(16px,1.6vw,24px)] min-[640px]:basis-1/2 min-[1024px]:basis-1/3"
+                                className="min-w-0 shrink-0 grow-0 basis-full pl-[clamp(16px,1.6vw,24px)] min-[640px]:basis-1/2 min-[1024px]:basis-1/3"
                             >
                                 {/* Center-focus layer (scaled/dimmed while sliding) */}
                                 <div data-focus="" className="will-change-transform">
@@ -255,7 +255,7 @@ export default function Team() {
                 </div>
 
                 {/* Mobile arrows */}
-                <div data-reveal="arrows" className="hidden gap-4 max-[767px]:flex">
+                <div data-reveal="arrows" className="relative z-10 -mt-[72px] hidden w-full justify-between px-1 max-[767px]:flex">
                     <Arrow dir="prev" onClick={prev} />
                     <Arrow dir="next" onClick={next} />
                 </div>
