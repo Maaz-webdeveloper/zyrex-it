@@ -10,6 +10,7 @@
   --color-white: #ffffff;
 
   --animate-zx-shine: zx-shine 8s linear infinite alternate;
+  --animate-zx-float: zx-float 6s ease-in-out infinite;
 }
 
 /* Site font: Garet (loaded in app/layout.tsx) */
@@ -26,6 +27,11 @@
   to {
     background-position: 100% 0;
   }
+}
+
+@keyframes zx-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -8px; }
 }
 
 html,

@@ -7,6 +7,7 @@ import HeroCopy from "./HeroCopy";
 import HeroButtons from "./HeroButtons";
 import HeroStage from "./HeroStage";
 import HeroBackdrop from "./HeroBackdrop";
+import HeroDetails from "./HeroDetails";
 
 export default function Hero() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -28,6 +29,7 @@ export default function Hero() {
             <HeroCopy />
             <HeroButtons />
             <HeroStage />
+            <HeroDetails />
             <Navbar open={menuOpen} onToggle={toggleMenu} />
             <Menu open={menuOpen} origin={origin} onClose={closeMenu} />
         </div>
