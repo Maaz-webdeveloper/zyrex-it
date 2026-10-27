@@ -14,6 +14,7 @@ html, body {
   padding: 0;
   background: #1d1d1d;
   color: #ffffff;
+  font-family: var(--font-garet), Arial, sans-serif;
 }
 @theme inline {
   --font-sans: var(--font-garet), Arial, sans-serif;
