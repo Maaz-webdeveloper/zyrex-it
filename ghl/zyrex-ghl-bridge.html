@@ -100,7 +100,12 @@
   /* ---------- 3. Lenis smooth scroll ---------- */
   function initLenis() {
     if (lenis || !window.Lenis) return;
-    lenis = new window.Lenis({ autoRaf: true, anchors: true, lerp: 0.1 });
+        lenis = new window.Lenis({ anchors: true, lerp: 0.1, smoothWheel: true });
+    // Drive Lenis every frame ourselves (more reliable than autoRaf)
+    (function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    })(performance.now());
     window.zyrexLenis = lenis;
     lockedNow = null;
     syncLock();
