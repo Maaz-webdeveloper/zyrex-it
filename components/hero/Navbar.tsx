@@ -4,7 +4,7 @@ import { scrollParentTo } from "@/lib/embed";
 
 type NavbarProps = {
     open: boolean;
-    onToggle: () => void;
+    onToggle: (rect?: DOMRect) => void;
 };
 
 const EASE = "ease-[cubic-bezier(0.76,0,0.24,1)]";
@@ -35,7 +35,7 @@ export default function Navbar({ open, onToggle }: NavbarProps) {
             {/* Menu / Close button */}
             <button
                 type="button"
-                onClick={onToggle}
+                onClick={(e) => onToggle(e.currentTarget.getBoundingClientRect())}
                 aria-expanded={open}
                 aria-controls="zx-menu"
                 aria-label={open ? "Close menu" : "Open menu"}
