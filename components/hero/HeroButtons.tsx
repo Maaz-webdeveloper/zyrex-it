@@ -4,7 +4,7 @@ import { scrollParentTo } from "@/lib/embed";
 
 // Shared size/shape for both buttons (same as the old design)
 const BASE =
-    "relative inline-flex h-[42px] w-[170px] items-center justify-center rounded-full text-[11px] leading-none tracking-[0.12em] uppercase font-extrabold transition-[translate,box-shadow,opacity] duration-300 hover:-translate-y-0.5 max-[560px]:h-9 max-[560px]:w-[146px] max-[560px]:text-[10px]";
+    "relative inline-flex h-[42px] w-[170px] items-center justify-center rounded-full text-[11px] leading-none tracking-[0.12em] uppercase font-extrabold transition-[translate,box-shadow,opacity] duration-300 hover:-translate-y-0.5 max-[560px]:h-[42px] max-[560px]:w-[160px] max-[560px]:text-[11px]";
 
 export default function HeroButtons() {
     // Button click: smooth-scroll the GHL page to that section
@@ -25,7 +25,7 @@ export default function HeroButtons() {
                 Book a call
                 <span
                     aria-hidden="true"
-                    className="absolute top-1/2 right-1 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-black text-accent transition-transform duration-300 group-hover:translate-x-[3px] max-[560px]:size-[26px]"
+                    className="absolute top-1/2 right-1 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-black text-accent transition-transform duration-300 group-hover:translate-x-[3px] max-[560px]:size-[30px]"
                 >
                     <svg
                         width="16"
