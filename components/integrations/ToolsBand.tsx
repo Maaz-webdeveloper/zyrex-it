@@ -125,20 +125,34 @@ function Track({ vertical, hidden }: { vertical?: boolean; hidden?: boolean }) {
 export default function ToolsBand() {
     const rootRef = useRef<HTMLDivElement>(null);
 
-    // Moving tools (paused when off-screen or with reduced motion)
+    // Moving tools: only the visible version animates (desktop row or mobile column).
+    // gsap.matchMedia switches automatically when the screen size changes. Paused off-screen / reduced motion.
     useGSAP(
         () => {
-            const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-            const tweens = [
-                gsap.to('[data-track="x"]', { xPercent: -50, duration: SPEED, ease: "none", repeat: -1 }),
-                gsap.to('[data-track="y"]', { yPercent: -50, duration: SPEED_MOBILE, ease: "none", repeat: -1 }),
-            ];
-            if (reduce) tweens.forEach((t) => t.pause());
-            const io = new IntersectionObserver(([entry]) => {
-                tweens.forEach((t) => (entry.isIntersecting && !reduce ? t.play() : t.pause()));
-            });
-            if (rootRef.current) io.observe(rootRef.current);
-            return () => io.disconnect();
+            const mm = gsap.matchMedia(rootRef.current ?? undefined);
+            mm.add(
+                {
+                    desktop: "(min-width: 768px)",
+                    mobile: "(max-width: 767px)",
+                    reduce: "(prefers-reduced-motion: reduce)",
+                },
+                (ctx) => {
+                    const { desktop, reduce } = ctx.conditions as { desktop: boolean; mobile: boolean; reduce: boolean };
+                    if (reduce) return;
+
+                    const tween = desktop
+                        ? gsap.to('[data-track="x"]', { xPercent: -50, duration: SPEED, ease: "none", repeat: -1 })
+                        : gsap.to('[data-track="y"]', { yPercent: -50, duration: SPEED_MOBILE, ease: "none", repeat: -1 });
+
+                    const io = new IntersectionObserver(([entry]) => {
+                        if (entry.isIntersecting) tween.play();
+                        else tween.pause();
+                    });
+                    if (rootRef.current) io.observe(rootRef.current);
+                    return () => io.disconnect();
+                }
+            );
+            return () => mm.revert();
         },
         { scope: rootRef }
     );
