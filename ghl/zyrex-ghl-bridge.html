@@ -12,6 +12,26 @@
      7. Answers the Next.js "is the preloader gone?" question
      ═══════════════════════════════════════════════════════════ -->
 <style>
+      /* Site font: Garet for the GHL sections too (same files as the preloader) */
+  @font-face {
+    font-family: "Garet";
+    src: url("https://cdn.jsdelivr.net/gh/Maaz-webdeveloper/zyrez-fonts@main/Garet-Book.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Garet";
+    src: url("https://cdn.jsdelivr.net/gh/Maaz-webdeveloper/zyrez-fonts@main/Garet-Heavy.woff2") format("woff2");
+    font-weight: 700 900;
+    font-style: normal;
+    font-display: swap;
+  }
+  /* Everything uses Garet, except Font Awesome icons */
+  body,
+  body *:not(.fa):not(.fas):not(.far):not(.fab):not(.fal):not([class^="fa-"]):not([class*=" fa-"]) {
+    font-family: "Garet", Arial, sans-serif !important;
+  }
   /* Lenis basics (own version: no rule that blocks clicks on iframes) */
   html.lenis, html.lenis body { height: auto; }
   html.lenis.lenis-stopped { overflow: clip; }
