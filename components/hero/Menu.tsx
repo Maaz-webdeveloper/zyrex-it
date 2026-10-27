@@ -62,9 +62,12 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
             id="zx-menu"
             aria-label="Main menu"
             inert={!open}
-            className={`fixed inset-0 z-40 flex flex-col justify-center bg-[radial-gradient(circle_at_85%_15%,rgba(255,204,0,0.12),transparent_50%),#050505] px-[clamp(24px,8vw,120px)] pt-[100px] pb-10 transition-[clip-path,visibility] duration-[900ms] ${EASE} ${open ? "visible" : "invisible delay-[0ms,900ms]"
+            className={`fixed inset-0 z-40 flex flex-col justify-center px-[clamp(24px,8vw,120px)] pt-[100px] pb-10 transition-[clip-path,visibility] duration-[900ms] ${EASE} ${open ? "visible" : "invisible delay-[0ms,900ms]"
                 }`}
-            style={{ clipPath: open ? `circle(150% at ${at})` : `circle(0px at ${at})` }}
+            style={{
+        clipPath: open ? `circle(150% at ${at})` : `circle(0px at ${at})`,
+        background: "radial-gradient(circle at 85% 15%, rgba(255, 204, 0, 0.12), transparent 50%), #050505",
+      }}
         >
             <ul>
                 {MENU_ITEMS.map((item, i) => (
