@@ -15,3 +15,6 @@ html, body {
   background: #1d1d1d;
   color: #ffffff;
 }
+@theme inline {
+  --font-sans: var(--font-garet), Arial, sans-serif;
+}
