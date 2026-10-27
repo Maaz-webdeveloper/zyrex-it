@@ -19,3 +19,8 @@ html, body {
 @theme inline {
   --font-sans: var(--font-garet), Arial, sans-serif;
 }
+
+@keyframes zx-shine {
+  from { background-position: 0% 0; }
+  to { background-position: 100% 0; }
+}
