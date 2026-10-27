@@ -25,11 +25,8 @@ export default function HeroBackdrop() {
             {/* Studio light: warm gold glow behind the head */}
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-0"
-                style={{
-                    background:
-                        "radial-gradient(ellipse 28% 34% at 52% 66%, rgba(255, 204, 0, 0.20), transparent 70%), radial-gradient(ellipse 60% 45% at 50% 85%, rgba(255, 204, 0, 0.08), transparent 70%)",
-                }}
+                className="pointer-events-none absolute inset-0 z-0 [--zx-glow:radial-gradient(ellipse_75%_30%_at_50%_75%,rgba(255,204,0,0.16),transparent_70%)] min-[900px]:[--zx-glow:radial-gradient(ellipse_28%_34%_at_52%_66%,rgba(255,204,0,0.20),transparent_70%),radial-gradient(ellipse_60%_45%_at_50%_85%,rgba(255,204,0,0.08),transparent_70%)]"
+                style={{ background: "var(--zx-glow)" }}
                 data-anim="glow"
                 data-depth="4"
             />
