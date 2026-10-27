@@ -14,7 +14,7 @@ export default function HeroButtons() {
     };
 
     return (
-        <div className="relative z-[7] mt-7 flex flex-wrap justify-center gap-3.5 max-[899px]:mt-4 max-[899px]:pb-7 min-[900px]:absolute min-[900px]:inset-x-0 min-[900px]:bottom-[15px] min-[900px]:mt-0">
+        <div className="relative z-[7] mt-6 flex flex-wrap justify-center gap-3.5 min-[900px]:mt-7 min-[900px]:[@media(max-height:760px)]:mt-4">
             {/* BOOK A CALL: gold, black circle with arrow */}
             <a
                 href="#contact"

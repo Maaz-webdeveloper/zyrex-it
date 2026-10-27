@@ -26,8 +26,8 @@ export default function Hero() {
         >
             <HeroBackdrop />
             <HeroCopy />
-            <HeroStage />
             <HeroButtons />
+            <HeroStage />
             <Navbar open={menuOpen} onToggle={toggleMenu} />
             <Menu open={menuOpen} origin={origin} onClose={closeMenu} />
         </div>
