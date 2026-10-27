@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import Navbar from "./Navbar";
 import Menu from "./Menu";
 import HeroCopy from "./HeroCopy";
+import HeroButtons from "./HeroButtons";
 
 export default function Hero() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -22,6 +23,7 @@ export default function Hero() {
             style={{ height: "var(--zx-vh, 100svh)" }}
         >
             <HeroCopy />
+            <HeroButtons />
             <Navbar open={menuOpen} onToggle={toggleMenu} />
             <Menu open={menuOpen} origin={origin} onClose={closeMenu} />
         </div>
