@@ -1,74 +1,126 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { MSG, inIframe, onParentMessage, sendToParent } from "@/lib/embed";
 
+/**
+ * Wraps every /embed/* section. Inside the GHL iframe it:
+ * 1. reports its height (iframe resizes itself)
+ * 2. receives the real screen height -> CSS variable --zx-vh
+ * 3. forwards the mouse wheel to the GHL page (Lenis smooth scroll)
+ * 4. forwards the mouse position to the GHL page (one cursor ball everywhere)
+ */
 export default function EmbedShell({ children }: { children: React.ReactNode }) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
+  // Page setup: transparent background, no scrollbars inside the iframe
   useEffect(() => {
-    // Set html and body styles
+    const { documentElement: html, body } = document;
+    html.style.background = "transparent";
+    body.style.background = "transparent";
+    body.style.margin = "0";
+    if (inIframe()) {
+      html.style.overflow = "hidden";
+      body.style.overflow = "hidden";
+    }
+  }, []);
+
+  // Screen height -> --zx-vh (use this instead of 100vh / h-screen inside embeds)
+  useEffect(() => {
     const html = document.documentElement;
-    const body = document.body;
+    const setVh = (h: number) => html.style.setProperty("--zx-vh", `${Math.round(h)}px`);
 
-    html.style.overflow = 'hidden';
-    html.style.background = 'transparent';
-    html.style.margin = '0';
-
-    body.style.overflow = 'hidden';
-    body.style.background = 'transparent';
-    body.style.margin = '0';
-
-    // Function to send height
-    const sendHeight = () => {
-      if (!wrapperRef.current) return;
-      const height = Math.ceil(wrapperRef.current.getBoundingClientRect().height);
-      const id = window.location.pathname; // e.g., "/embed/test"
-      window.parent.postMessage(
-        { type: 'zyrex-embed-height', id, height },
-        '*'
-      );
-      // Development only log
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[EmbedShell] Sent height: ${height} for ${id}`);
-      }
-    };
-
-    // Initial attempts after load and fonts ready
-    const handleLoad = () => {
-      // Wait a bit for initial render
-      setTimeout(sendHeight, 0);
-    };
-
-    const handleFontsReady = async () => {
-      try {
-        if (document.fonts) {
-          await document.fonts.ready;
-          sendHeight();
-        }
-      } catch (e) {
-        // Ignore if fonts API not available
-        sendHeight();
-      }
-    };
-
-    // Event listeners
-    window.addEventListener('load', handleLoad);
-    // Also send on DOMContentLoaded as fallback
-    window.addEventListener('DOMContentLoaded', handleLoad);
-
-    // ResizeObserver
-    const resizeObserver = new ResizeObserver(sendHeight);
-    if (wrapperRef.current) {
-      resizeObserver.observe(wrapperRef.current);
+    if (!inIframe()) {
+      // Opened directly (localhost / Vercel): use this window's height
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
+      let lastWidth = window.innerWidth;
+      setVh(window.innerHeight);
+      const onResize = () => {
+        if (coarse && window.innerWidth === lastWidth) return; // ignore mobile URL-bar jumps
+        lastWidth = window.innerWidth;
+        setVh(window.innerHeight);
+      };
+      window.addEventListener("resize", onResize);
+      return () => window.removeEventListener("resize", onResize);
     }
 
-    // Cleanup
+    // Inside GHL: safe fallback until the GHL page sends the real height
+    setVh(800);
+    const off = onParentMessage(MSG.viewport, (d) => {
+      if (typeof d.height === "number") setVh(d.height);
+    });
+    sendToParent({ type: MSG.hello, id: pathname });
+    return off;
+  }, [pathname]);
+
+  // Height reporting -> GHL resizes the iframe
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const send = () => {
+      const height = Math.ceil(el.getBoundingClientRect().height);
+      if (process.env.NODE_ENV === "development") console.log("[embed] height:", height);
+      sendToParent({ type: MSG.height, id: pathname, height });
+    };
+    send();
+    const ro = new ResizeObserver(send);
+    ro.observe(el);
+    window.addEventListener("load", send);
+    document.fonts?.ready.then(send);
     return () => {
-      window.removeEventListener('load', handleLoad);
-      window.removeEventListener('DOMContentLoaded', handleLoad);
-      resizeObserver.disconnect();
+      ro.disconnect();
+      window.removeEventListener("load", send);
+    };
+  }, [pathname]);
+
+  // Mouse wheel -> GHL page (so Lenis smooth scroll works over this section)
+  useEffect(() => {
+    if (!inIframe()) return;
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey) return; // trackpad pinch-zoom
+      const target = e.target as Element | null;
+      if (target?.closest?.("[data-native-scroll]")) return; // inner scroll areas keep their own scroll
+      e.preventDefault();
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+      sendToParent({ type: MSG.wheel, deltaY: e.deltaY * unit });
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, []);
+
+  // Mouse position -> GHL page (cursor ball follows across every section)
+  useEffect(() => {
+    if (!inIframe()) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+    let hover = false;
+    const flush = () => {
+      frame = 0;
+      sendToParent({ type: MSG.pointer, x, y, hover });
+    };
+    const onMove = (e: MouseEvent) => {
+      x = e.clientX;
+      y = e.clientY;
+      const target = e.target as Element | null;
+      hover = !!target?.closest?.("a, button, [data-cursor-hover]");
+      if (!frame) frame = requestAnimationFrame(flush);
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      if (frame) cancelAnimationFrame(frame);
     };
   }, []);
 
-  return <div ref={wrapperRef}>{children}</div>;
+  return (
+    <div ref={ref} style={{ display: "flow-root" }}>
+      {children}
+    </div>
+  );
 }
+
+export { EmbedShell };
