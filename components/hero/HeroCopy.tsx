@@ -6,7 +6,11 @@ const SHINE_B =
     "linear-gradient(90deg, #ffffff 0%, #ffdd65 12.5%, #ffcc00 25%, #ffdd65 37.5%, #ffffff 50%, #ffdd65 62.5%, #ffcc00 75%, #ffdd65 87.5%, #ffffff 100%)";
 
 const SHINE_CLASS =
-    "mx-auto block w-fit bg-size-[200%_100%] bg-clip-text text-transparent animate-[zx-shine_8s_linear_infinite_alternate] max-[560px]:whitespace-nowrap";
+    "mx-auto block w-fit bg-clip-text text-transparent animate-zx-shine max-[560px]:whitespace-nowrap";
+
+const SHINE_STYLE = {
+  backgroundSize: "200% 100%",
+} as const;
 
 export default function HeroCopy() {
     return (
@@ -18,10 +22,10 @@ export default function HeroCopy() {
 
             {/* Heading: line 1 yellow-white-yellow, line 2 white-yellow-white */}
             <h1 className="mt-[18px] max-w-[1000px] text-[clamp(1.5rem,3.5vw,3.2rem)] leading-[1.04] font-extrabold tracking-[-0.01em] uppercase max-[560px]:text-[5vw] max-[560px]:tracking-normal min-[900px]:[@media(max-height:760px)]:mt-3 min-[1600px]:max-w-[1300px] min-[1600px]:text-[clamp(3rem,3.2vw,4.6rem)]">
-                <span className={SHINE_CLASS} style={{ backgroundImage: SHINE_A }}>
+                <span className={SHINE_CLASS} style={{ ...SHINE_STYLE, backgroundImage: SHINE_A }}>
                     Powering businesses with
                 </span>
-                <span className={`${SHINE_CLASS} text-[0.98em]`} style={{ backgroundImage: SHINE_B }}>
+                <span className={`${SHINE_CLASS} text-[0.98em]`} style={{ ...SHINE_STYLE, backgroundImage: SHINE_B }}>
                     smarter digital solutions
                 </span>
             </h1>

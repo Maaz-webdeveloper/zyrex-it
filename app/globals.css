@@ -7,17 +7,7 @@
   --color-dark-2: #2d2d2d;
   --color-black: #000000;
   --color-white: #ffffff;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #1d1d1d;
-  color: #ffffff;
-  font-family: var(--font-garet), Arial, sans-serif;
-}
-@theme inline {
-  --font-sans: var(--font-garet), Arial, sans-serif;
+  --animate-zx-shine: zx-shine 8s linear infinite alternate;
 }
 
 @keyframes zx-shine {
