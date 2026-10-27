@@ -29,7 +29,7 @@ export const FEATURES = [
 
 // Tools in the moving band. icon = any image URL, or a file in /public (e.g. "/tools/hubspot.svg").
 // Placeholder logos come from Simple Icons; replace this list with your own tools later.
-const si = (slug: string) => `https://cdn.simpleicons.org/${slug}`;
+const si = (slug: string, color?: string) => `https://cdn.simpleicons.org/${slug}${color ? `/${color}` : ""}`;
 
 export const TOOLS = [
   { name: "HubSpot", icon: si("hubspot") },
@@ -41,7 +41,7 @@ export const TOOLS = [
   { name: "Shopify", icon: si("shopify") },
   { name: "WordPress", icon: si("wordpress") },
   { name: "Mailchimp", icon: si("mailchimp") },
-  { name: "Notion", icon: si("notion") },
+  { name: "Notion", icon: si("notion", "ffffff") },
   { name: "Trello", icon: si("trello") },
   { name: "Zoom", icon: si("zoom") },
   { name: "WhatsApp", icon: si("whatsapp") },
@@ -52,7 +52,7 @@ export const TOOLS = [
   { name: "Instagram", icon: si("instagram") },
   { name: "Airtable", icon: si("airtable") },
   { name: "Asana", icon: si("asana") },
-  { name: "Wix", icon: si("wix") },
+  { name: "Wix", icon: si("wix", "ffffff") },
   { name: "WooCommerce", icon: si("woocommerce") },
   { name: "Twilio", icon: si("twilio") },
   { name: "Google Analytics", icon: si("googleanalytics") },
