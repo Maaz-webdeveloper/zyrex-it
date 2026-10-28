@@ -4,7 +4,7 @@ export const TEAM_COPY = {
   label: "Our Team",
   heading: "Meet The Minds",
   headingLine2: "Behind", // white part of line 2
-  headingAccent: "ZYREX", // gold word at the end of line 2
+  headingAccent: "ZYREXIT", // gold word at the end of line 2
 };
 
 // Placeholder photos (pravatar.cc). Replace with real photos later, e.g. "/team/matt.jpg" in /public/team.
