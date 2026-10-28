@@ -8,8 +8,8 @@ const MENU_ITEMS = [
     { label: "About", href: "#about" },
     { label: "Services", href: "#services" },
     { label: "Portfolio", href: "#portfolio" },
+    { label: "Calendar", href: "#calendar" },
     { label: "Team", href: "#team" },
-    { label: "Appointment", href: "#appointment" },
     { label: "Career", href: "#career" },
     { label: "Blog", href: "#blog" },
     { label: "Contact", href: "#contact" },
@@ -37,8 +37,9 @@ const FOOT_LINKS = [
 const EASE = "ease-[cubic-bezier(0.76,0,0.24,1)]";
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 const PANEL_EDGE =
-    "linear-gradient(140deg, rgba(255, 204, 0, 0.5), rgba(255, 255, 255, 0.08) 35%, rgba(255, 255, 255, 0.04) 70%, rgba(255, 204, 0, 0.25))";
-const PANEL_BG = "linear-gradient(160deg, rgba(24, 24, 24, 0.92), rgba(10, 10, 10, 0.9))";
+    "linear-gradient(140deg, rgba(255, 204, 0, 0.6), rgba(255, 255, 255, 0.08) 35%, rgba(255, 255, 255, 0.04) 70%, rgba(255, 204, 0, 0.3))";
+const PANEL_BG = "linear-gradient(160deg, rgba(26, 24, 18, 0.94), rgba(10, 10, 10, 0.92))";
+const PANEL_OFFSET_Y = 48; // panel starts this many px above the "Services" row
 
 type MenuProps = {
     open: boolean;
@@ -69,6 +70,8 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
     const [mega, setMega] = useState(false); // desktop: services panel
     const [mobileServices, setMobileServices] = useState(false); // mobile/tablet: services accordion
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const servicesRef = useRef<HTMLLIElement>(null);
+    const panelRef = useRef<HTMLElement>(null);
 
     // Menu open -> the GHL page cannot scroll
     useEffect(() => {
@@ -86,14 +89,31 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
         return () => window.removeEventListener("keydown", onKey);
     }, [open, onClose]);
 
-    // Desktop mega menu: open on hover/focus, close shortly after the mouse leaves
+    // Keep the panel lined up with the "Services" row
+    useEffect(() => {
+        const place = () => {
+            const row = servicesRef.current;
+            const panel = panelRef.current;
+            if (row && panel) panel.style.top = `${row.offsetTop - PANEL_OFFSET_Y}px`;
+        };
+        place();
+        window.addEventListener("resize", place);
+        return () => window.removeEventListener("resize", place);
+    }, [open]);
+
+    // Desktop mega menu: opens on Services, stays open until another link is hovered
+    // or the mouse leaves the panel (short delay)
     const showMega = () => {
         if (closeTimer.current) clearTimeout(closeTimer.current);
         setMega(true);
     };
+    const hideMega = () => {
+        if (closeTimer.current) clearTimeout(closeTimer.current);
+        setMega(false);
+    };
     const hideMegaSoon = () => {
         if (closeTimer.current) clearTimeout(closeTimer.current);
-        closeTimer.current = setTimeout(() => setMega(false), 180);
+        closeTimer.current = setTimeout(() => setMega(false), 500);
     };
     const megaVisible = open && mega;
     const servicesListVisible = open && mobileServices;
@@ -116,41 +136,53 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
             aria-label="Main menu"
             inert={!open}
             data-native-scroll=""
-            className={`fixed inset-0 z-40 flex flex-col overflow-y-auto px-[clamp(24px,8vw,120px)] pt-[100px] pb-10 transition-[clip-path,visibility] duration-[900ms] ${EASE} ${open ? "visible" : "invisible delay-[0ms,900ms]"
+            className={`fixed inset-0 z-40 flex flex-col overflow-y-auto overflow-x-hidden px-[clamp(24px,8vw,120px)] pt-[100px] pb-10 transition-[clip-path,visibility] duration-[900ms] ${EASE} ${open ? "visible" : "invisible delay-[0ms,900ms]"
                 }`}
             style={{
                 clipPath: open ? `circle(150% at ${at})` : `circle(0px at ${at})`,
                 background: "radial-gradient(circle at 85% 15%, rgba(255, 204, 0, 0.12), transparent 50%), #050505",
             }}
         >
-            {/* my-auto keeps everything vertically centered, but lets it scroll when it is taller than the screen */}
-            <div className="my-auto flex w-full items-center justify-between gap-[clamp(32px,5vw,96px)]">
-                {/* ===== Left: main links + footer links ===== */}
-                <div className="min-w-0">
+            {/* my-auto keeps everything vertically centered, but lets it scroll when taller than the screen */}
+            <div className="my-auto w-full">
+                {/* Links + attached panel (panel is positioned right after the longest link) */}
+                <div className="relative w-fit">
                     <ul>
                         {MENU_ITEMS.map((item, i) => {
                             const isServices = item.label === "Services";
+                            const dimmed = megaVisible && !isServices;
                             return (
                                 <li
                                     key={item.label}
+                                    ref={isServices ? servicesRef : undefined}
                                     className={`transition-[opacity,translate] ${open ? `translate-y-0 opacity-100 duration-[700ms,900ms] ${EASE}` : "translate-y-10 opacity-0 duration-[400ms]"
                                         }`}
                                     style={{ transitionDelay: open ? `${0.3 + i * 0.07}s` : "0s" }}
-                                    onMouseEnter={isServices ? showMega : () => setMega(false)}
-                                    onMouseLeave={isServices ? hideMegaSoon : undefined}
+                                    onMouseEnter={isServices ? showMega : hideMega}
                                 >
                                     <div className="flex items-center gap-4">
                                         <a
                                             href={item.href}
                                             onClick={go(item.href)}
                                             onFocus={isServices ? showMega : undefined}
-                                            className={`flex items-baseline gap-[18px] py-[0.08em] text-[clamp(2rem,min(5.6vw,7.2vh),4.6rem)] leading-[1.08] font-extrabold uppercase transition-[color,padding] duration-300 hover:pl-3.5 hover:text-accent ${isServices && megaVisible ? "pl-3.5 text-accent" : "text-white/85"
-                                                }`}
+                                            className={`flex items-baseline gap-[18px] py-[0.08em] text-[clamp(1.8rem,min(5vw,6.2vh),4rem)] leading-[1.08] font-extrabold uppercase transition-[color,padding,opacity,filter] duration-500 hover:pl-3.5 hover:text-accent ${isServices && megaVisible ? "pl-3.5 text-accent" : "text-white/85"
+                                                } ${dimmed ? "opacity-25 blur-[1px]" : "opacity-100 blur-0"}`}
+                                            style={isServices && megaVisible ? { textShadow: "0 0 30px rgba(255, 204, 0, 0.35)" } : undefined}
                                         >
                                             <small className="text-[0.8rem] tracking-[0.2em] text-accent">
                                                 {String(i + 1).padStart(2, "0")}
                                             </small>
                                             {item.label}
+                                            {/* Desktop: small arrow pointing to the panel */}
+                                            {isServices && (
+                                                <span
+                                                    aria-hidden="true"
+                                                    className={`hidden self-center text-[0.45em] transition duration-500 min-[1024px]:inline ${megaVisible ? "translate-x-0 opacity-100" : "-translate-x-3 opacity-0"
+                                                        }`}
+                                                >
+                                                    →
+                                                </span>
+                                            )}
                                         </a>
 
                                         {/* Mobile/tablet: open the services list */}
@@ -160,10 +192,18 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                                                 onClick={() => setMobileServices((v) => !v)}
                                                 aria-expanded={servicesListVisible}
                                                 aria-label={servicesListVisible ? "Hide services" : "Show services"}
-                                                className="grid size-9 place-items-center rounded-full border border-accent/40 text-accent transition-transform duration-300 min-[1024px]:hidden"
+                                                className="grid size-9 shrink-0 place-items-center rounded-full border border-accent/40 text-accent transition-transform duration-300 min-[1024px]:hidden"
                                                 style={{ rotate: servicesListVisible ? "45deg" : "0deg" }}
                                             >
-                                                <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
+                                                <svg
+                                                    aria-hidden="true"
+                                                    viewBox="0 0 24 24"
+                                                    className="size-4"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth={2.2}
+                                                    strokeLinecap="round"
+                                                >
                                                     <path d="M12 5v14M5 12h14" />
                                                 </svg>
                                             </button>
@@ -199,86 +239,123 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                         })}
                     </ul>
 
-                    <div
-                        className={`mt-10 flex flex-wrap gap-x-8 gap-y-3 text-[13px] tracking-[0.08em] text-white/70 transition-opacity duration-700 ${open ? "opacity-100 delay-[900ms]" : "opacity-0"
+                    {/* ===== Desktop: Services mega panel, right next to the links ===== */}
+                    <aside
+                        ref={panelRef}
+                        aria-label="Our services"
+                        onMouseEnter={showMega}
+                        onMouseLeave={hideMegaSoon}
+                        className={`absolute left-[calc(100%+clamp(32px,4vw,64px))] hidden w-[clamp(420px,44vw,720px)] transition-[clip-path,opacity,translate] duration-700 ${EASE} min-[1024px]:block ${megaVisible ? "pointer-events-auto translate-x-0 opacity-100" : "pointer-events-none -translate-x-4 opacity-0"
                             }`}
+                        style={{ clipPath: megaVisible ? "inset(0 0 0 0 round 24px)" : "inset(0 100% 0 0 round 24px)" }}
                     >
-                        {FOOT_LINKS.map((link) => (
-                            <a
-                                key={link.label}
-                                href={link.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="transition-colors hover:text-accent"
+                        <div
+                            className="rounded-[24px] p-px shadow-[0_30px_80px_rgba(0,0,0,0.6),0_0_70px_rgba(255,204,0,0.1)]"
+                            style={{ background: PANEL_EDGE }}
+                        >
+                            <div
+                                className="relative overflow-hidden rounded-[23px] p-[clamp(20px,2vw,32px)] backdrop-blur-xl"
+                                style={{ background: PANEL_BG }}
                             >
-                                {link.label}
-                            </a>
-                        ))}
-                    </div>
-                </div>
+                                {/* Soft gold light in the corner */}
+                                <span
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute -top-24 -left-24 size-72 rounded-full bg-accent/15 blur-3xl"
+                                />
 
-                {/* ===== Right (desktop): Services mega menu ===== */}
-                <aside
-                    aria-label="Our services"
-                    onMouseEnter={showMega}
-                    onMouseLeave={hideMegaSoon}
-                    className={`hidden w-[clamp(440px,44vw,760px)] shrink-0 transition duration-500 ${EASE} min-[1024px]:block ${megaVisible ? "pointer-events-auto translate-x-0 opacity-100" : "pointer-events-none translate-x-6 opacity-0"
-                        }`}
-                >
-                    <div className="rounded-[24px] p-px shadow-[0_30px_80px_rgba(0,0,0,0.6)]" style={{ background: PANEL_EDGE }}>
-                        <div className="rounded-[23px] p-[clamp(20px,2vw,32px)] backdrop-blur-xl" style={{ background: PANEL_BG }}>
-                            <p className="mb-5 pl-[0.3em] text-[11px] tracking-[0.3em] text-white/60 uppercase">Our Services</p>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                {SERVICES.map((s) => (
-                                    <a
-                                        key={s.name}
-                                        href="#services"
-                                        onClick={go("#services")}
-                                        className="group/svc flex items-start gap-3 rounded-[14px] border border-white/5 p-3 transition duration-300 hover:border-accent/30 hover:bg-white/[0.04]"
+                                {/* Header */}
+                                <div className="relative mb-5 flex items-end justify-between">
+                                    <p className="pl-[0.3em] text-[11px] tracking-[0.3em] text-white/70 uppercase">Our Services</p>
+                                    <span
+                                        aria-hidden="true"
+                                        className="text-[clamp(40px,4vw,64px)] leading-none font-extrabold text-transparent"
+                                        style={{ WebkitTextStroke: "1px rgba(255, 204, 0, 0.45)" }}
                                     >
-                                        <span className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-accent/25 bg-accent/10 text-accent">
-                                            <ServiceIcon paths={s.icon} />
-                                        </span>
-                                        <span className="min-w-0">
-                                            <span className="flex items-center gap-2 text-[clamp(13px,1vw,15px)] leading-snug font-extrabold text-white">
-                                                {s.name}
-                                                <span
-                                                    aria-hidden="true"
-                                                    className="-translate-x-1 text-accent opacity-0 transition duration-300 group-hover/svc:translate-x-0 group-hover/svc:opacity-100"
-                                                >
-                                                    →
+                                        {String(SERVICES.length).padStart(2, "0")}
+                                    </span>
+                                </div>
+
+                                {/* Services grid */}
+                                <div className="relative grid grid-cols-2 gap-3">
+                                    {SERVICES.map((s, i) => (
+                                        <a
+                                            key={s.name}
+                                            href="#services"
+                                            onClick={go("#services")}
+                                            className={`group/svc relative isolate flex items-start gap-3 overflow-hidden rounded-[14px] border border-white/[0.06] bg-white/[0.02] p-3 transition-[opacity,translate,border-color] duration-500 hover:border-transparent ${megaVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                                                }`}
+                                            style={{ transitionDelay: megaVisible ? `${0.15 + i * 0.05}s` : "0s" }}
+                                        >
+                                            {/* Gold fill that sweeps in on hover */}
+                                            <span
+                                                aria-hidden="true"
+                                                className={`absolute inset-0 -z-10 origin-left scale-x-0 transition-transform duration-500 ${EASE} group-hover/svc:scale-x-100`}
+                                                style={{ background: GOLD }}
+                                            />
+                                            <span className="grid size-10 shrink-0 place-items-center rounded-[10px] border border-accent/25 bg-accent/10 text-accent transition-colors duration-300 group-hover/svc:border-black/15 group-hover/svc:bg-black/10 group-hover/svc:text-black">
+                                                <ServiceIcon paths={s.icon} />
+                                            </span>
+                                            <span className="min-w-0">
+                                                <span className="flex items-center gap-2 text-[clamp(13px,1vw,15px)] leading-snug font-extrabold text-white transition-colors duration-300 group-hover/svc:text-black">
+                                                    {s.name}
+                                                    <span
+                                                        aria-hidden="true"
+                                                        className="-translate-x-1 opacity-0 transition duration-300 group-hover/svc:translate-x-0 group-hover/svc:opacity-100"
+                                                    >
+                                                        →
+                                                    </span>
+                                                </span>
+                                                <span className="mt-1 block text-[12.5px] leading-snug text-white/55 transition-colors duration-300 group-hover/svc:text-black/70">
+                                                    {s.text}
                                                 </span>
                                             </span>
-                                            <span className="mt-1 block text-[12.5px] leading-snug text-white/55">{s.text}</span>
+                                        </a>
+                                    ))}
+                                </div>
+
+                                {/* Footer */}
+                                <div className="relative mt-5 flex items-center justify-between border-t border-white/10 pt-4">
+                                    <a
+                                        href="#services"
+                                        onClick={go("#services")}
+                                        className="group/all inline-flex items-center gap-2 text-[14px] text-accent"
+                                    >
+                                        View all services
+                                        <span aria-hidden="true" className="transition-transform duration-300 group-hover/all:translate-x-1">
+                                            →
                                         </span>
                                     </a>
-                                ))}
-                            </div>
-
-                            <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
-                                <a
-                                    href="#services"
-                                    onClick={go("#services")}
-                                    className="group/all inline-flex items-center gap-2 text-[14px] text-accent"
-                                >
-                                    View all services
-                                    <span aria-hidden="true" className="transition-transform duration-300 group-hover/all:translate-x-1">
-                                        →
-                                    </span>
-                                </a>
-                                <a
-                                    href="#contact"
-                                    onClick={go("#contact")}
-                                    className="rounded-full px-5 py-2.5 text-[12px] font-extrabold tracking-[0.1em] text-black uppercase transition-[translate] duration-300 hover:-translate-y-0.5"
-                                    style={{ background: GOLD }}
-                                >
-                                    Book a call
-                                </a>
+                                    <a
+                                        href="#contact"
+                                        onClick={go("#contact")}
+                                        className="rounded-full px-5 py-2.5 text-[12px] font-extrabold tracking-[0.1em] text-black uppercase transition-[translate] duration-300 hover:-translate-y-0.5"
+                                        style={{ background: GOLD }}
+                                    >
+                                        Book a call
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </aside>
+                    </aside>
+                </div>
+
+                {/* Footer links */}
+                <div
+                    className={`mt-10 flex flex-wrap gap-x-8 gap-y-3 text-[13px] tracking-[0.08em] text-white/70 transition-opacity duration-700 ${open ? "opacity-100 delay-[900ms]" : "opacity-0"
+                        }`}
+                >
+                    {FOOT_LINKS.map((link) => (
+                        <a
+                            key={link.label}
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="transition-colors hover:text-accent"
+                        >
+                            {link.label}
+                        </a>
+                    ))}
+                </div>
             </div>
         </nav>
     );
