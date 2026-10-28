@@ -104,12 +104,18 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
         const place = () => {
             const row = servicesRef.current;
             const panel = panelRef.current;
-            if (row && panel) panel.style.top = `${row.offsetTop - PANEL_OFFSET_Y}px`;
+            if (!row || !panel) return;
+            // Line up with "Services", but keep the whole panel inside the screen
+            const wrapTop = (panel.offsetParent as HTMLElement | null)?.getBoundingClientRect().top ?? 0;
+            const wanted = row.offsetTop - PANEL_OFFSET_Y;
+            const maxTop = window.innerHeight - 24 - wrapTop - panel.offsetHeight;
+            const minTop = 24 - wrapTop;
+            panel.style.top = `${Math.max(minTop, Math.min(wanted, maxTop))}px`;
         };
         place();
         window.addEventListener("resize", place);
         return () => window.removeEventListener("resize", place);
-    }, [open]);
+    }, [open, mega]);
 
     // Desktop (mouse only): opens on Services, stays until another link is hovered
     // or the mouse leaves the panel (short delay)
@@ -159,7 +165,7 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
             aria-label="Main menu"
             inert={!open}
             data-native-scroll=""
-            className={`fixed inset-0 z-40 flex flex-col overflow-x-hidden overflow-y-auto px-[clamp(24px,8vw,120px)] pt-[100px] pb-10 transition-[clip-path,visibility] duration-[900ms] ${EASE} ${open ? "visible" : "invisible delay-[0ms,900ms]"
+            className={`fixed inset-0 z-40 flex flex-col overflow-x-hidden overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-[clamp(24px,8vw,120px)] pt-[100px] pb-10 transition-[clip-path,visibility] duration-[900ms] ${EASE} ${open ? "visible" : "invisible delay-[0ms,900ms]"
                 }`}
             style={{
                 clipPath: open ? `circle(150% at ${at})` : `circle(0px at ${at})`,
@@ -321,10 +327,12 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                                                     </li>
                                                 ))}
                                             </ul>
-                                            <span className="mt-auto flex items-center gap-2 pt-6 text-[clamp(15px,1vw,17px)] font-extrabold text-accent">
-                                                Explore
-                                                <span aria-hidden="true" className="transition-transform duration-300 group-hover/feat:translate-x-1">
-                                                    →
+                                            <span className="mt-auto pt-6">
+                                                <span className="inline-flex h-[44px] w-fit items-center gap-2 rounded-full bg-[url('/hero/btn-outline.svg')] bg-size-[100%_100%] bg-center bg-no-repeat px-6 text-[13px] font-extrabold tracking-[0.12em] text-[#f9f3f3] uppercase transition-[translate,box-shadow] duration-300 group-hover/feat:-translate-y-0.5 group-hover/feat:shadow-[0_5px_24px_rgba(255,204,0,0.35)]">
+                                                    Explore
+                                                    <span aria-hidden="true" className="transition-transform duration-300 group-hover/feat:translate-x-1">
+                                                        →
+                                                    </span>
                                                 </span>
                                             </span>
                                         </div>
@@ -384,10 +392,18 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                                     <a
                                         href="#contact"
                                         onClick={go("#contact")}
-                                        className="shrink-0 rounded-full px-6 py-3 text-[13px] font-extrabold tracking-[0.1em] text-black uppercase transition-[translate] duration-300 hover:-translate-y-0.5"
+                                        className="group/cta relative inline-flex h-[46px] shrink-0 items-center rounded-full pr-[52px] pl-6 text-[13px] font-extrabold tracking-[0.12em] text-black uppercase transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(255,204,0,0.35)]"
                                         style={{ background: GOLD }}
                                     >
                                         Book a free call
+                                        <span
+                                            aria-hidden="true"
+                                            className="absolute top-1/2 right-[5px] grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black text-accent transition-transform duration-300 group-hover/cta:translate-x-[3px]"
+                                        >
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M5 12h14M13 6l6 6-6 6" />
+                                            </svg>
+                                        </span>
                                     </a>
                                 </div>
                             </div>
