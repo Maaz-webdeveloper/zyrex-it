@@ -61,8 +61,17 @@ function Card({ name, role, photo }: { name: string; role: string; photo: string
     return (
         <article
             data-reveal="card"
-            className="group relative mx-auto aspect-[41/58] w-full max-w-[410px] rounded-full p-0 transition-[padding,background-color] duration-500 hover:bg-white/[0.04] hover:p-[7%] [@media(hover:none)]:bg-white/[0.04] [@media(hover:none)]:p-[5%]"
+            className="group relative isolate mx-auto aspect-[41/58] w-full max-w-[410px] rounded-full p-0 transition-[padding,background-color] duration-500 hover:bg-white/[0.04] hover:p-[7%] [@media(hover:none)]:bg-white/[0.04] [@media(hover:none)]:p-[5%]"
         >
+            {/* Soft gold glow behind the card (on hover; always a little on touch devices) */}
+            <span
+                aria-hidden="true"
+                className="pointer-events-none absolute -inset-[6%] -z-10 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100 [@media(hover:none)]:opacity-60"
+                style={{
+                    background:
+                        "radial-gradient(closest-side, rgba(255, 204, 0, 0.35), rgba(255, 204, 0, 0.12) 60%, transparent)",
+                }}
+            />
             {/* Gold ring */}
             <span
                 aria-hidden="true"
@@ -234,7 +243,7 @@ export default function Team() {
                     <Arrow dir="prev" onClick={prev} />
                 </div>
 
-                <div ref={emblaRef} className="w-full cursor-grab overflow-hidden active:cursor-grabbing">
+                <div ref={emblaRef} className="-my-12 w-full cursor-grab overflow-hidden py-12 active:cursor-grabbing">
                     <div className="-ml-[clamp(16px,1.6vw,24px)] flex touch-pan-y">
                         {TEAM.map((member) => (
                             <div
