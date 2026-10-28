@@ -1,15 +1,14 @@
 "use client";
 
 // Team slider ("Meet Our Awesome People" style), ZYREX dark + gold theme.
-// Drag with the mouse or swipe on mobile, arrows on the sides, endless loop.
+// Drag with the mouse or swipe on mobile, endless loop, pagination dots below.
 // Center focus: the middle card is full size and bright, side cards are smaller and dimmer.
-// Hover (mouse devices): photo turns to color, gold ring appears, name + role pills rise.
-// Touch devices: names and colors are always visible (there is no hover).
-// Scroll entrance: label, heading, cards and arrows rise in when the section comes into view.
+// The center card is always "active": photo in color, gold ring, name + role pills (same look as hover).
+// Hover (mouse devices): a side card shows the same active look while the mouse is over it.
+// Scroll entrance: label, heading, cards and dots rise in when the section comes into view.
 // Auto-play: next card every few seconds; pauses on mouse hover, while dragging and when the section is off screen.
-// Side arrows (mouse devices) fade in on section hover; a thin gold line shows when the next card arrives.
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import type { EmblaCarouselType, EmblaEventType } from "embla-carousel";
@@ -21,7 +20,7 @@ gsap.registerPlugin(useGSAP);
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 
-const AUTOPLAY_DELAY = 4000; // ms between cards
+const AUTOPLAY_DELAY = 3000; // ms between cards
 
 // Center focus settings
 const FOCUS = {
@@ -32,50 +31,18 @@ const FOCUS = {
 
 const clamp01 = (n: number) => Math.min(Math.max(n, 0), 1);
 
-// reveal: on mouse devices the arrow stays hidden until the section is hovered (or the arrow is focused with the keyboard)
-function Arrow({ dir, onClick, reveal }: { dir: "prev" | "next"; onClick: () => void; reveal?: boolean }) {
-    const revealClass = reveal
-        ? `[@media(hover:hover)]:opacity-0 ${dir === "prev" ? "[@media(hover:hover)]:-translate-x-4" : "[@media(hover:hover)]:translate-x-4"} [@media(hover:hover)]:group-hover/team:translate-x-0 [@media(hover:hover)]:group-hover/team:opacity-100 [@media(hover:hover)]:group-focus-within/team:translate-x-0 [@media(hover:hover)]:group-focus-within/team:opacity-100`
-        : "";
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            aria-label={dir === "prev" ? "Previous team member" : "Next team member"}
-            className={`group/arrow relative grid size-[clamp(52px,4.6vw,74px)] shrink-0 place-items-center overflow-hidden rounded-full border border-white/10 bg-white/[0.05] text-white transition-[scale,border-color,opacity,translate] duration-300 hover:scale-105 hover:border-transparent ${revealClass}`}
-        >
-            {/* Gold fill on hover */}
-            <span
-                aria-hidden="true"
-                className="absolute inset-0 scale-0 rounded-full transition-transform duration-300 group-hover/arrow:scale-100"
-                style={{ background: GOLD }}
-            />
-            <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={`relative size-[38%] transition-colors duration-300 group-hover/arrow:text-black ${dir === "prev" ? "rotate-180" : ""}`}
-            >
-                <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
-        </button>
-    );
-}
-
-function Card({ name, role, photo }: { name: string; role: string; photo: string }) {
+// active = the card in the center of the slider; it looks the same as a hovered card
+function Card({ name, role, photo, active }: { name: string; role: string; photo: string; active: boolean }) {
     return (
         <article
             data-reveal="card"
-            className="group relative isolate mx-auto aspect-[41/58] w-full max-w-[410px] rounded-full p-0 transition-[padding,background-color] duration-500 hover:bg-white/[0.04] hover:p-[7%] [@media(hover:none)]:bg-white/[0.04] [@media(hover:none)]:p-[5%]"
+            data-active={active}
+            className="group relative isolate mx-auto aspect-[41/58] w-full max-w-[410px] rounded-full p-0 transition-[padding,background-color] duration-500 hover:bg-white/[0.04] hover:p-[7%] data-[active=true]:bg-white/[0.04] data-[active=true]:p-[7%]"
         >
-            {/* Soft gold glow behind the card (on hover; always a little on touch devices) */}
+            {/* Soft gold glow behind the card (on hover and on the center card) */}
             <span
                 aria-hidden="true"
-                className="pointer-events-none absolute -inset-[6%] -z-10 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100 [@media(hover:none)]:opacity-60"
+                className="pointer-events-none absolute -inset-[6%] -z-10 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100 group-data-[active=true]:opacity-100"
                 style={{
                     background:
                         "radial-gradient(closest-side, rgba(255, 204, 0, 0.35), rgba(255, 204, 0, 0.12) 60%, transparent)",
@@ -84,7 +51,7 @@ function Card({ name, role, photo }: { name: string; role: string; photo: string
             {/* Gold ring */}
             <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 scale-95 rounded-full border-[1.5px] border-accent opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100 group-hover:shadow-[0_0_35px_rgba(255,204,0,0.35),inset_0_0_25px_rgba(255,204,0,0.12)] [@media(hover:none)]:scale-100 [@media(hover:none)]:opacity-100 [@media(hover:none)]:shadow-[0_0_20px_rgba(255,204,0,0.2)]"
+                className="pointer-events-none absolute inset-0 scale-95 rounded-full border-[1.5px] border-accent opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100 group-hover:shadow-[0_0_35px_rgba(255,204,0,0.35),inset_0_0_25px_rgba(255,204,0,0.12)] group-data-[active=true]:scale-100 group-data-[active=true]:opacity-100 group-data-[active=true]:shadow-[0_0_35px_rgba(255,204,0,0.35),inset_0_0_25px_rgba(255,204,0,0.12)]"
             />
 
             <div className="relative h-full w-full overflow-hidden rounded-full bg-[#141414]">
@@ -94,7 +61,7 @@ function Card({ name, role, photo }: { name: string; role: string; photo: string
                     alt={name}
                     loading="lazy"
                     draggable={false}
-                    className="h-full w-full object-cover grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0 [@media(hover:none)]:grayscale-0"
+                    className="h-full w-full object-cover grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0 group-data-[active=true]:scale-105 group-data-[active=true]:grayscale-0"
                 />
 
                 {/* Soft dark fade at the bottom */}
@@ -105,7 +72,7 @@ function Card({ name, role, photo }: { name: string; role: string; photo: string
                 />
 
                 {/* Name + role pills */}
-                <div className="absolute inset-x-0 bottom-[14%] flex translate-y-3 flex-col items-center gap-1.5 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100">
+                <div className="absolute inset-x-0 bottom-[14%] flex translate-y-3 flex-col items-center gap-1.5 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-data-[active=true]:translate-y-0 group-data-[active=true]:opacity-100">
                     <span
                         className="rounded-full px-[clamp(18px,1.8vw,28px)] py-[clamp(8px,0.8vw,12px)] text-[clamp(14px,1.15vw,18px)] font-extrabold whitespace-nowrap text-black uppercase shadow-[0_10px_30px_rgba(255,204,0,0.3)]"
                         style={{ background: GOLD }}
@@ -130,21 +97,30 @@ function Card({ name, role, photo }: { name: string; role: string; photo: string
 
 export default function Team() {
     const rootRef = useRef<HTMLElement>(null);
-    const progressRef = useRef<HTMLSpanElement>(null);
+    const [selected, setSelected] = useState(0); // card in the center (the "active" one)
     // Started/stopped by the effect below (hover, drag, visibility), not by the plugin itself
     const plugins = useMemo(
         () => [Autoplay({ delay: AUTOPLAY_DELAY, playOnInit: false, stopOnInteraction: false })],
         []
     );
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" }, plugins);
-    // After an arrow click, restart the timer so the next card does not follow right away
-    const prev = useCallback(() => {
-        emblaApi?.scrollPrev();
-        emblaApi?.plugins().autoplay?.reset();
-    }, [emblaApi]);
-    const next = useCallback(() => {
-        emblaApi?.scrollNext();
-        emblaApi?.plugins().autoplay?.reset();
+    // Dot click: go to that card, then restart the timer so the next card does not follow right away
+    const goTo = useCallback(
+        (index: number) => {
+            emblaApi?.scrollTo(index);
+            emblaApi?.plugins().autoplay?.reset();
+        },
+        [emblaApi]
+    );
+
+    useEffect(() => {
+        if (!emblaApi) return;
+        const onSelect = () => setSelected(emblaApi.selectedScrollSnap());
+        onSelect();
+        emblaApi.on("select", onSelect).on("reInit", onSelect);
+        return () => {
+            emblaApi.off("select", onSelect).off("reInit", onSelect);
+        };
     }, [emblaApi]);
 
     /* ---------- Center focus (based on Embla's official "scale" example) ---------- */
@@ -220,21 +196,10 @@ export default function Team() {
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
         const viewport = emblaApi.rootNode();
-        const bar = progressRef.current;
         let visible = false;
         let hovering = false;
-        let raf = 0;
-
-        // Progress line follows the autoplay timer (holds its value while paused)
-        const tick = () => {
-            const left = autoplay.timeUntilNext();
-            if (left !== null && bar) bar.style.width = `${clamp01(1 - left / AUTOPLAY_DELAY) * 100}%`;
-            raf = requestAnimationFrame(tick);
-        };
 
         const sync = () => {
-            cancelAnimationFrame(raf);
-            if (visible) raf = requestAnimationFrame(tick);
             if (visible && !hovering) autoplay.play();
             else autoplay.stop();
         };
@@ -266,7 +231,6 @@ export default function Team() {
 
         return () => {
             io.disconnect();
-            cancelAnimationFrame(raf);
             viewport.removeEventListener("pointerenter", onEnter);
             viewport.removeEventListener("pointerleave", onLeave);
             emblaApi.off("pointerUp", sync);
@@ -293,7 +257,7 @@ export default function Team() {
                         .to(q('[data-reveal="label"]'), { autoAlpha: 1, y: 0 }, 0)
                         .to(q('[data-reveal="heading"]'), { autoAlpha: 1, y: 0, duration: 1.1 }, 0.1)
                         .to(q('[data-reveal="card"]'), { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08 }, 0.35)
-                        .to(q('[data-reveal="arrows"]'), { autoAlpha: 1, y: 0 }, 0.6);
+                        .to(q('[data-reveal="dots"]'), { autoAlpha: 1, y: 0 }, 0.6);
                 },
                 { threshold: 0.2 }
             );
@@ -343,53 +307,50 @@ export default function Team() {
                 </p>
             </div>
 
-            {/* Slider with side arrows (arrows go below on mobile) */}
-            <div className="mx-auto mt-[clamp(40px,5vw,64px)] flex max-w-[1500px] items-center gap-[clamp(12px,2vw,32px)] max-[767px]:flex-col">
-                <div data-reveal="arrows" className="max-[767px]:hidden">
-                    <Arrow dir="prev" onClick={prev} reveal />
-                </div>
-
+            {/* Slider */}
+            <div className="mx-auto mt-[clamp(40px,5vw,64px)] max-w-[1500px]">
                 <div ref={emblaRef} className="-my-12 w-full cursor-grab overflow-hidden py-12 select-none active:cursor-grabbing">
                     <div className="-ml-[clamp(16px,1.6vw,24px)] flex touch-pan-y">
-                        {TEAM.map((member) => (
+                        {TEAM.map((member, i) => (
                             <div
                                 key={member.name}
                                 className="min-w-0 shrink-0 grow-0 basis-full pl-[clamp(16px,1.6vw,24px)] min-[640px]:basis-1/2 min-[1024px]:basis-1/3"
                             >
                                 {/* Center-focus layer (scaled/dimmed while sliding) */}
                                 <div data-focus="" className="will-change-transform">
-                                    <Card {...member} />
+                                    <Card {...member} active={i === selected} />
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
-
-                <div data-reveal="arrows" className="max-[767px]:hidden">
-                    <Arrow dir="next" onClick={next} reveal />
-                </div>
-
-                {/* Mobile arrows */}
-                <div data-reveal="arrows" className="relative z-10 -mt-[72px] hidden w-full justify-between px-1 max-[767px]:flex">
-                    <Arrow dir="prev" onClick={prev} />
-                    <Arrow dir="next" onClick={next} />
-                </div>
             </div>
 
-            {/* Auto-play progress line: fills until the next card arrives */}
-            <div
-                data-reveal="arrows"
-                aria-hidden="true"
-                className="mx-auto mt-[clamp(20px,2.5vw,36px)] h-[3px] w-[clamp(160px,16vw,200px)] rounded-full bg-white/10 motion-reduce:hidden"
-            >
-                <span
-                    ref={progressRef}
-                    className="block h-full w-0 rounded-full"
-                    style={{
-                        background: "linear-gradient(90deg, #ffcc00, #ffdd65)",
-                        boxShadow: "0 0 10px rgba(255, 204, 0, 0.6)",
-                    }}
-                />
+            {/* Pagination dots: the center card's dot is a wide gold pill */}
+            <div data-reveal="dots" className="mx-auto mt-[clamp(16px,2vw,28px)] flex items-center justify-center">
+                {TEAM.map((member, i) => (
+                    <button
+                        key={member.name}
+                        type="button"
+                        onClick={() => goTo(i)}
+                        aria-label={`Go to ${member.name}`}
+                        aria-current={i === selected}
+                        className="group/dot flex h-6 cursor-pointer items-center px-[5px]"
+                    >
+                        <span
+                            className={`relative block h-2 rounded-full bg-white/20 transition-[width,background-color] duration-300 group-hover/dot:bg-white/40 ${i === selected ? "w-7" : "w-2"}`}
+                        >
+                            <span
+                                aria-hidden="true"
+                                className={`absolute inset-0 rounded-full transition-opacity duration-300 ${i === selected ? "opacity-100" : "opacity-0"}`}
+                                style={{
+                                    background: "linear-gradient(90deg, #ffcc00, #ffdd65)",
+                                    boxShadow: "0 0 10px rgba(255, 204, 0, 0.6)",
+                                }}
+                            />
+                        </span>
+                    </button>
+                ))}
             </div>
         </section>
     );
