@@ -12,7 +12,7 @@ import gsap from "gsap";
 // Ring position/size relative to the character's visible box. Tweak these to fit the head.
 const RING = {
     cx: 52, // center X, % of the character's width
-    cy: 34, // center Y, % of the character's height (eye level)
+    cy: 27, // center Y, % of the character's height (eye / forehead level)
     radius: 0.6, // ring radius = this × character width
     tiltX: -12, // tilt toward the viewer (deg)
     tiltZ: -6, // sideways tilt to follow the head (deg)
@@ -39,12 +39,14 @@ const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 const EDGE =
     "linear-gradient(140deg, rgba(255, 204, 0, 0.6), rgba(255, 255, 255, 0.1) 40%, rgba(255, 204, 0, 0.3))";
 const BG = "linear-gradient(160deg, rgba(32, 32, 32, 0.95), rgba(12, 12, 12, 0.92))";
+// Front copy: see-through dark glass so the face stays visible behind the cards
+const BG_GLASS = "linear-gradient(160deg, rgba(32, 32, 32, 0.55), rgba(12, 12, 12, 0.45))";
 
-function Face({ card }: { card: Card }) {
+function Face({ card, glass }: { card: Card; glass?: boolean }) {
     if (card.type === "image") {
         return (
             <div
-                className="h-[clamp(84px,7.5vw,150px)] w-[clamp(74px,6.5vw,130px)] rounded-[clamp(10px,1vw,16px)] p-px shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
+                className="h-[clamp(64px,5.6vw,112px)] w-[clamp(56px,4.9vw,98px)] rounded-[clamp(10px,1vw,16px)] p-px shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
                 style={{ background: EDGE }}
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -52,22 +54,22 @@ function Face({ card }: { card: Card }) {
                     src={card.src}
                     alt=""
                     draggable={false}
-                    className="size-full rounded-[clamp(9px,0.95vw,15px)] object-cover"
+                    className={`size-full rounded-[clamp(9px,0.95vw,15px)] object-cover ${glass ? "opacity-85" : ""}`}
                 />
             </div>
         );
     }
     return (
         <div
-            className="w-[clamp(118px,10vw,200px)] rounded-[clamp(10px,1vw,16px)] p-px shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
+            className="w-[clamp(100px,8.5vw,170px)] rounded-[clamp(10px,1vw,16px)] p-px shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
             style={{ background: EDGE }}
         >
             <div
-                className="flex items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(9px,0.95vw,15px)] p-[clamp(8px,0.8vw,14px)]"
-                style={{ background: BG }}
+                className={`flex items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(9px,0.95vw,15px)] p-[clamp(8px,0.8vw,14px)] ${glass ? "backdrop-blur-md" : ""}`}
+                style={{ background: glass ? BG_GLASS : BG }}
             >
                 <span
-                    className="grid size-[clamp(22px,2vw,36px)] shrink-0 place-items-center rounded-[clamp(6px,0.6vw,10px)] text-black"
+                    className="grid size-[clamp(20px,1.7vw,30px)] shrink-0 place-items-center rounded-[clamp(6px,0.6vw,10px)] text-black"
                     style={{ background: GOLD }}
                 >
                     <svg
@@ -86,10 +88,10 @@ function Face({ card }: { card: Card }) {
                     </svg>
                 </span>
                 <span className="min-w-0">
-                    <span className="block text-[clamp(11px,0.95vw,16px)] leading-tight font-extrabold text-white">
+                    <span className="block text-[clamp(10px,0.85vw,14px)] leading-tight font-extrabold text-white">
                         {card.title}
                     </span>
-                    <span className="mt-0.5 block truncate text-[clamp(9px,0.7vw,12px)] leading-tight text-white/60">
+                    <span className="mt-0.5 block truncate text-[clamp(8px,0.62vw,11px)] leading-tight text-white/60">
                         {card.text}
                     </span>
                 </span>
@@ -146,7 +148,7 @@ function Ring({ layer, sceneRef }: { layer: "back" | "front"; sceneRef?: React.R
                                     opacity: back ? 0.4 : 1,
                                 }}
                             >
-                                <Face card={card} />
+                                <Face card={card} glass={!back} />
                             </div>
                         </div>
                     ))}

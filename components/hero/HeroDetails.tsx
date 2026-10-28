@@ -1,7 +1,6 @@
 // Desktop-only details around the character (Mindly style, dark + gold theme):
-// two floating glass cards with a gold edge, and gold dotted lines that "draw" themselves
-// to the character during the entrance and then keep flowing.
-// Keep: data-anim="card" (entrance), data-depth (mouse parallax), data-draw (line draw), animate-zx-float.
+// two floating glass cards with a gold edge.
+// Keep: data-anim="card" (entrance), data-depth (mouse parallax), animate-zx-float.
 // Card tilt uses the CSS "rotate"/"scale" properties, so it never conflicts with GSAP transforms.
 
 const CARD_OUTER =
@@ -24,20 +23,6 @@ const ICON_BOX =
 const BIG = "text-[clamp(30px,2.6vw,44px)] leading-none font-extrabold text-white";
 const TITLE = "mt-2.5 text-[clamp(14px,1.05vw,17px)] leading-snug text-white/90";
 const SMALL = "mt-1.5 text-[clamp(11px,0.8vw,13px)] leading-snug text-white/60";
-
-// Each line starts at the bottom edge of a card and ends next to the character's face
-const LINES = [
-    { id: "zx-line-left", d: "M13 54 C 13 68, 28 63, 41 66", x1: 13, x2: 41 },
-    { id: "zx-line-right", d: "M87 57 C 87 72, 74 69, 61 70", x1: 87, x2: 61 },
-];
-
-// Glowing end points (same coordinates as the line ends, in % of the hero)
-const END_DOTS = [
-    { left: "41%", top: "66%" },
-    { left: "61%", top: "70%" },
-];
-
-
 
 function Avatars() {
     // Client avatars from the uploaded SVG (bigger, nothing cut off)
@@ -77,75 +62,6 @@ function Shine() {
 export default function HeroDetails() {
     return (
         <>
-            {/* Gold dotted lines (behind the character). A mask "draws" each line during the entrance. */}
-            <svg
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-[2] hidden h-full w-full min-[900px]:block"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-            >
-                <defs>
-                    {LINES.map((line) => (
-                        <linearGradient
-                            key={`${line.id}-grad`}
-                            id={`${line.id}-grad`}
-                            gradientUnits="userSpaceOnUse"
-                            x1={line.x1}
-                            x2={line.x2}
-                            y1="0"
-                            y2="0"
-                        >
-                            <stop offset="0" stopColor="#ffcc00" stopOpacity="0.75" />
-                            <stop offset="1" stopColor="#ffcc00" stopOpacity="0.2" />
-                        </linearGradient>
-                    ))}
-                    {LINES.map((line) => (
-                        <mask key={line.id} id={line.id} maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
-                            <path
-                                d={line.d}
-                                fill="none"
-                                stroke="#fff"
-                                strokeWidth={6}
-                                pathLength={1}
-                                strokeDasharray="1 1"
-                                strokeDashoffset={1}
-                                data-draw=""
-                            />
-                        </mask>
-                    ))}
-                </defs>
-
-                {LINES.map((line) => (
-                    <path
-                        key={line.id}
-                        d={line.d}
-                        mask={`url(#${line.id})`}
-                        fill="none"
-                        stroke="rgba(255, 204, 0, 0.6)"
-                        strokeWidth={1.6}
-                        strokeDasharray="2 7"
-                        strokeLinecap="round"
-                        vectorEffect="non-scaling-stroke"
-                    >
-                        {/* Dots keep flowing from the card toward the character */}
-                        <animate attributeName="stroke-dashoffset" from="0" to="-18" dur="1.2s" repeatCount="indefinite" />
-                    </path>
-                ))}
-            </svg>
-
-            {/* Glowing points where the lines meet the character */}
-            {END_DOTS.map((dot) => (
-                <span
-                    key={dot.left}
-                    aria-hidden="true"
-                    className="pointer-events-none absolute z-[4] hidden size-2 -translate-x-1/2 -translate-y-1/2 min-[900px]:block"
-                    style={{ left: dot.left, top: dot.top }}
-                >
-                    <span className="absolute inset-0 animate-ping rounded-full bg-accent/60" />
-                    <span className="absolute inset-0 rounded-full bg-accent shadow-[0_0_12px_rgba(255,204,0,0.9)]" />
-                </span>
-            ))}
-
             {/* Left card: rating (tilted left) */}
             <div
                 data-anim="card"

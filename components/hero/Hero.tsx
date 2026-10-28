@@ -128,12 +128,6 @@ export default function Hero() {
                     { autoAlpha: 0, y: 40, scale: 0.9 },
                     { autoAlpha: 1, y: 0, scale: 1, duration: 1.2, stagger: 0.15 },
                     1.05
-                )
-                .fromTo(
-                    "[data-draw]",
-                    { strokeDashoffset: 1 },
-                    { strokeDashoffset: 0, duration: 1.2, ease: "power2.inOut", stagger: 0.15 },
-                    1.35
                 );
 
             return () => cleanups.forEach((fn) => fn());
