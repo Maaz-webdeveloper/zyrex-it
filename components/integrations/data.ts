@@ -1,7 +1,7 @@
 // All text and lists for the Integrations section. Change words here, not in the components.
 
 export const COPY = {
-  heading: ["Plug In.", "Automate."], // white words
+  heading: ["Built.", "Automate."], // white words
   headingAccent: "Scale.", // gold word at the end
   text: "ZYREX IT connects your business with the tools you already use: CRMs, payments, calendars and marketing platforms, so every lead, booking and sale flows into one system. No complicated setup needed.",
   linkLabel: "Explore our integrations",

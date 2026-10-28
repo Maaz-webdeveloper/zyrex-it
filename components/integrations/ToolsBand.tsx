@@ -2,8 +2,8 @@
 
 // Middle band of the Integrations section (clean, like the reference):
 // thin gold lines forming a "pipe", endlessly moving tool tiles, and a plain white box with the logo.
-// Desktop: horizontal pipe, tiles move right -> left, bright on the right, dark after the box.
-// Mobile:  vertical pipe,  tiles move bottom -> top, bright at the bottom, dark after the box.
+// Desktop: horizontal pipe, tiles move left -> right, bright on the right, dark after the box.
+// Mobile:  vertical pipe,  tiles move top -> bottom, bright at the bottom, dark after the box.
 
 import { useRef, useState } from "react";
 import gsap from "gsap";
@@ -141,8 +141,8 @@ export default function ToolsBand() {
                     if (reduce) return;
 
                     const tween = desktop
-                        ? gsap.to('[data-track="x"]', { xPercent: -50, duration: SPEED, ease: "none", repeat: -1 })
-                        : gsap.to('[data-track="y"]', { yPercent: -50, duration: SPEED_MOBILE, ease: "none", repeat: -1 });
+                        ? gsap.fromTo('[data-track="x"]', { xPercent: -50 }, { xPercent: 0, duration: SPEED, ease: "none", repeat: -1 })
+                        : gsap.fromTo('[data-track="y"]', { yPercent: -50 }, { yPercent: 0, duration: SPEED_MOBILE, ease: "none", repeat: -1 });
 
                     const io = new IntersectionObserver(([entry]) => {
                         if (entry.isIntersecting) tween.play();
