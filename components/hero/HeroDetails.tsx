@@ -2,9 +2,10 @@
 // two floating glass cards with a gold edge, and gold dotted lines that "draw" themselves
 // to the character during the entrance and then keep flowing.
 // Keep: data-anim="card" (entrance), data-depth (mouse parallax), data-draw (line draw), animate-zx-float.
+// Card tilt uses the CSS "rotate"/"scale" properties, so it never conflicts with GSAP transforms.
 
 const CARD_OUTER =
-    "group absolute z-[7] hidden w-[clamp(170px,12vw,220px)] rounded-[20px] p-px shadow-[0_24px_60px_rgba(0,0,0,0.65)] transition-shadow duration-500 animate-zx-float hover:shadow-[0_24px_60px_rgba(0,0,0,0.65),0_0_40px_rgba(255,204,0,0.15)] min-[900px]:block";
+    "group absolute z-[7] hidden w-[clamp(200px,14vw,260px)] rounded-[20px] p-px shadow-[0_24px_60px_rgba(0,0,0,0.65)] transition-[box-shadow,rotate,scale] duration-500 animate-zx-float hover:rotate-0 hover:scale-[1.03] hover:shadow-[0_24px_60px_rgba(0,0,0,0.65),0_0_40px_rgba(255,204,0,0.15)] min-[900px]:block";
 
 // Gold-to-glass gradient used as a 1px border
 const CARD_BORDER = {
@@ -13,16 +14,16 @@ const CARD_BORDER = {
 };
 
 const CARD_INNER =
-    "relative overflow-hidden rounded-[19px] p-[clamp(14px,1.1vw,18px)] backdrop-blur-xl";
+    "relative overflow-hidden rounded-[19px] p-[clamp(16px,1.3vw,22px)] backdrop-blur-xl";
 const CARD_BG = {
     background: "linear-gradient(160deg, rgba(28, 28, 28, 0.92), rgba(12, 12, 12, 0.88))",
 };
 
 const ICON_BOX =
-    "mb-3 grid size-[34px] place-items-center rounded-[10px] border border-accent/25 bg-accent/10 text-accent";
-const BIG = "text-[clamp(22px,1.7vw,28px)] leading-none font-extrabold text-white";
-const TITLE = "mt-2 text-[clamp(13px,0.95vw,15px)] leading-snug text-white/90";
-const SMALL = "mt-1.5 text-[11px] leading-snug text-white/50";
+    "mb-3.5 grid size-[40px] place-items-center rounded-[11px] border border-accent/25 bg-accent/10 text-accent";
+const BIG = "text-[clamp(30px,2.6vw,44px)] leading-none font-extrabold text-white";
+const TITLE = "mt-2.5 text-[clamp(14px,1.05vw,17px)] leading-snug text-white/90";
+const SMALL = "mt-1.5 text-[clamp(11px,0.8vw,13px)] leading-snug text-white/60";
 
 // Each line starts at the bottom edge of a card and ends next to the character's face
 const LINES = [
@@ -35,6 +36,31 @@ const END_DOTS = [
     { left: "41%", top: "66%" },
     { left: "61%", top: "70%" },
 ];
+
+
+
+function Avatars() {
+    // Client avatars from the uploaded SVG (bigger, nothing cut off)
+    return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+            src="/hero/clients-avatars.svg"
+            alt="Happy clients"
+            draggable={false}
+            className="mb-3.5 h-[clamp(34px,2.6vw,44px)] w-auto max-w-full"
+        />
+    );
+}
+
+function Glow() {
+    // Soft gold light in the top corner of the card
+    return (
+        <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-accent/15 blur-3xl"
+        />
+    );
+}
 
 function Shine() {
     // Thin light along the top edge of the glass
@@ -119,23 +145,27 @@ export default function HeroDetails() {
                 </span>
             ))}
 
-            {/* Left card: rating */}
+            {/* Left card: rating (tilted left) */}
             <div
                 data-anim="card"
                 data-depth="22"
-                className={`${CARD_OUTER} top-[36%] left-[7%]`}
+                className={`${CARD_OUTER} top-[36%] left-[7%] -rotate-6`}
                 style={CARD_BORDER}
             >
                 <div className={CARD_INNER} style={CARD_BG}>
                     <Shine />
+                    <Glow />
                     <div className={ICON_BOX}>
-                        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-[16px]" fill="currentColor">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-[19px]" fill="currentColor">
                             <path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" />
                         </svg>
                     </div>
                     <div className="flex items-end gap-2">
                         <span className={BIG}>5.0</span>
-                        <span className="mb-[3px] text-[11px] tracking-[2px] text-accent" aria-label="5 star rating">
+                        <span
+                            className="mb-[5px] text-[clamp(12px,0.9vw,15px)] tracking-[2px] text-accent"
+                            aria-label="5 star rating"
+                        >
                             ★★★★★
                         </span>
                     </div>
@@ -144,17 +174,17 @@ export default function HeroDetails() {
                 </div>
             </div>
 
-            {/* Right card: clients */}
+            {/* Right card: clients (tilted right) */}
             <div
                 data-anim="card"
                 data-depth="22"
-                className={`${CARD_OUTER} top-[40%] right-[7%]`}
+                className={`${CARD_OUTER} top-[40%] right-[7%] rotate-6`}
                 style={{ ...CARD_BORDER, animationDelay: "-3s" }}
             >
                 <div className={CARD_INNER} style={CARD_BG}>
                     <Shine />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/hero/clients-avatars.svg" alt="Happy clients" className="mb-3 h-[34px] w-auto" draggable={false} style={{ clipPath: "inset(0 24% 0 0)" }} />
+                    <Glow />
+                    <Avatars />
                     <span className={BIG}>
                         50<span className="text-accent">+</span>
                     </span>
