@@ -82,6 +82,16 @@
 
   var html  = document.documentElement;
   var lenis = null;
+  
+  /* ---------- 0. Always start at the top on reload (preloader + hero entrance) ---------- */
+  if (!location.hash) {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    window.addEventListener('load', function () {
+      window.scrollTo(0, 0);
+      if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
+    });
+  }
 
   /* ---------- Helpers ---------- */
   function frames() { return document.querySelectorAll('iframe[data-zyrex-embed]'); }
