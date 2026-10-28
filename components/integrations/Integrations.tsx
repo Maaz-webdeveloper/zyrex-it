@@ -94,7 +94,9 @@ export default function Integrations() {
             {/* Bottom: 4 feature columns */}
             <div className="relative z-10 mx-auto grid max-w-[60rem] grid-cols-1 gap-8 min-[560px]:grid-cols-2 min-[1024px]:grid-cols-4">
                 {FEATURES.map((f) => (
-                    <div key={f.title} data-reveal="feature" className="border-l-2 border-accent pl-4">
+                    <div key={f.title} data-reveal="feature" className="relative border-l-2 border-white/10 pl-4">
+                        {/* Gold part of the line, only next to the title */}
+                        <span aria-hidden="true" className="absolute top-0 -left-[2px] h-[22px] w-[2px] bg-accent" />
                         <h3 className="text-[15px] leading-snug font-extrabold text-white">{f.title}</h3>
                         <p className="mt-3 text-[14px] leading-[1.6] text-white/75">{f.text}</p>
                     </div>

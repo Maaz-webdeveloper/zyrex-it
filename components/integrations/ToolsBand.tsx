@@ -22,8 +22,10 @@ const LINE_TOP =
 const LINE_BOTTOM =
     "M80 560 H170 C230 560, 250 540, 270 510 L340 400 C360 370, 380 360, 430 360 H1010 C1060 360, 1080 370, 1100 400 L1170 510 C1190 540, 1210 560, 1270 560 H1360";
 
-const FADE_X = "linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)";
-const FADE_Y = "linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent)";
+const FADE_X =
+  "linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.35) 10%, #000 28%, #000 72%, rgba(0, 0, 0, 0.35) 90%, transparent 100%)";
+const FADE_Y =
+  "linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.35) 10%, #000 28%, #000 72%, rgba(0, 0, 0, 0.35) 90%, transparent 100%)";
 const DIM = "grayscale(1) brightness(0.28)";
 const TILE_BG = "linear-gradient(145deg, #f2f2f2, #cfcfcf)";
 
@@ -207,6 +209,25 @@ export default function ToolsBand() {
                 </div>
             </div>
 
+            {/* Soft dark shadow on both sides of the center box (tiles fade into it) */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-1/2 z-[5] -translate-x-1/2 -translate-y-1/2 max-[767px]:hidden"
+                style={{
+                    width: "calc(clamp(104px, 10.5vw, 196px) + clamp(200px, 20vw, 380px))",
+                    height: "calc(var(--tile) * 2)",
+                    background: "radial-gradient(closest-side, rgba(10, 10, 10, 0.95) 60%, transparent)",
+                }}
+            />
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-1/2 z-[5] hidden -translate-x-1/2 -translate-y-1/2 max-[767px]:block"
+                style={{
+                    width: "calc(var(--tile) * 2)",
+                    height: "calc(clamp(104px, 10.5vw, 196px) + 160px)",
+                    background: "radial-gradient(closest-side, rgba(10, 10, 10, 0.95) 60%, transparent)",
+                }}
+            />
             {/* Center: dark glass box with a thin gold edge and the golden logo (shared) */}
             <div
                 className="absolute top-1/2 left-1/2 z-10 size-[clamp(104px,10.5vw,196px)] -translate-x-1/2 -translate-y-1/2 rounded-[14px] p-px shadow-[0_24px_70px_rgba(0,0,0,0.7),0_0_50px_rgba(255,204,0,0.12)]"
