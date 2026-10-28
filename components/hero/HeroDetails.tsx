@@ -48,6 +48,7 @@ function Avatars() {
             alt="Happy clients"
             draggable={false}
             className="mb-3.5 h-[clamp(34px,2.6vw,44px)] w-auto max-w-full"
+            style={{ clipPath: "inset(0 24% 0 0)" }}
         />
     );
 }
