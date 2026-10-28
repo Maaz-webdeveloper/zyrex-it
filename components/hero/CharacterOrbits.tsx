@@ -13,7 +13,7 @@ import gsap from "gsap";
 const RING = {
     cx: 52, // center X, % of the character's width
     cy: 27, // center Y, % of the character's height (eye / forehead level)
-    radius: 0.6, // ring radius = this × character width
+    radius: 0.75, // ring radius = this × character width
     tiltX: -12, // tilt toward the viewer (deg)
     tiltZ: -6, // sideways tilt to follow the head (deg)
     duration: 30, // seconds per full turn
@@ -28,11 +28,15 @@ const CARDS: Card[] = [
     { type: "info", title: "Strategy", text: "Plans that drive growth", icon: ["M12 3l8 4v6c0 4-3.5 7-8 8-4.5-1-8-4-8-8V7z"] },
     { type: "image", src: "https://picsum.photos/seed/zyrex-1/320/240?grayscale" },
     { type: "info", title: "Automation", text: "Work that runs itself", icon: ["M4 4h6v6H4z", "M14 14h6v6h-6z", "M10 7h4a3 3 0 0 1 3 3v4"] },
-    { type: "info", title: "Growth", text: "More leads, more sales", icon: ["M3 17l6-6 4 4 8-8", "M14 7h7v7"] },
+    { type: "info", title: "SEO", text: "Rank higher on Google", icon: ["M11 4a7 7 0 1 1 0 14a7 7 0 0 1 0-14z", "M21 21l-4.3-4.3"] },
     { type: "image", src: "https://picsum.photos/seed/zyrex-2/320/240?grayscale" },
+    { type: "info", title: "Growth", text: "More leads, more sales", icon: ["M3 17l6-6 4 4 8-8", "M14 7h7v7"] },
     { type: "info", title: "Design", text: "Brands people remember", icon: ["M12 19l7-7 3 3-7 7-3-3z", "M18 13l-1.5-7.5L2 2l3.5 14.5L13 18z"] },
-    { type: "info", title: "Ads", text: "Campaigns that convert", icon: ["M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z", "M16 9a4 4 0 0 1 0 6"] },
     { type: "image", src: "https://picsum.photos/seed/zyrex-3/320/240?grayscale" },
+    { type: "info", title: "Web", text: "Fast, modern websites", icon: ["M3 4h18v12H3z", "M8 20h8", "M12 16v4"] },
+    { type: "info", title: "Ads", text: "Campaigns that convert", icon: ["M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z", "M16 9a4 4 0 0 1 0 6"] },
+    { type: "image", src: "https://picsum.photos/seed/zyrex-4/320/240?grayscale" },
+    { type: "info", title: "Content", text: "Reels that convert", icon: ["M3 6h12v12H3z", "M15 10l6-3v10l-6-3"] },
 ];
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
@@ -46,7 +50,7 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     if (card.type === "image") {
         return (
             <div
-                className="h-[clamp(64px,5.6vw,112px)] w-[clamp(56px,4.9vw,98px)] rounded-[clamp(10px,1vw,16px)] p-px shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
+                className="h-[clamp(90px,8vw,160px)] w-[clamp(80px,7vw,140px)] rounded-[clamp(10px,1vw,16px)] p-px shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
                 style={{ background: EDGE }}
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -61,7 +65,7 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     }
     return (
         <div
-            className="w-[clamp(100px,8.5vw,170px)] rounded-[clamp(10px,1vw,16px)] p-px shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
+            className="w-[clamp(130px,11vw,220px)] rounded-[clamp(10px,1vw,16px)] p-px shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
             style={{ background: EDGE }}
         >
             <div
@@ -69,7 +73,7 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
                 style={{ background: glass ? BG_GLASS : BG }}
             >
                 <span
-                    className="grid size-[clamp(20px,1.7vw,30px)] shrink-0 place-items-center rounded-[clamp(6px,0.6vw,10px)] text-black"
+                    className="grid size-[clamp(22px,2vw,36px)] shrink-0 place-items-center rounded-[clamp(6px,0.6vw,10px)] text-black"
                     style={{ background: GOLD }}
                 >
                     <svg
@@ -88,10 +92,10 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
                     </svg>
                 </span>
                 <span className="min-w-0">
-                    <span className="block text-[clamp(10px,0.85vw,14px)] leading-tight font-extrabold text-white">
+                    <span className="block text-[clamp(11px,1vw,16px)] leading-tight font-extrabold text-white">
                         {card.title}
                     </span>
-                    <span className="mt-0.5 block truncate text-[clamp(8px,0.62vw,11px)] leading-tight text-white/60">
+                    <span className="mt-0.5 block truncate text-[clamp(9px,0.72vw,12px)] leading-tight text-white/60">
                         {card.text}
                     </span>
                 </span>
@@ -108,7 +112,7 @@ function Ring({ layer, sceneRef }: { layer: "back" | "front"; sceneRef?: React.R
             data-ring-scene=""
             aria-hidden="true"
             className={`pointer-events-none absolute top-0 left-0 size-0 ${back ? "z-[1]" : "z-[3]"}`}
-            style={{ perspective: "1100px" }}
+            style={{ perspective: "1500px" }}
         >
             {/* Static tilt */}
             <div style={{ transformStyle: "preserve-3d", transform: `rotateX(${RING.tiltX}deg) rotateZ(${RING.tiltZ}deg)` }}>
@@ -136,7 +140,7 @@ function Ring({ layer, sceneRef }: { layer: "back" | "front"; sceneRef?: React.R
                             style={{
                                 transformStyle: "preserve-3d",
                                 // two rows: even cards a bit higher, odd cards a bit lower
-                                transform: `translate(-50%, ${i % 2 ? "-10%" : "-90%"}) rotateY(${(i * 360) / CARDS.length}deg) translateZ(var(--zx-r, 220px))`,
+                                transform: `translate(-50%, ${i % 2 ? "-30%" : "-70%"}) rotateY(${(i * 360) / CARDS.length}deg) translateZ(var(--zx-r, 220px))`,
                             }}
                         >
                             <div
