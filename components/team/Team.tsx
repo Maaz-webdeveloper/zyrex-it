@@ -6,9 +6,12 @@
 // Hover (mouse devices): photo turns to color, gold ring appears, name + role pills rise.
 // Touch devices: names and colors are always visible (there is no hover).
 // Scroll entrance: label, heading, cards and arrows rise in when the section comes into view.
+// Auto-play: next card every few seconds; pauses on mouse hover, while dragging and when the section is off screen.
+// Side arrows (mouse devices) fade in on section hover; a thin gold line shows when the next card arrives.
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import type { EmblaCarouselType, EmblaEventType } from "embla-carousel";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -17,6 +20,8 @@ import { TEAM, TEAM_COPY } from "./data";
 gsap.registerPlugin(useGSAP);
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
+
+const AUTOPLAY_DELAY = 4000; // ms between cards
 
 // Center focus settings
 const FOCUS = {
@@ -27,13 +32,17 @@ const FOCUS = {
 
 const clamp01 = (n: number) => Math.min(Math.max(n, 0), 1);
 
-function Arrow({ dir, onClick }: { dir: "prev" | "next"; onClick: () => void }) {
+// reveal: on mouse devices the arrow stays hidden until the section is hovered (or the arrow is focused with the keyboard)
+function Arrow({ dir, onClick, reveal }: { dir: "prev" | "next"; onClick: () => void; reveal?: boolean }) {
+    const revealClass = reveal
+        ? `[@media(hover:hover)]:opacity-0 ${dir === "prev" ? "[@media(hover:hover)]:-translate-x-4" : "[@media(hover:hover)]:translate-x-4"} [@media(hover:hover)]:group-hover/team:translate-x-0 [@media(hover:hover)]:group-hover/team:opacity-100 [@media(hover:hover)]:group-focus-within/team:translate-x-0 [@media(hover:hover)]:group-focus-within/team:opacity-100`
+        : "";
     return (
         <button
             type="button"
             onClick={onClick}
             aria-label={dir === "prev" ? "Previous team member" : "Next team member"}
-            className="group/arrow relative grid size-[clamp(52px,4.6vw,74px)] shrink-0 place-items-center overflow-hidden rounded-full border border-white/10 bg-white/[0.05] text-white transition-[scale,border-color] duration-300 hover:scale-105 hover:border-transparent"
+            className={`group/arrow relative grid size-[clamp(52px,4.6vw,74px)] shrink-0 place-items-center overflow-hidden rounded-full border border-white/10 bg-white/[0.05] text-white transition-[scale,border-color,opacity,translate] duration-300 hover:scale-105 hover:border-transparent ${revealClass}`}
         >
             {/* Gold fill on hover */}
             <span
@@ -121,9 +130,22 @@ function Card({ name, role, photo }: { name: string; role: string; photo: string
 
 export default function Team() {
     const rootRef = useRef<HTMLElement>(null);
-    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
-    const prev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-    const next = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+    const progressRef = useRef<HTMLSpanElement>(null);
+    // Started/stopped by the effect below (hover, drag, visibility), not by the plugin itself
+    const plugins = useMemo(
+        () => [Autoplay({ delay: AUTOPLAY_DELAY, playOnInit: false, stopOnInteraction: false })],
+        []
+    );
+    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" }, plugins);
+    // After an arrow click, restart the timer so the next card does not follow right away
+    const prev = useCallback(() => {
+        emblaApi?.scrollPrev();
+        emblaApi?.plugins().autoplay?.reset();
+    }, [emblaApi]);
+    const next = useCallback(() => {
+        emblaApi?.scrollNext();
+        emblaApi?.plugins().autoplay?.reset();
+    }, [emblaApi]);
 
     /* ---------- Center focus (based on Embla's official "scale" example) ---------- */
     const factor = useRef(0);
@@ -190,6 +212,68 @@ export default function Team() {
         };
     }, [emblaApi, setNodes, setFactor, applyFocus]);
 
+    /* ---------- Auto-play: pause on mouse hover, while dragging and when the section is off screen ---------- */
+    useEffect(() => {
+        const root = rootRef.current;
+        const autoplay = emblaApi?.plugins().autoplay;
+        if (!root || !emblaApi || !autoplay) return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        const viewport = emblaApi.rootNode();
+        const bar = progressRef.current;
+        let visible = false;
+        let hovering = false;
+        let raf = 0;
+
+        // Progress line follows the autoplay timer (holds its value while paused)
+        const tick = () => {
+            const left = autoplay.timeUntilNext();
+            if (left !== null && bar) bar.style.width = `${clamp01(1 - left / AUTOPLAY_DELAY) * 100}%`;
+            raf = requestAnimationFrame(tick);
+        };
+
+        const sync = () => {
+            cancelAnimationFrame(raf);
+            if (visible) raf = requestAnimationFrame(tick);
+            if (visible && !hovering) autoplay.play();
+            else autoplay.stop();
+        };
+
+        const onEnter = (e: PointerEvent) => {
+            if (e.pointerType !== "mouse") return;
+            hovering = true;
+            sync();
+        };
+        const onLeave = (e: PointerEvent) => {
+            if (e.pointerType !== "mouse") return;
+            hovering = false;
+            // If the mouse leaves while dragging, wait for the release
+            if (!emblaApi.internalEngine().dragHandler.pointerDown()) sync();
+        };
+
+        viewport.addEventListener("pointerenter", onEnter);
+        viewport.addEventListener("pointerleave", onLeave);
+        emblaApi.on("pointerUp", sync); // the plugin restarts after a drag; keep it paused if the mouse is still over
+
+        const io = new IntersectionObserver(
+            ([entry]) => {
+                visible = entry.isIntersecting;
+                sync();
+            },
+            { threshold: 0.2 }
+        );
+        io.observe(root);
+
+        return () => {
+            io.disconnect();
+            cancelAnimationFrame(raf);
+            viewport.removeEventListener("pointerenter", onEnter);
+            viewport.removeEventListener("pointerleave", onLeave);
+            emblaApi.off("pointerUp", sync);
+            autoplay.stop();
+        };
+    }, [emblaApi]);
+
     /* ---------- Scroll entrance (works inside the GHL iframe too) ---------- */
     useGSAP(
         () => {
@@ -223,7 +307,7 @@ export default function Team() {
         <section
             ref={rootRef}
             id="team"
-            className="relative w-full overflow-hidden px-5 py-[clamp(64px,8vw,120px)] text-white"
+            className="group/team relative w-full overflow-hidden px-5 py-[clamp(64px,8vw,120px)] text-white"
             style={{ background: "radial-gradient(ellipse 60% 45% at 50% 55%, rgba(255, 204, 0, 0.05), transparent 70%), #0a0a0a" }}
         >
             {/* Heading */}
@@ -262,7 +346,7 @@ export default function Team() {
             {/* Slider with side arrows (arrows go below on mobile) */}
             <div className="mx-auto mt-[clamp(40px,5vw,64px)] flex max-w-[1500px] items-center gap-[clamp(12px,2vw,32px)] max-[767px]:flex-col">
                 <div data-reveal="arrows" className="max-[767px]:hidden">
-                    <Arrow dir="prev" onClick={prev} />
+                    <Arrow dir="prev" onClick={prev} reveal />
                 </div>
 
                 <div ref={emblaRef} className="-my-12 w-full cursor-grab overflow-hidden py-12 select-none active:cursor-grabbing">
@@ -282,7 +366,7 @@ export default function Team() {
                 </div>
 
                 <div data-reveal="arrows" className="max-[767px]:hidden">
-                    <Arrow dir="next" onClick={next} />
+                    <Arrow dir="next" onClick={next} reveal />
                 </div>
 
                 {/* Mobile arrows */}
@@ -290,6 +374,22 @@ export default function Team() {
                     <Arrow dir="prev" onClick={prev} />
                     <Arrow dir="next" onClick={next} />
                 </div>
+            </div>
+
+            {/* Auto-play progress line: fills until the next card arrives */}
+            <div
+                data-reveal="arrows"
+                aria-hidden="true"
+                className="mx-auto mt-[clamp(20px,2.5vw,36px)] h-[3px] w-[clamp(160px,16vw,200px)] rounded-full bg-white/10 motion-reduce:hidden"
+            >
+                <span
+                    ref={progressRef}
+                    className="block h-full w-0 rounded-full"
+                    style={{
+                        background: "linear-gradient(90deg, #ffcc00, #ffdd65)",
+                        boxShadow: "0 0 10px rgba(255, 204, 0, 0.6)",
+                    }}
+                />
             </div>
         </section>
     );
