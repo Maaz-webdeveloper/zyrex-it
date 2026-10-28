@@ -267,6 +267,10 @@
   var readyIds = {};        // embeds that said "I'm ready"
 
   root.classList.add('zx-lock');
+  
+  /* Always start at the top (browser would restore the old scroll position on refresh) */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
 
   /* ---------- Diagonal cut follows the screen shape ---------- */
   function setCut() {
@@ -347,6 +351,9 @@
   function leave() {
     if (left) return;
     left = true;
+        // Reset to the top right before revealing the page (wins any late scroll restore)
+    window.scrollTo(0, 0);
+    if (window.zyrexLenis) window.zyrexLenis.scrollTo(0, { immediate: true, force: true });
     setProgress(100);
     pre.classList.add('zx-leaving');
 
