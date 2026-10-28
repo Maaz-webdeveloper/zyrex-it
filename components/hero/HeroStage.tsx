@@ -3,7 +3,7 @@
 
 export default function HeroStage() {
   return (
-    <div className="relative mt-2 flex w-full flex-1 flex-col justify-end min-[900px]:mt-auto min-[900px]:h-[clamp(320px,calc(var(--zx-vh,100svh)*0.46),620px)] min-[900px]:flex-none">
+    <div className="relative mt-2 flex w-full flex-1 flex-col justify-end min-[900px]:mt-auto min-[900px]:h-[clamp(360px,calc(var(--zx-vh,100svh)*0.52),700px)] min-[900px]:flex-none">
       {/* Character */}
       <div className="relative z-[3] mx-auto min-h-[300px] flex-1 w-full [mask-image:linear-gradient(to_bottom,#000_80%,transparent_100%)] min-[900px]:absolute min-[900px]:inset-0 min-[900px]:h-auto min-[900px]:[mask-image:none] max-[899px]:max-h-[340px]" data-anim="character" data-depth="10">
         {/* eslint-disable-next-line @next/next/no-img-element */}

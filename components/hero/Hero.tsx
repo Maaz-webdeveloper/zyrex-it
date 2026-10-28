@@ -17,7 +17,7 @@ import { signalReady } from "@/lib/embed";
 gsap.registerPlugin(useGSAP);
 
 // Images the preloader should wait for
-const HERO_IMAGES = ["/hero/character.svg", "/hero/golden-z.png", "/hero/clients-avatars.svg"];
+const HERO_IMAGES = ["/hero/character.svg", "/hero/giant-text.svg", "/hero/clients-avatars.svg"];
 
 const MAGNET = 0.3; // how strongly buttons follow the mouse (0 = off)
 
