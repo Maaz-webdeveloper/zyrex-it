@@ -92,18 +92,18 @@ function Card({ name, role, photo }: { name: string; role: string; photo: string
                 <span
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-0"
-                    style={{ background: "linear-gradient(to bottom, transparent 55%, rgba(0, 0, 0, 0.55))" }}
+                    style={{ background: "linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.8))" }}
                 />
 
                 {/* Name + role pills */}
-                <div className="absolute top-[56%] left-1/2 flex -translate-x-1/2 translate-y-3 flex-col items-center gap-1.5 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100">
+                <div className="absolute bottom-[9%] left-1/2 flex -translate-x-1/2 translate-y-3 flex-col items-center gap-1.5 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100">
                     <span
                         className="rounded-full px-[clamp(18px,1.8vw,28px)] py-[clamp(8px,0.8vw,12px)] text-[clamp(14px,1.15vw,18px)] font-extrabold whitespace-nowrap text-black uppercase shadow-[0_10px_30px_rgba(255,204,0,0.3)]"
                         style={{ background: GOLD }}
                     >
                         {name}
                     </span>
-                    <span className="rounded-full border border-white/10 bg-black/70 px-[clamp(14px,1.4vw,22px)] py-[clamp(6px,0.6vw,9px)] text-[clamp(10px,0.8vw,12px)] tracking-[0.12em] whitespace-nowrap text-white/85 uppercase backdrop-blur-md">
+                    <span className="inline-flex items-center rounded-full bg-[url('/hero/btn-outline.svg')] bg-size-[100%_100%] bg-center bg-no-repeat px-[clamp(16px,1.6vw,24px)] py-[clamp(7px,0.7vw,10px)] text-[clamp(10px,0.8vw,12px)] font-extrabold tracking-[0.14em] whitespace-nowrap text-[#f9f3f3] uppercase">
                         {role}
                     </span>
                 </div>
