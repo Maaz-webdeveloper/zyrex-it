@@ -33,10 +33,8 @@ const CARDS: Card[] = [
     { type: "info", title: "Growth", text: "More leads, more sales", icon: ["M3 17l6-6 4 4 8-8", "M14 7h7v7"] },
     { type: "info", title: "Design", text: "Brands people remember", icon: ["M12 19l7-7 3 3-7 7-3-3z", "M18 13l-1.5-7.5L2 2l3.5 14.5L13 18z"] },
     { type: "image", src: "https://picsum.photos/seed/zyrex-3/320/240?grayscale" },
-    { type: "info", title: "Web", text: "Fast, modern websites", icon: ["M3 4h18v12H3z", "M8 20h8", "M12 16v4"] },
     { type: "info", title: "Ads", text: "Campaigns that convert", icon: ["M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z", "M16 9a4 4 0 0 1 0 6"] },
-    { type: "image", src: "https://picsum.photos/seed/zyrex-4/320/240?grayscale" },
-    { type: "info", title: "Content", text: "Reels that convert", icon: ["M3 6h12v12H3z", "M15 10l6-3v10l-6-3"] },
+    { type: "info", title: "Web", text: "Fast, modern websites", icon: ["M3 4h18v12H3z", "M8 20h8", "M12 16v4"] },
 ];
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
@@ -47,11 +45,13 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     if (card.type === "image") {
         return (
             <div
-                className={`h-[clamp(90px,8vw,160px)] w-[clamp(80px,7vw,140px)] overflow-hidden rounded-[clamp(10px,1vw,16px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-xl" : ""}`}
+                className={`h-[clamp(40px,3.6vw,64px)] w-[clamp(90px,7.5vw,150px)] overflow-hidden rounded-[clamp(10px,1vw,16px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-xl" : ""}`}
                 style={{ border: "1px solid rgba(255, 255, 255, 0.2)" }}
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={card.src} alt="" draggable={false} className="size-full object-cover opacity-90" />
+                <img src={card.src} alt="" draggable={false} className="size-full object-cover opacity-90"
+                    style={{ filter: "grayscale(1) brightness(0.75) contrast(1.05)" }}
+                />
             </div>
         );
     }
@@ -133,7 +133,7 @@ function Ring({ layer, sceneRef }: { layer: "back" | "front"; sceneRef?: React.R
                             style={{
                                 transformStyle: "preserve-3d",
                                 // two rows: even cards a bit higher, odd cards a bit lower
-                                transform: `translate(-50%, ${i % 2 ? "-30%" : "-70%"}) rotateY(${(i * 360) / CARDS.length}deg) translateZ(var(--zx-r, 220px))`,
+                                transform: `translate(-50%, ${i % 2 ? "0%" : "-100%"}) rotateY(${(i * 360) / CARDS.length}deg) translateZ(var(--zx-r, 220px))`,
                             }}
                         >
                             <div
@@ -142,7 +142,7 @@ function Ring({ layer, sceneRef }: { layer: "back" | "front"; sceneRef?: React.R
                                     WebkitBackfaceVisibility: "hidden",
                                     // back copy: show the card only while it is on the far side
                                     transform: back ? "rotateY(180deg)" : undefined,
-                                    opacity: back ? 0.4 : 1,
+                                    opacity: back ? 0.4 : 0.85, // front: slightly see-through so the face stays visible
                                 }}
                             >
                                 <Face card={card} glass={!back} />
