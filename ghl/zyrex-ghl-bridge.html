@@ -35,6 +35,9 @@
   /* Lenis basics (own version: no rule that blocks clicks on iframes) */
   html.lenis, html.lenis body { height: auto; }
   html.lenis.lenis-stopped { overflow: clip; }
+    /* Text selection in the brand gold (GHL sections too) */
+  ::selection { background: #ffcc00; color: #000; -webkit-text-fill-color: #000; text-shadow: none; }
+  img, svg, button { -webkit-user-select: none; user-select: none; }
   /* Hide the page scrollbar (scrolling still works, smooth via Lenis) */
   html, body { scrollbar-width: none; -ms-overflow-style: none; }
   html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; height: 0; }

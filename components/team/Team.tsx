@@ -258,7 +258,7 @@ export default function Team() {
                     <Arrow dir="prev" onClick={prev} />
                 </div>
 
-                <div ref={emblaRef} className="-my-12 w-full cursor-grab overflow-hidden py-12 active:cursor-grabbing">
+                <div ref={emblaRef} className="-my-12 w-full cursor-grab overflow-hidden py-12 select-none active:cursor-grabbing">
                     <div className="-ml-[clamp(16px,1.6vw,24px)] flex touch-pan-y">
                         {TEAM.map((member) => (
                             <div

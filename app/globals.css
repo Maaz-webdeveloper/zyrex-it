@@ -47,3 +47,22 @@ body {
   color: #ffffff;
   font-family: var(--font-garet), Arial, sans-serif;
 }
+
+/* Text selection in the brand gold (all sections) */
+::selection {
+  background: #ffcc00;
+  color: #000;
+  -webkit-text-fill-color: #000;
+  text-shadow: none;
+}
+
+/* Things that should never be selected: images, icons, buttons, links, navigation */
+img,
+svg,
+button,
+a,
+nav,
+[role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
