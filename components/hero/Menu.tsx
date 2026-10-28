@@ -245,7 +245,7 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                         aria-label="Our services"
                         onMouseEnter={showMega}
                         onMouseLeave={hideMegaSoon}
-                        className={`absolute left-[calc(100%+clamp(32px,4vw,64px))] hidden w-[clamp(420px,44vw,720px)] transition-[clip-path,opacity,translate] duration-700 ${EASE} min-[1024px]:block ${megaVisible ? "pointer-events-auto translate-x-0 opacity-100" : "pointer-events-none -translate-x-4 opacity-0"
+                        className={`absolute left-[calc(100%+clamp(32px,4vw,64px))] hidden w-[clamp(440px,50vw,860px)] transition-[clip-path,opacity,translate] duration-700 ${EASE} min-[1024px]:block ${megaVisible ? "pointer-events-auto translate-x-0 opacity-100" : "pointer-events-none -translate-x-4 opacity-0"
                             }`}
                         style={{ clipPath: megaVisible ? "inset(0 0 0 0 round 24px)" : "inset(0 100% 0 0 round 24px)" }}
                     >
