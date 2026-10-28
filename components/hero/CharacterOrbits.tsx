@@ -12,7 +12,7 @@ import gsap from "gsap";
 // Ring position/size relative to the character's visible box. Tweak these to fit the head.
 const RING = {
     cx: 52, // center X, % of the character's width
-    cy: 27, // center Y, % of the character's height (eye / forehead level)
+    cy: 24, // center Y, % of the character's height (forehead level)
     radius: 0.75, // ring radius = this × character width
     tiltX: -12, // tilt toward the viewer (deg)
     tiltZ: -6, // sideways tilt to follow the head (deg)
@@ -40,66 +40,59 @@ const CARDS: Card[] = [
 ];
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
-const EDGE =
-    "linear-gradient(140deg, rgba(255, 204, 0, 0.6), rgba(255, 255, 255, 0.1) 40%, rgba(255, 204, 0, 0.3))";
-const BG = "linear-gradient(160deg, rgba(32, 32, 32, 0.95), rgba(12, 12, 12, 0.92))";
-// Front copy: see-through dark glass so the face stays visible behind the cards
-const BG_GLASS = "linear-gradient(160deg, rgba(32, 32, 32, 0.55), rgba(12, 12, 12, 0.45))";
+// Clean frosted glass (no gold tint); only the front copy gets backdrop blur
+const GLASS_BG = "linear-gradient(160deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05))";
 
 function Face({ card, glass }: { card: Card; glass?: boolean }) {
     if (card.type === "image") {
         return (
             <div
-                className="h-[clamp(90px,8vw,160px)] w-[clamp(80px,7vw,140px)] rounded-[clamp(10px,1vw,16px)] p-px shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
-                style={{ background: EDGE }}
+                className={`h-[clamp(90px,8vw,160px)] w-[clamp(80px,7vw,140px)] overflow-hidden rounded-[clamp(10px,1vw,16px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-xl" : ""}`}
+                style={{ border: "1px solid rgba(255, 255, 255, 0.2)" }}
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src={card.src}
-                    alt=""
-                    draggable={false}
-                    className={`size-full rounded-[clamp(9px,0.95vw,15px)] object-cover ${glass ? "opacity-85" : ""}`}
-                />
+                <img src={card.src} alt="" draggable={false} className="size-full object-cover opacity-90" />
             </div>
         );
     }
     return (
         <div
-            className="w-[clamp(130px,11vw,220px)] rounded-[clamp(10px,1vw,16px)] p-px shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
-            style={{ background: EDGE }}
+            className={`relative flex w-[clamp(130px,11vw,220px)] items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(10px,1vw,16px)] p-[clamp(8px,0.8vw,14px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-xl" : ""}`}
+            style={{ background: GLASS_BG, border: "1px solid rgba(255, 255, 255, 0.18)" }}
         >
-            <div
-                className={`flex items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(9px,0.95vw,15px)] p-[clamp(8px,0.8vw,14px)] ${glass ? "backdrop-blur-md" : ""}`}
-                style={{ background: glass ? BG_GLASS : BG }}
+            {/* Thin white highlight along the top edge */}
+            <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-3 top-0 h-px"
+                style={{ background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)" }}
+            />
+            <span
+                className="grid size-[clamp(22px,2vw,36px)] shrink-0 place-items-center rounded-[clamp(6px,0.6vw,10px)] text-black"
+                style={{ background: GOLD }}
             >
-                <span
-                    className="grid size-[clamp(22px,2vw,36px)] shrink-0 place-items-center rounded-[clamp(6px,0.6vw,10px)] text-black"
-                    style={{ background: GOLD }}
+                <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="size-[55%]"
                 >
-                    <svg
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="size-[55%]"
-                    >
-                        {card.icon.map((d) => (
-                            <path key={d} d={d} />
-                        ))}
-                    </svg>
+                    {card.icon.map((d) => (
+                        <path key={d} d={d} />
+                    ))}
+                </svg>
+            </span>
+            <span className="min-w-0">
+                <span className="block text-[clamp(11px,1vw,16px)] leading-tight font-extrabold text-white">
+                    {card.title}
                 </span>
-                <span className="min-w-0">
-                    <span className="block text-[clamp(11px,1vw,16px)] leading-tight font-extrabold text-white">
-                        {card.title}
-                    </span>
-                    <span className="mt-0.5 block truncate text-[clamp(9px,0.72vw,12px)] leading-tight text-white/60">
-                        {card.text}
-                    </span>
+                <span className="mt-0.5 block truncate text-[clamp(9px,0.72vw,12px)] leading-tight text-white/60">
+                    {card.text}
                 </span>
-            </div>
+            </span>
         </div>
     );
 }
@@ -112,7 +105,7 @@ function Ring({ layer, sceneRef }: { layer: "back" | "front"; sceneRef?: React.R
             data-ring-scene=""
             aria-hidden="true"
             className={`pointer-events-none absolute top-0 left-0 size-0 ${back ? "z-[1]" : "z-[3]"}`}
-            style={{ perspective: "1500px" }}
+            style={{ perspective: "2400px" }}
         >
             {/* Static tilt */}
             <div style={{ transformStyle: "preserve-3d", transform: `rotateX(${RING.tiltX}deg) rotateZ(${RING.tiltZ}deg)` }}>
