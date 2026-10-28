@@ -96,14 +96,21 @@ function Card({ name, role, photo }: { name: string; role: string; photo: string
                 />
 
                 {/* Name + role pills */}
-                <div className="absolute bottom-[9%] left-1/2 flex -translate-x-1/2 translate-y-3 flex-col items-center gap-1.5 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100">
+                <div className="absolute inset-x-0 bottom-[14%] flex translate-y-3 flex-col items-center gap-1.5 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100">
                     <span
                         className="rounded-full px-[clamp(18px,1.8vw,28px)] py-[clamp(8px,0.8vw,12px)] text-[clamp(14px,1.15vw,18px)] font-extrabold whitespace-nowrap text-black uppercase shadow-[0_10px_30px_rgba(255,204,0,0.3)]"
                         style={{ background: GOLD }}
                     >
                         {name}
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-[url('/hero/btn-outline.svg')] bg-size-[100%_100%] bg-center bg-no-repeat px-[clamp(16px,1.6vw,24px)] py-[clamp(7px,0.7vw,10px)] text-[clamp(10px,0.8vw,12px)] font-extrabold tracking-[0.14em] whitespace-nowrap text-[#f9f3f3] uppercase">
+                    <span
+                        className="inline-flex h-[36px] w-fit items-center justify-center rounded-full px-6 text-[clamp(10px,0.8vw,12px)] font-extrabold tracking-[0.14em] whitespace-nowrap text-[#f9f3f3] uppercase"
+                        style={{
+                            border: "1px solid transparent",
+                            background:
+                                "linear-gradient(#0d0d0d, #0d0d0d) padding-box, linear-gradient(135deg, #ffdd65, rgba(255, 204, 0, 0.25), #ffcc00) border-box",
+                        }}
+                    >
                         {role}
                     </span>
                 </div>
