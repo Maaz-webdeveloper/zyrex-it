@@ -214,13 +214,13 @@ export default function Team() {
             <div className="mx-auto flex max-w-[52rem] flex-col items-center text-center">
                 <span
                     data-reveal="label"
-                    className="rounded-full border border-accent/70 px-5 py-2 text-[11px] font-extrabold tracking-[0.18em] text-white uppercase"
+                    className="rounded-full border border-accent/70 px-5 py-2 text-[11px] font-normal tracking-[0.18em] text-white uppercase"
                 >
                     {TEAM_COPY.label}
                 </span>
                 <h2
                     data-reveal="heading"
-                    className="mt-6 text-[clamp(2.2rem,4.4vw,4rem)] leading-[1.08] font-extrabold tracking-[-0.01em]"
+                    className="mt-6 text-[clamp(2.2rem,4.4vw,4rem)] leading-[1.08] font-normal tracking-[-0.02em]"
                 >
                     {TEAM_COPY.heading}
                     <br />
