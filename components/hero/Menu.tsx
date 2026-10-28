@@ -5,13 +5,13 @@ import { lockParentScroll, scrollParentTo } from "@/lib/embed";
 
 const MENU_ITEMS = [
     { label: "Home", href: "#top" },
-    { label: "Services", href: "#services" },
-    { label: "Work", href: "#work" },
-    { label: "Portfolio", href: "#portfolio" },
-    { label: "Blog", href: "#blog" },
-    { label: "Career", href: "#career" },
     { label: "About", href: "#about" },
+    { label: "Services", href: "#services" },
+    { label: "Portfolio", href: "#portfolio" },
     { label: "Team", href: "#team" },
+    { label: "Appointment", href: "#appointment" },
+    { label: "Career", href: "#career" },
+    { label: "Blog", href: "#blog" },
     { label: "Contact", href: "#contact" },
 ];
 
@@ -80,7 +80,7 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                         <a
                             href={item.href}
                             onClick={go(item.href)}
-                            className="flex items-baseline gap-[18px] py-[0.05em] text-[clamp(1.5rem,4.5vw,3.2rem)] leading-[1.1] font-extrabold text-white/85 uppercase transition-[color,padding] duration-300 hover:pl-3.5 hover:text-accent"
+                            className="flex items-baseline gap-[18px] py-[0.08em] text-[clamp(2rem,min(5.6vw,7.2vh),4.6rem)] leading-[1.08] font-extrabold text-white/85 uppercase transition-[color,padding] duration-300 hover:pl-3.5 hover:text-accent"
                         >
                             <small className="text-[0.8rem] tracking-[0.2em] text-accent">
                                 {String(i + 1).padStart(2, "0")}
