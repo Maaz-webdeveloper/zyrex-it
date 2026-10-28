@@ -272,7 +272,7 @@ export default function ToolsBand() {
                         src={LOGO}
                         alt="ZYREX IT"
                         draggable={false}
-                        className="relative size-[58%] object-contain select-none"
+                        className="relative size-[70%] object-contain select-none"
                         style={{ filter: "drop-shadow(0 6px 18px rgba(255, 204, 0, 0.35))" }}
                     />
                 </div>
