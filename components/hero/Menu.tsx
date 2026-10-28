@@ -39,7 +39,7 @@ const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 const PANEL_EDGE =
     "linear-gradient(140deg, rgba(255, 204, 0, 0.6), rgba(255, 255, 255, 0.08) 35%, rgba(255, 255, 255, 0.04) 70%, rgba(255, 204, 0, 0.3))";
 const PANEL_BG = "linear-gradient(160deg, rgba(26, 24, 18, 0.94), rgba(10, 10, 10, 0.92))";
-const PANEL_OFFSET_Y = 48; // panel starts this many px above the "Services" row
+const PANEL_OFFSET_Y = 48; // desktop panel starts this many px above the "Services" row
 
 type MenuProps = {
     open: boolean;
@@ -47,7 +47,7 @@ type MenuProps = {
     onClose: () => void;
 };
 
-function ServiceIcon({ paths }: { paths: string[] }) {
+function ServiceIcon({ paths, size = 18 }: { paths: string[]; size?: number }) {
     return (
         <svg
             aria-hidden="true"
@@ -57,7 +57,7 @@ function ServiceIcon({ paths }: { paths: string[] }) {
             strokeWidth={1.8}
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="size-[18px]"
+            style={{ width: size, height: size }}
         >
             {paths.map((d) => (
                 <path key={d} d={d} />
@@ -68,10 +68,15 @@ function ServiceIcon({ paths }: { paths: string[] }) {
 
 export default function Menu({ open, origin, onClose }: MenuProps) {
     const [mega, setMega] = useState(false); // desktop: services panel
-    const [mobileServices, setMobileServices] = useState(false); // mobile/tablet: services accordion
+    const [mobileServices, setMobileServices] = useState(false); // touch/small screens: services list
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const servicesRef = useRef<HTMLLIElement>(null);
     const panelRef = useRef<HTMLElement>(null);
+    const canHover = useRef(false); // true only on devices with a real mouse
+
+    useEffect(() => {
+        canHover.current = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    }, []);
 
     // Menu open -> the GHL page cannot scroll
     useEffect(() => {
@@ -89,7 +94,7 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
         return () => window.removeEventListener("keydown", onKey);
     }, [open, onClose]);
 
-    // Keep the panel lined up with the "Services" row
+    // Keep the desktop panel lined up with the "Services" row
     useEffect(() => {
         const place = () => {
             const row = servicesRef.current;
@@ -101,13 +106,15 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
         return () => window.removeEventListener("resize", place);
     }, [open]);
 
-    // Desktop mega menu: opens on Services, stays open until another link is hovered
+    // Desktop (mouse only): opens on Services, stays until another link is hovered
     // or the mouse leaves the panel (short delay)
     const showMega = () => {
+        if (!canHover.current) return;
         if (closeTimer.current) clearTimeout(closeTimer.current);
         setMega(true);
     };
     const hideMega = () => {
+        if (!canHover.current) return;
         if (closeTimer.current) clearTimeout(closeTimer.current);
         setMega(false);
     };
@@ -115,8 +122,10 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
         if (closeTimer.current) clearTimeout(closeTimer.current);
         closeTimer.current = setTimeout(() => setMega(false), 500);
     };
+
     const megaVisible = open && mega;
     const servicesListVisible = open && mobileServices;
+    const spotlight = megaVisible || servicesListVisible; // dim the other links
 
     // Link click: close menu, then smooth-scroll the GHL page to that section
     const go = (href: string) => (e: React.MouseEvent) => {
@@ -128,6 +137,15 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
         setTimeout(() => scrollParentTo(href), 150);
     };
 
+    // "Services": on mouse devices it goes to the section (the panel opens on hover);
+    // on touch devices a tap opens/closes the services list instead
+    const onServicesClick = (e: React.MouseEvent) => {
+        if (canHover.current) return go("#services")(e);
+        e.preventDefault();
+        if (window.innerWidth >= 1024) setMega((v) => !v);
+        else setMobileServices((v) => !v);
+    };
+
     const at = origin ? `${origin.x}px ${origin.y}px` : "calc(100% - 60px) 48px";
 
     return (
@@ -136,7 +154,7 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
             aria-label="Main menu"
             inert={!open}
             data-native-scroll=""
-            className={`fixed inset-0 z-40 flex flex-col overflow-y-auto overflow-x-hidden px-[clamp(24px,8vw,120px)] pt-[100px] pb-10 transition-[clip-path,visibility] duration-[900ms] ${EASE} ${open ? "visible" : "invisible delay-[0ms,900ms]"
+            className={`fixed inset-0 z-40 flex flex-col overflow-x-hidden overflow-y-auto px-[clamp(24px,8vw,120px)] pt-[100px] pb-10 transition-[clip-path,visibility] duration-[900ms] ${EASE} ${open ? "visible" : "invisible delay-[0ms,900ms]"
                 }`}
             style={{
                 clipPath: open ? `circle(150% at ${at})` : `circle(0px at ${at})`,
@@ -145,12 +163,13 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
         >
             {/* my-auto keeps everything vertically centered, but lets it scroll when taller than the screen */}
             <div className="my-auto w-full">
-                {/* Links + attached panel (panel is positioned right after the longest link) */}
-                <div className="relative w-fit">
+                {/* Links + attached desktop panel (panel sits right after the longest link) */}
+                <div className="relative w-fit max-w-full">
                     <ul>
                         {MENU_ITEMS.map((item, i) => {
                             const isServices = item.label === "Services";
-                            const dimmed = megaVisible && !isServices;
+                            const active = isServices && spotlight;
+                            const dimmed = spotlight && !isServices;
                             return (
                                 <li
                                     key={item.label}
@@ -160,21 +179,23 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                                     style={{ transitionDelay: open ? `${0.3 + i * 0.07}s` : "0s" }}
                                     onMouseEnter={isServices ? showMega : hideMega}
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <a
-                                            href={item.href}
-                                            onClick={go(item.href)}
-                                            onFocus={isServices ? showMega : undefined}
-                                            className={`flex items-baseline gap-[18px] py-[0.08em] text-[clamp(1.8rem,min(5vw,6.2vh),4rem)] leading-[1.08] font-extrabold uppercase transition-[color,padding,opacity,filter] duration-500 hover:pl-3.5 hover:text-accent ${isServices && megaVisible ? "pl-3.5 text-accent" : "text-white/85"
-                                                } ${dimmed ? "opacity-25 blur-[1px]" : "opacity-100 blur-0"}`}
-                                            style={isServices && megaVisible ? { textShadow: "0 0 30px rgba(255, 204, 0, 0.35)" } : undefined}
-                                        >
-                                            <small className="text-[0.8rem] tracking-[0.2em] text-accent">
-                                                {String(i + 1).padStart(2, "0")}
-                                            </small>
-                                            {item.label}
-                                            {/* Desktop: small arrow pointing to the panel */}
-                                            {isServices && (
+                                    <a
+                                        href={item.href}
+                                        onClick={isServices ? onServicesClick : go(item.href)}
+                                        onFocus={isServices ? showMega : undefined}
+                                        aria-expanded={isServices ? spotlight : undefined}
+                                        className={`flex items-baseline gap-[18px] py-[0.08em] text-[clamp(1.8rem,min(5vw,6.2vh),4rem)] leading-[1.08] font-extrabold uppercase transition-[color,padding,opacity,filter] duration-500 [@media(hover:hover)]:hover:pl-3.5 [@media(hover:hover)]:hover:text-accent ${active ? "text-accent min-[1024px]:pl-3.5" : "text-white/85"
+                                            } ${dimmed ? "opacity-25 blur-[1px]" : "opacity-100 blur-0"}`}
+                                        style={active ? { textShadow: "0 0 30px rgba(255, 204, 0, 0.35)" } : undefined}
+                                    >
+                                        <small className="text-[0.8rem] tracking-[0.2em] text-accent">
+                                            {String(i + 1).padStart(2, "0")}
+                                        </small>
+                                        {item.label}
+
+                                        {isServices && (
+                                            <>
+                                                {/* Desktop: arrow pointing to the panel */}
                                                 <span
                                                     aria-hidden="true"
                                                     className={`hidden self-center text-[0.45em] transition duration-500 min-[1024px]:inline ${megaVisible ? "translate-x-0 opacity-100" : "-translate-x-3 opacity-0"
@@ -182,56 +203,50 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                                                 >
                                                     →
                                                 </span>
-                                            )}
-                                        </a>
-
-                                        {/* Mobile/tablet: open the services list */}
-                                        {isServices && (
-                                            <button
-                                                type="button"
-                                                onClick={() => setMobileServices((v) => !v)}
-                                                aria-expanded={servicesListVisible}
-                                                aria-label={servicesListVisible ? "Hide services" : "Show services"}
-                                                className="grid size-9 shrink-0 place-items-center rounded-full border border-accent/40 text-accent transition-transform duration-300 min-[1024px]:hidden"
-                                                style={{ rotate: servicesListVisible ? "45deg" : "0deg" }}
-                                            >
+                                                {/* Mobile/tablet: small chevron that flips when the list is open */}
                                                 <svg
                                                     aria-hidden="true"
                                                     viewBox="0 0 24 24"
-                                                    className="size-4"
                                                     fill="none"
                                                     stroke="currentColor"
-                                                    strokeWidth={2.2}
+                                                    strokeWidth={2.6}
                                                     strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    className={`size-[0.5em] self-center text-accent transition-transform duration-500 min-[1024px]:hidden ${servicesListVisible ? "rotate-180" : "rotate-0"
+                                                        }`}
                                                 >
-                                                    <path d="M12 5v14M5 12h14" />
+                                                    <path d="M6 9l6 6 6-6" />
                                                 </svg>
-                                            </button>
+                                            </>
                                         )}
-                                    </div>
+                                    </a>
 
-                                    {/* Mobile/tablet: services accordion */}
+                                    {/* Mobile/tablet: services list in a glass card */}
                                     {isServices && (
                                         <div
                                             className={`grid transition-[grid-template-rows,opacity] duration-500 min-[1024px]:hidden ${servicesListVisible ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                                                 }`}
                                         >
-                                            <ul className="overflow-hidden">
-                                                <div className="grid gap-2.5 py-3 pl-[calc(0.8rem+18px)]">
-                                                    {SERVICES.map((s) => (
-                                                        <li key={s.name}>
-                                                            <a
-                                                                href="#services"
-                                                                onClick={go("#services")}
-                                                                className="flex items-center gap-3 text-[15px] text-white/75 transition-colors hover:text-accent"
-                                                            >
-                                                                <span className="size-1.5 rounded-full bg-accent" />
-                                                                {s.name}
-                                                            </a>
-                                                        </li>
-                                                    ))}
+                                            <div className="overflow-hidden">
+                                                <div className="my-3 rounded-[18px] p-px" style={{ background: PANEL_EDGE }}>
+                                                    <ul className="grid gap-1 rounded-[17px] p-2" style={{ background: PANEL_BG }}>
+                                                        {SERVICES.map((s) => (
+                                                            <li key={s.name}>
+                                                                <a
+                                                                    href="#services"
+                                                                    onClick={go("#services")}
+                                                                    className="flex items-center gap-3 rounded-[12px] px-2 py-2 text-[14px] text-white/85 transition-colors active:bg-white/[0.06]"
+                                                                >
+                                                                    <span className="grid size-8 shrink-0 place-items-center rounded-[9px] border border-accent/25 bg-accent/10 text-accent">
+                                                                        <ServiceIcon paths={s.icon} size={15} />
+                                                                    </span>
+                                                                    {s.name}
+                                                                </a>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
                                                 </div>
-                                            </ul>
+                                            </div>
                                         </div>
                                     )}
                                 </li>
