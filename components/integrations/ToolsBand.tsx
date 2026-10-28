@@ -30,8 +30,8 @@ const DIM = "grayscale(1) brightness(0.28)";
 const TILE_BG = "linear-gradient(145deg, #f2f2f2, #cfcfcf)";
 
 // Center box: thin gold edge (gradient border) + dark glass inside with a soft gold spotlight
-const BOX_EDGE =
-    "linear-gradient(140deg, rgba(255, 204, 0, 0.7), rgba(255, 255, 255, 0.08) 40%, rgba(255, 255, 255, 0.04) 65%, rgba(255, 204, 0, 0.45))";
+const BOX_EDGE_LIGHT =
+    "conic-gradient(from -45deg, transparent 0deg, rgba(255, 204, 0, 0.9) 30deg, transparent 80deg, transparent 180deg, rgba(255, 204, 0, 0.6) 210deg, transparent 260deg, transparent 360deg)";
 const BOX_INSIDE = "radial-gradient(circle at 50% 35%, #1f1a0a 0%, #0d0d0d 60%, #080808 100%)";
 
 /* ---------- pieces ---------- */
@@ -161,9 +161,16 @@ export default function ToolsBand() {
                         ? gsap.fromTo('[data-track="x"]', { xPercent: -50 }, { xPercent: 0, duration: SPEED, ease: "none", repeat: -1 })
                         : gsap.fromTo('[data-track="y"]', { yPercent: -50 }, { yPercent: 0, duration: SPEED_MOBILE, ease: "none", repeat: -1 });
 
+                    const edge = gsap.to("[data-edge]", { rotation: 360, duration: 6, ease: "none", repeat: -1 });
+
                     const io = new IntersectionObserver(([entry]) => {
-                        if (entry.isIntersecting) tween.play();
-                        else tween.pause();
+                        if (entry.isIntersecting) {
+                            tween.play();
+                            edge.play();
+                        } else {
+                            tween.pause();
+                            edge.pause();
+                        }
                     });
                     if (rootRef.current) io.observe(rootRef.current);
                     return () => io.disconnect();
@@ -238,13 +245,20 @@ export default function ToolsBand() {
                     background: "radial-gradient(closest-side, rgba(10, 10, 10, 0.7) 40%, transparent)",
                 }}
             />
-            {/* Center: dark glass box with a thin gold edge and the golden logo (shared) */}
+            {/* Center: dark glass box with a moving gold light on its edge, and the golden logo (shared) */}
             <div
-                className="absolute top-1/2 left-1/2 z-10 size-[clamp(104px,10.5vw,196px)] -translate-x-1/2 -translate-y-1/2 rounded-[14px] p-px shadow-[0_24px_70px_rgba(0,0,0,0.7),0_0_50px_rgba(255,204,0,0.12)]"
-                style={{ background: BOX_EDGE }}
+                className="absolute top-1/2 left-1/2 z-10 size-[clamp(104px,10.5vw,196px)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[14px] shadow-[0_24px_70px_rgba(0,0,0,0.7),0_0_50px_rgba(255,204,0,0.12)]"
+                style={{ background: "rgba(255, 255, 255, 0.06)" }}
             >
+                {/* Gold light that travels around the edge */}
                 <div
-                    className="relative grid h-full w-full place-items-center overflow-hidden rounded-[13px]"
+                    data-edge=""
+                    aria-hidden="true"
+                    className="absolute top-1/2 left-1/2 size-[150%] -translate-x-1/2 -translate-y-1/2"
+                    style={{ background: BOX_EDGE_LIGHT }}
+                />
+                <div
+                    className="absolute inset-px grid place-items-center overflow-hidden rounded-[13px]"
                     style={{ background: BOX_INSIDE }}
                 >
                     {/* Thin light along the top edge */}
