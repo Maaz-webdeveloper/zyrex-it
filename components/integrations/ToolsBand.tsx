@@ -1,7 +1,7 @@
 "use client";
 
 // Middle band of the Integrations section (clean, like the reference):
-// thin gold lines forming a "pipe", endlessly moving tool tiles, and a plain white box with the logo.
+// thin gold lines forming a "pipe", endlessly moving tool tiles, and a dark glass box with the golden logo.
 // Desktop: horizontal pipe, tiles move left -> right, bright on the right, dark after the box.
 // Mobile:  vertical pipe,  tiles move top -> bottom, bright at the bottom, dark after the box.
 
@@ -26,6 +26,11 @@ const FADE_X = "linear-gradient(to right, transparent, #000 14%, #000 86%, trans
 const FADE_Y = "linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent)";
 const DIM = "grayscale(1) brightness(0.28)";
 const TILE_BG = "linear-gradient(145deg, #f2f2f2, #cfcfcf)";
+
+// Center box: thin gold edge (gradient border) + dark glass inside with a soft gold spotlight
+const BOX_EDGE =
+    "linear-gradient(140deg, rgba(255, 204, 0, 0.7), rgba(255, 255, 255, 0.08) 40%, rgba(255, 255, 255, 0.04) 65%, rgba(255, 204, 0, 0.45))";
+const BOX_INSIDE = "radial-gradient(circle at 50% 35%, #1f1a0a 0%, #0d0d0d 60%, #080808 100%)";
 
 /* ---------- pieces ---------- */
 
@@ -170,11 +175,11 @@ export default function ToolsBand() {
                     style={{ maskImage: FADE_X, WebkitMaskImage: FADE_X }}
                 >
                     <div className="relative h-(--tile)">
-                        {/* Right half: bright (tools arriving) */}
+                        {/* Right half: bright */}
                         <div className="absolute inset-0" style={{ clipPath: "inset(0 0 0 50%)" }}>
                             <Track />
                         </div>
-                        {/* Left half: dark (tools already connected) */}
+                        {/* Left half: dark */}
                         <div className="absolute inset-0" style={{ clipPath: "inset(0 50% 0 0)", filter: DIM }}>
                             <Track hidden />
                         </div>
@@ -190,11 +195,11 @@ export default function ToolsBand() {
                     style={{ maskImage: FADE_Y, WebkitMaskImage: FADE_Y }}
                 >
                     <div className="relative h-full">
-                        {/* Bottom half: bright (tools arriving) */}
+                        {/* Bottom half: bright */}
                         <div className="absolute inset-0" style={{ clipPath: "inset(50% 0 0 0)" }}>
                             <Track vertical />
                         </div>
-                        {/* Top half: dark (tools already connected) */}
+                        {/* Top half: dark */}
                         <div className="absolute inset-0" style={{ clipPath: "inset(0 0 50% 0)", filter: DIM }}>
                             <Track vertical hidden />
                         </div>
@@ -202,10 +207,30 @@ export default function ToolsBand() {
                 </div>
             </div>
 
-            {/* Center: plain white box with the logo (shared) */}
-            <div className="absolute top-1/2 left-1/2 z-10 grid size-[clamp(104px,10.5vw,196px)] -translate-x-1/2 -translate-y-1/2 place-items-center bg-white shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={LOGO} alt="ZYREX IT" draggable={false} className="size-[58%] object-contain select-none" />
+            {/* Center: dark glass box with a thin gold edge and the golden logo (shared) */}
+            <div
+                className="absolute top-1/2 left-1/2 z-10 size-[clamp(104px,10.5vw,196px)] -translate-x-1/2 -translate-y-1/2 rounded-[14px] p-px shadow-[0_24px_70px_rgba(0,0,0,0.7),0_0_50px_rgba(255,204,0,0.12)]"
+                style={{ background: BOX_EDGE }}
+            >
+                <div
+                    className="relative grid h-full w-full place-items-center overflow-hidden rounded-[13px]"
+                    style={{ background: BOX_INSIDE }}
+                >
+                    {/* Thin light along the top edge */}
+                    <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-x-5 top-0 h-px"
+                        style={{ background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent)" }}
+                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={LOGO}
+                        alt="ZYREX IT"
+                        draggable={false}
+                        className="relative size-[58%] object-contain select-none"
+                        style={{ filter: "drop-shadow(0 6px 18px rgba(255, 204, 0, 0.35))" }}
+                    />
+                </div>
             </div>
         </div>
     );
