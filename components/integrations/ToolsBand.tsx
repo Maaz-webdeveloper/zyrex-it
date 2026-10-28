@@ -23,9 +23,9 @@ const LINE_BOTTOM =
     "M80 560 H170 C230 560, 250 540, 270 510 L340 400 C360 370, 380 360, 430 360 H1010 C1060 360, 1080 370, 1100 400 L1170 510 C1190 540, 1210 560, 1270 560 H1360";
 
 const FADE_X =
-  "linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.35) 10%, #000 28%, #000 72%, rgba(0, 0, 0, 0.35) 90%, transparent 100%)";
+  "linear-gradient(to right, transparent 0%, transparent 10%, rgba(0, 0, 0, 0.4) 22%, #000 38%, #000 62%, rgba(0, 0, 0, 0.4) 78%, transparent 90%, transparent 100%)";
 const FADE_Y =
-  "linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.35) 10%, #000 28%, #000 72%, rgba(0, 0, 0, 0.35) 90%, transparent 100%)";
+  "linear-gradient(to bottom, transparent 0%, transparent 8%, rgba(0, 0, 0, 0.4) 20%, #000 36%, #000 64%, rgba(0, 0, 0, 0.4) 80%, transparent 92%, transparent 100%)";
 const DIM = "grayscale(1) brightness(0.28)";
 const TILE_BG = "linear-gradient(145deg, #f2f2f2, #cfcfcf)";
 
@@ -50,10 +50,20 @@ function PipeLines({ id, vertical }: { id: string; vertical?: boolean }) {
         >
             <defs>
                 <linearGradient id={id} x1="0" x2="1440" y1="0" y2="0" gradientUnits="userSpaceOnUse">
-                    <stop offset="0" stopColor="#ffcc00" stopOpacity="0" />
-                    <stop offset="0.14" stopColor="#ffcc00" stopOpacity="0.45" />
-                    <stop offset="0.86" stopColor="#ffcc00" stopOpacity="0.45" />
-                    <stop offset="1" stopColor="#ffcc00" stopOpacity="0" />
+                  <stop offset="0" stopColor="#ffcc00" stopOpacity="0" />
+                  <stop offset="0.12" stopColor="#ffcc00" stopOpacity="0" />
+                  <stop offset="0.28" stopColor="#ffcc00" stopOpacity="0.45" />
+                  <stop offset="0.72" stopColor="#ffcc00" stopOpacity="0.45" />
+                  <stop offset="0.88" stopColor="#ffcc00" stopOpacity="0" />
+                  <stop offset="1" stopColor="#ffcc00" stopOpacity="0" />
+                </linearGradient>
+                <linearGradient id={`${id}-light`} x1="0" x2="1440" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stopColor="#ffdd65" stopOpacity="0" />
+                  <stop offset="0.18" stopColor="#ffdd65" stopOpacity="0" />
+                  <stop offset="0.32" stopColor="#ffdd65" stopOpacity="1" />
+                  <stop offset="0.68" stopColor="#ffdd65" stopOpacity="1" />
+                  <stop offset="0.82" stopColor="#ffdd65" stopOpacity="0" />
+                  <stop offset="1" stopColor="#ffdd65" stopOpacity="0" />
                 </linearGradient>
             </defs>
             {/* On mobile the whole drawing is flipped upright (x <-> y) */}
@@ -65,7 +75,7 @@ function PipeLines({ id, vertical }: { id: string; vertical?: boolean }) {
                         <path
                             d={d}
                             fill="none"
-                            stroke="#ffdd65"
+                            stroke={`url(#${id}-light)`}
                             strokeWidth={3}
                             strokeLinecap="round"
                             pathLength={1}
