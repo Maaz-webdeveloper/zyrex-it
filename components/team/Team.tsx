@@ -75,7 +75,7 @@ function Card({ name, role, photo }: { name: string; role: string; photo: string
             {/* Gold ring */}
             <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 scale-95 rounded-full border-[1.5px] border-accent opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100 [@media(hover:none)]:scale-100 [@media(hover:none)]:opacity-100"
+                className="pointer-events-none absolute inset-0 scale-95 rounded-full border-[1.5px] border-accent opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100 group-hover:shadow-[0_0_35px_rgba(255,204,0,0.35),inset_0_0_25px_rgba(255,204,0,0.12)] [@media(hover:none)]:scale-100 [@media(hover:none)]:opacity-100 [@media(hover:none)]:shadow-[0_0_20px_rgba(255,204,0,0.2)]"
             />
 
             <div className="relative h-full w-full overflow-hidden rounded-full bg-[#141414]">
@@ -233,8 +233,23 @@ export default function Team() {
                 >
                     {TEAM_COPY.heading}
                     <br />
-                    {TEAM_COPY.headingLine2} <span className="text-accent">{TEAM_COPY.headingAccent}</span>
+                    {TEAM_COPY.headingLine2}{" "}
+                    <span
+                        className="animate-zx-shine bg-clip-text font-extrabold text-transparent"
+                        style={{
+                            backgroundImage: "linear-gradient(90deg, #ffcc00 0%, #ffdd65 25%, #fff3b0 50%, #ffdd65 75%, #ffcc00 100%)",
+                            backgroundSize: "200% 100%",
+                        }}
+                    >
+                        {TEAM_COPY.headingAccent}
+                    </span>
                 </h2>
+                <p
+                    data-reveal="heading"
+                    className="mt-5 max-w-[40rem] text-[clamp(14px,1.15vw,17px)] leading-[1.65] text-balance text-white/75"
+                >
+                    {TEAM_COPY.text}
+                </p>
             </div>
 
             {/* Slider with side arrows (arrows go below on mobile) */}
