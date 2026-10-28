@@ -214,9 +214,9 @@ export default function ToolsBand() {
                 aria-hidden="true"
                 className="pointer-events-none absolute top-1/2 left-1/2 z-[5] -translate-x-1/2 -translate-y-1/2 max-[767px]:hidden"
                 style={{
-                    width: "calc(clamp(104px, 10.5vw, 196px) + clamp(200px, 20vw, 380px))",
+                    width: "calc(clamp(104px, 10.5vw, 196px) + clamp(120px, 12vw, 240px))",
                     height: "calc(var(--tile) * 2)",
-                    background: "radial-gradient(closest-side, rgba(10, 10, 10, 0.95) 60%, transparent)",
+                    background: "radial-gradient(closest-side, rgba(10, 10, 10, 0.7) 40%, transparent)",
                 }}
             />
             <div
@@ -225,7 +225,7 @@ export default function ToolsBand() {
                 style={{
                     width: "calc(var(--tile) * 2)",
                     height: "calc(clamp(104px, 10.5vw, 196px) + 160px)",
-                    background: "radial-gradient(closest-side, rgba(10, 10, 10, 0.95) 60%, transparent)",
+                    background: "radial-gradient(closest-side, rgba(10, 10, 10, 0.7) 40%, transparent)",
                 }}
             />
             {/* Center: dark glass box with a thin gold edge and the golden logo (shared) */}
