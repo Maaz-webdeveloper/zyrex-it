@@ -214,6 +214,27 @@
     else document.addEventListener('DOMContentLoaded', startBall);
   }
 
+  /* ---------- 4b. Scroll position -> embeds (for scroll animations inside iframes) ---------- */
+  var scrollQueued = false;
+  function sendScroll() {
+    scrollQueued = false;
+    var f = frames();
+    for (var i = 0; i < f.length; i++) {
+      post(f[i].contentWindow, {
+        type: 'zyrex-scroll',
+        top: f[i].getBoundingClientRect().top,
+        viewport: window.innerHeight
+      });
+    }
+  }
+  function queueScroll() {
+    if (scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(sendScroll); // max one message per frame
+  }
+  window.addEventListener('scroll', queueScroll, { passive: true });
+  window.addEventListener('resize', queueScroll);
+
   /* ---------- 5. Messages from the Next.js sections ---------- */
   window.addEventListener('message', function (e) {
     if (e.origin !== EMBED_ORIGIN) return;
@@ -229,6 +250,7 @@
       case 'zyrex-hello':
         post(e.source, viewportMsg());
         if (noPreloader()) post(e.source, { type: 'zyrex-preloader-done' });
+        queueScroll();
         break;
 
       case 'zyrex-preloader-status':

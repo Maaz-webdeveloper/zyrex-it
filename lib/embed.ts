@@ -9,6 +9,7 @@ export const MSG = {
   pointer: "zyrex-pointer",
   lock: "zyrex-lock",
   scrollTo: "zyrex-scroll-to",
+  scroll: "zyrex-scroll",
   ready: "zyrex-embed-ready",
   preloaderStatus: "zyrex-preloader-status",
   preloaderDone: "zyrex-preloader-done",
