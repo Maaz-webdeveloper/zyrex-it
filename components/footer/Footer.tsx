@@ -22,7 +22,8 @@ function FooterLink({ href, children, className = "" }: { href: string; children
                     }
                     : undefined
             }
-            className={`transition-colors duration-300 hover:text-accent ${className}`}
+            className={`bg-no-repeat bg-size-[0%_1px] bg-position-[0_100%] pb-[2px] transition-[color,background-size] duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] hover:text-accent hover:bg-size-[100%_1px] ${className}`}
+            style={{ backgroundImage: "linear-gradient(90deg, #ffdd65, #ffcc00)" }}
         >
             {children}
         </a>
@@ -39,7 +40,7 @@ export default function Footer() {
                     {/* ===== Left: brand ===== */}
                     <div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={FOOTER_BRAND.logo} alt="ZYREX IT" draggable={false} className="h-[clamp(36px,3vw,46px)] w-auto" />
+                        <img src={FOOTER_BRAND.logo} alt="ZYREX IT" draggable={false} className="h-[clamp(46px,4vw,64px)] w-auto" />
 
                         <p className="mt-8 text-[clamp(32px,3.4vw,52px)] leading-[1.1] font-normal tracking-[-0.02em]">
                             {FOOTER_BRAND.taglineTop}
@@ -68,7 +69,7 @@ export default function Footer() {
                                 >
                                     <span
                                         aria-hidden="true"
-                                        className="absolute inset-0 scale-0 rounded-[10px] transition-transform duration-300 group-hover/soc:scale-100"
+                                        className="absolute inset-0 origin-left scale-x-0 transition-transform duration-300 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover/soc:scale-x-100"
                                         style={{ background: GOLD }}
                                     />
                                     <svg aria-hidden="true" viewBox="0 0 24 24" className="relative size-[18px]" fill="currentColor">
