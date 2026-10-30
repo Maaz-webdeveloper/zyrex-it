@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { scrollParentTo } from "@/lib/embed";
 import { ADDRESS, FOOTER_BRAND, FOOTER_COLUMNS, LEGAL, SOCIALS } from "./data";
 
@@ -31,7 +32,8 @@ function FooterLink({ href, children, className = "" }: { href: string; children
 }
 
 export default function Footer() {
-    const year = new Date().getFullYear();
+    const [year, setYear] = useState(2026);
+    useEffect(() => setYear(new Date().getFullYear()), []);
 
     return (
         <footer className="relative w-full overflow-hidden bg-black px-5 pt-[clamp(64px,8vw,110px)] text-white">
