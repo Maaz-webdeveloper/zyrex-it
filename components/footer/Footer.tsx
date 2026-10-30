@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { scrollParentTo } from "@/lib/embed";
 import { ADDRESS, FOOTER_BRAND, FOOTER_COLUMNS, LEGAL, SOCIALS } from "./data";
+import FooterWordmark from "./FooterWordmark";
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 
@@ -136,8 +137,7 @@ export default function Footer() {
                     <p className="text-white/80">© {year} ZYREX IT. All Rights Reserved</p>
                 </div>
 
-                {/* Step 2: big outline "ZYREX IT" goes here */}
-                <div className="h-[clamp(80px,10vw,140px)]" />
+                <FooterWordmark />
             </div>
         </footer>
     );
