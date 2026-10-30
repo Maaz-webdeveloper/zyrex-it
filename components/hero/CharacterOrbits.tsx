@@ -6,7 +6,8 @@
 //   - FRONT copy (z 3, over the character): shows only the near-side cards
 // The character <img> in HeroStage is z 2.
 
-import { useEffect, useRef } from "react";
+
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 // Ring position/size relative to the character's visible box. Tweak these to fit the head.
@@ -19,8 +20,15 @@ const RING = {
     duration: 30, // seconds per full turn
 };
 
-// Below 900px: smaller ring so it fits the phone screen and sits at eye/forehead level
-const RING_MOBILE = { cy: 20, radius: 0.48 };
+// Below 900px: 6 smaller cards on a ring that always fits inside the screen, at forehead level
+const MOBILE_QUERY = "(max-width: 899px)";
+const PERSPECTIVE = 2400; // px
+const RING_MOBILE = {
+    cy: 14, // center Y, % of the character's height (above the eyes)
+    radius: 0.4, // max ring radius = this × screen width (shrinks further if cards would leave the screen)
+    cardW: 96, // mobile info card width (px), keep in sync with Face
+    edge: 10, // min gap between a card and the screen edge (px)
+};
 
 type Card =
     | { type: "info"; title: string; text: string; icon: string[] }
@@ -39,6 +47,8 @@ const CARDS: Card[] = [
     { type: "info", title: "Ads", text: "Campaigns that convert", icon: ["M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z", "M16 9a4 4 0 0 1 0 6"] },
     { type: "info", title: "Web", text: "Fast, modern websites", icon: ["M3 4h18v12H3z", "M8 20h8", "M12 16v4"] },
 ];
+// Mobile: Strategy, image, SEO, Growth, image, Web
+const MOBILE_CARDS = [0, 1, 3, 5, 7, 9].map((i) => CARDS[i]);
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 // Clean frosted glass (no gold tint); only the front copy gets backdrop blur
@@ -48,7 +58,7 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     if (card.type === "image") {
         return (
             <div
-                className={`h-[clamp(40px,3.6vw,64px)] w-[clamp(90px,7.5vw,150px)] overflow-hidden rounded-[clamp(10px,1vw,16px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-xl" : ""}`}
+                className={`h-[clamp(40px,3.6vw,64px)] w-[clamp(90px,7.5vw,150px)] max-[899px]:h-[40px] max-[899px]:w-[72px] overflow-hidden rounded-[clamp(10px,1vw,16px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-xl" : ""}`}
                 style={{ border: "1px solid rgba(255, 255, 255, 0.2)" }}
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -60,7 +70,7 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     }
     return (
         <div
-            className={`relative flex w-[clamp(130px,11vw,220px)] items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(10px,1vw,16px)] p-[clamp(8px,0.8vw,14px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-xl" : ""}`}
+            className={`relative flex w-[clamp(130px,11vw,220px)] items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(10px,1vw,16px)] p-[clamp(8px,0.8vw,14px)] max-[899px]:w-[96px] max-[899px]:gap-[6px] max-[899px]:p-[7px] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-xl" : ""}`}
             style={{ background: GLASS_BG, border: "1px solid rgba(255, 255, 255, 0.18)" }}
         >
             {/* Thin white highlight along the top edge */}
@@ -70,7 +80,7 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
                 style={{ background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)" }}
             />
             <span
-                className="grid size-[clamp(22px,2vw,36px)] shrink-0 place-items-center rounded-[clamp(6px,0.6vw,10px)] text-black"
+                className="grid size-[clamp(22px,2vw,36px)] max-[899px]:size-[20px] shrink-0 place-items-center rounded-[clamp(6px,0.6vw,10px)] text-black"
                 style={{ background: GOLD }}
             >
                 <svg
@@ -92,7 +102,7 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
                 <span className="block text-[clamp(11px,1vw,16px)] leading-tight font-extrabold text-white">
                     {card.title}
                 </span>
-                <span className="mt-0.5 block truncate text-[clamp(9px,0.72vw,12px)] leading-tight text-white/60">
+                <span className="mt-0.5 block truncate text-[clamp(9px,0.72vw,12px)] max-[899px]:hidden leading-tight text-white/60">
                     {card.text}
                 </span>
             </span>
@@ -100,7 +110,15 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     );
 }
 
-function Ring({ layer, sceneRef }: { layer: "back" | "front"; sceneRef?: React.Ref<HTMLDivElement> }) {
+function Ring({
+    layer,
+    cards,
+    sceneRef,
+}: {
+    layer: "back" | "front";
+    cards: Card[];
+    sceneRef?: React.Ref<HTMLDivElement>;
+}) {
     const back = layer === "back";
     return (
         <div
@@ -108,7 +126,7 @@ function Ring({ layer, sceneRef }: { layer: "back" | "front"; sceneRef?: React.R
             data-ring-scene=""
             aria-hidden="true"
             className={`pointer-events-none absolute top-0 left-0 size-0 ${back ? "z-[1]" : "z-[3]"}`}
-            style={{ perspective: "2400px" }}
+            style={{ perspective: `${PERSPECTIVE}px` }}
         >
             {/* Static tilt */}
             <div style={{ transformStyle: "preserve-3d", transform: `rotateX(${RING.tiltX}deg) rotateZ(${RING.tiltZ}deg)` }}>
@@ -119,24 +137,24 @@ function Ring({ layer, sceneRef }: { layer: "back" | "front"; sceneRef?: React.R
                         <span
                             className="absolute rounded-full"
                             style={{
-                                width: "calc(var(--zx-r, 220px) * 2.3)",
-                                height: "calc(var(--zx-r, 220px) * 2.3)",
-                                left: "calc(var(--zx-r, 220px) * -1.15)",
-                                top: "calc(var(--zx-r, 220px) * -1.15)",
+                                width: "calc(var(--zx-r, 220px) * var(--zx-line, 2.3))",
+                                height: "calc(var(--zx-r, 220px) * var(--zx-line, 2.3))",
+                                left: "calc(var(--zx-r, 220px) * var(--zx-line, 2.3) / -2)",
+                                top: "calc(var(--zx-r, 220px) * var(--zx-line, 2.3) / -2)",
                                 border: "1px solid rgba(255, 204, 0, 0.35)",
                                 transform: "rotateX(90deg)",
                             }}
                         />
                     )}
 
-                    {CARDS.map((card, i) => (
+                    {cards.map((card, i) => (
                         <div
                             key={i}
                             className="absolute top-0 left-0"
                             style={{
                                 transformStyle: "preserve-3d",
-                                // two rows: even cards a bit higher, odd cards a bit lower
-                                transform: `translate(-50%, ${i % 2 ? "0%" : "-100%"}) rotateY(${(i * 360) / CARDS.length}deg) translateZ(var(--zx-r, 220px))`,
+                                // desktop: two rows (even cards a bit higher, odd a bit lower); mobile: one row
+                                transform: `translate(-50%, ${cards === MOBILE_CARDS ? "-50%" : i % 2 ? "0%" : "-100%"}) rotateY(${(i * 360) / cards.length}deg) translateZ(var(--zx-r, 220px))`,
                             }}
                         >
                             <div
@@ -160,6 +178,16 @@ function Ring({ layer, sceneRef }: { layer: "back" | "front"; sceneRef?: React.R
 
 export default function CharacterOrbits() {
     const backRef = useRef<HTMLDivElement>(null);
+    const [mobile, setMobile] = useState(false);
+
+    // Fewer cards below 900px
+    useEffect(() => {
+        const mq = window.matchMedia(MOBILE_QUERY);
+        const update = () => setMobile(mq.matches);
+        update();
+        mq.addEventListener("change", update);
+        return () => mq.removeEventListener("change", update);
+    }, []);
 
     useEffect(() => {
         const wrapper = backRef.current?.parentElement; // the character wrapper
@@ -184,14 +212,25 @@ export default function CharacterOrbits() {
             const bw = w / k;
             const bh = h / k;
 
-            const { cy, radius } = window.innerWidth < 900 ? RING_MOBILE : RING;
+            const isMobile = window.matchMedia(MOBILE_QUERY).matches;
             const x = boxX + (RING.cx / 100) * bw;
-            const y = boxY + (cy / 100) * bh;
+            const y = boxY + ((isMobile ? RING_MOBILE.cy : RING.cy) / 100) * bh;
             scenes.forEach((scene) => {
                 scene.style.left = `${x}px`;
                 scene.style.top = `${y}px`;
             });
-            wrapper.style.setProperty("--zx-r", `${bw * radius}px`);
+
+            let r = bw * RING.radius;
+            if (isMobile) {
+                // Largest radius where every card (incl. perspective zoom) stays inside the screen
+                const W = wrapper.offsetWidth;
+                const room = Math.min(x, W - x) - RING_MOBILE.edge;
+                const half = RING_MOBILE.cardW / 2;
+                r = RING_MOBILE.radius * W;
+                while (r > 0 && Math.hypot(r, half) * (PERSPECTIVE / (PERSPECTIVE - r)) > room) r -= 2;
+            }
+            wrapper.style.setProperty("--zx-r", `${Math.max(r, 0)}px`);
+            wrapper.style.setProperty("--zx-line", isMobile ? "2.1" : "2.3"); // gold line diameter, × radius
         };
         measure();
 
@@ -222,8 +261,8 @@ export default function CharacterOrbits() {
 
     return (
         <>
-            <Ring layer="back" sceneRef={backRef} />
-            <Ring layer="front" />
+            <Ring layer="back" cards={mobile ? MOBILE_CARDS : CARDS} sceneRef={backRef} />
+            <Ring layer="front" cards={mobile ? MOBILE_CARDS : CARDS} />
         </>
     );
 }
