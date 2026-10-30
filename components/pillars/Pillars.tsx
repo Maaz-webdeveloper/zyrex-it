@@ -1,8 +1,19 @@
 "use client";
 
+import { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { PILLARS, PILLARS_COPY, type Pillar } from "./data";
+import { useParentScroll } from "@/components/embed/useParentScroll";
+import PillarsVisual from "./PillarsVisual";
+
+gsap.registerPlugin(useGSAP);
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
+const LINE_GOLD = "linear-gradient(to bottom, #ffdd65, #ffcc00)";
+const STAGE_VH = 0.85; // stage height (x screen height)
+const PIN_VH = 1.2; // how long the stage stays pinned while you scroll (x screen height)
+const SHOW_AT = [0.1, 0.33, 0.56, 0.79]; // line progress at which pillar 1, 2, 3, 4 appear
 
 function PillarText({ pillar, align }: { pillar: Pillar; align: "left" | "right" }) {
     const n = PILLARS.indexOf(pillar) + 1;
@@ -16,10 +27,91 @@ function PillarText({ pillar, align }: { pillar: Pillar; align: "left" | "right"
 }
 
 export default function Pillars() {
+    const rootRef = useRef<HTMLElement>(null);
+    const wrapRef = useRef<HTMLDivElement>(null); // tall box that creates the scroll distance (desktop)
+    const stageRef = useRef<HTMLDivElement>(null); // the part that stays pinned (desktop)
+    const fillRef = useRef<HTMLSpanElement>(null);
+    const dotRef = useRef<HTMLSpanElement>(null);
+    const mListRef = useRef<HTMLDivElement>(null); // mobile list
+    const mFillRef = useRef<HTMLSpanElement>(null);
+    const scroll = useParentScroll();
+
     const bySide = (side: "left" | "right") => PILLARS.filter((p) => p.side === side).sort((a, b) => a.row - b.row);
 
+    useGSAP(
+        () => {
+            const wrap = wrapRef.current;
+            const stage = stageRef.current;
+            const fill = fillRef.current;
+            const dot = dotRef.current;
+            const mList = mListRef.current;
+            const mFill = mFillRef.current;
+            if (!wrap || !stage || !fill || !dot || !mList || !mFill) return;
+
+            const desktopItems = gsap.utils.toArray<HTMLElement>("[data-pillar]", stage);
+            const mobileItems = gsap.utils.toArray<HTMLElement>("[data-pillar]", mList);
+            const blocks = gsap.utils.toArray<SVGGElement>("[data-block-lit]", stage);
+            const lit = new Map<Element, boolean>();
+            const light = (el: Element, on: boolean) => {
+                if (lit.get(el) === on) return;
+                lit.set(el, on);
+                gsap.to(el, { opacity: on ? 1 : 0, duration: 0.7, ease: "power2.out", overwrite: true });
+            };
+
+            // Reduced motion: show everything, no pinning
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                gsap.set([fill, mFill], { scaleY: 1 });
+                gsap.set(blocks, { opacity: 1 });
+                return;
+            }
+
+            gsap.set([...desktopItems, ...mobileItems], { autoAlpha: 0, y: 20 });
+
+            const shown = new Map<HTMLElement, boolean>();
+            const toggle = (el: HTMLElement, on: boolean) => {
+                if (shown.get(el) === on) return;
+                shown.set(el, on);
+                gsap.to(el, { autoAlpha: on ? 1 : 0, y: on ? 0 : 20, duration: 0.6, ease: "power3.out", overwrite: true });
+            };
+            // Position inside this embed page (same value whether the page scrolls itself or not)
+            const pageTop = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
+
+            const tick = () => {
+                const { top, viewport: vh } = scroll.current;
+
+                if (wrap.offsetParent !== null) {
+                    // ===== Desktop: pin the stage, fill the line, reveal pillars =====
+                    const stageH = stage.offsetHeight;
+                    const distance = wrap.offsetHeight - stageH;
+                    const wrapOnScreen = top + pageTop(wrap);
+                    const pin = gsap.utils.clamp(0, distance, (vh - stageH) / 2 - wrapOnScreen);
+                    const p = distance > 0 ? pin / distance : 0;
+
+                    gsap.set(stage, { y: pin });
+                    gsap.set(fill, { scaleY: p });
+                    gsap.set(dot, { top: `${p * 100}%` });
+                    desktopItems.forEach((el) => toggle(el, p >= SHOW_AT[Number(el.dataset.pillar)]));
+                    blocks.forEach((el) => {
+                        const i = Number(el.dataset.blockLit);
+                        light(el, i === 4 ? p >= 0.95 : p >= SHOW_AT[i]);
+                    });
+                } else {
+                    // ===== Mobile: fill the side line, reveal each pillar as it comes on screen =====
+                    const listOnScreen = top + pageTop(mList);
+                    const p = gsap.utils.clamp(0, 1, (vh * 0.7 - listOnScreen) / mList.offsetHeight);
+                    gsap.set(mFill, { scaleY: p });
+                    mobileItems.forEach((el) => toggle(el, top + pageTop(el) < vh * 0.85));
+                }
+            };
+
+            gsap.ticker.add(tick);
+            return () => gsap.ticker.remove(tick);
+        },
+        { scope: rootRef }
+    );
+
     return (
-        <section className="relative w-full overflow-hidden bg-[#0a0a0a] px-5 py-[clamp(72px,9vw,140px)] text-white">
+        <section ref={rootRef} className="relative w-full overflow-hidden bg-[#0a0a0a] px-5 py-[clamp(72px,9vw,140px)] text-white">
             {/* Soft gold glow behind the stage */}
             <div
                 aria-hidden="true"
@@ -49,36 +141,59 @@ export default function Pillars() {
                 </a>
             </div>
 
-            {/* ===== Desktop stage: left texts | line + visual | right texts ===== */}
+            {/* ===== Desktop: tall wrapper (scroll distance) + pinned stage ===== */}
             <div
-                data-stage=""
-                className="relative mx-auto mt-[clamp(56px,7vw,110px)] hidden max-w-[72rem] grid-cols-[1fr_clamp(240px,26vw,400px)_1fr] gap-[clamp(24px,3vw,56px)] md:grid"
-                style={{ minHeight: "calc(var(--zx-vh, 100svh) * 0.85)" }}
+                ref={wrapRef}
+                className="relative mt-[clamp(56px,7vw,110px)] hidden md:block"
+                style={{ height: `calc(var(--zx-vh, 100svh) * ${STAGE_VH + PIN_VH})` }}
             >
-                <div className="flex flex-col justify-between py-[8%]">
-                    {bySide("left").map((p) => (
-                        <PillarText key={p.title} pillar={p} align="right" />
-                    ))}
-                </div>
+                <div
+                    ref={stageRef}
+                    className="relative mx-auto grid max-w-[72rem] grid-cols-[1fr_clamp(240px,26vw,400px)_1fr] gap-[clamp(24px,3vw,56px)] will-change-transform"
+                    style={{ height: `calc(var(--zx-vh, 100svh) * ${STAGE_VH})` }}
+                >
+                    <div className="flex flex-col justify-between py-[8%]">
+                        {bySide("left").map((p) => (
+                            <PillarText key={p.title} pillar={p} align="right" />
+                        ))}
+                    </div>
 
-                {/* Center: line + placeholder for the visual (Step 6) */}
-                <div className="relative">
-                    <span data-line-track="" className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-white/10" />
-                    <span className="absolute top-0 left-1/2 size-2 -translate-x-1/2 bg-accent" />
-                    <span className="absolute bottom-0 left-1/2 size-2 -translate-x-1/2 bg-accent" />
-                    <div data-visual="" className="absolute top-1/2 left-1/2 aspect-square w-full -translate-x-1/2 -translate-y-1/2 rounded-[20px] border border-dashed border-white/10" />
-                </div>
+                    {/* Center: line + placeholder for the visual (Step 6) */}
+                    <div className="relative">
+                        <div data-visual="" className="absolute top-1/2 left-1/2 aspect-square w-full -translate-x-1/2 -translate-y-1/2">
+                            <PillarsVisual />
+                        </div>
+                        <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-white/10" />
+                        <span
+                            ref={fillRef}
+                            className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 origin-top"
+                            style={{ background: LINE_GOLD, transform: "scaleY(0)", boxShadow: "0 0 8px rgba(255, 204, 0, 0.6)" }}
+                        />
+                        <span
+                            ref={dotRef}
+                            className="absolute left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent shadow-[0_0_14px_rgba(255,204,0,0.9)]"
+                            style={{ top: "0%" }}
+                        />
+                        <span className="absolute top-0 left-1/2 size-2 -translate-x-1/2 bg-accent" />
+                        <span className="absolute bottom-0 left-1/2 size-2 -translate-x-1/2 bg-accent" />
+                    </div>
 
-                <div className="flex flex-col justify-between py-[8%]">
-                    {bySide("right").map((p) => (
-                        <PillarText key={p.title} pillar={p} align="left" />
-                    ))}
+                    <div className="flex flex-col justify-between py-[8%]">
+                        {bySide("right").map((p) => (
+                            <PillarText key={p.title} pillar={p} align="left" />
+                        ))}
+                    </div>
                 </div>
             </div>
 
             {/* ===== Mobile: line on the left, pillars stacked ===== */}
-            <div className="relative mx-auto mt-14 max-w-[30rem] pl-8 md:hidden">
+            <div ref={mListRef} className="relative mx-auto mt-14 max-w-[30rem] pl-8 md:hidden">
                 <span className="absolute inset-y-0 left-[3px] w-px bg-white/10" />
+                <span
+                    ref={mFillRef}
+                    className="absolute inset-y-0 left-[3px] w-px origin-top"
+                    style={{ background: LINE_GOLD, transform: "scaleY(0)", boxShadow: "0 0 8px rgba(255, 204, 0, 0.6)" }}
+                />
                 <div className="flex flex-col gap-12">
                     {PILLARS.map((p) => (
                         <PillarText key={p.title} pillar={p} align="left" />
