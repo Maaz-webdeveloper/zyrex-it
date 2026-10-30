@@ -40,7 +40,7 @@ export default function Footer() {
                     {/* ===== Left: brand ===== */}
                     <div>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={FOOTER_BRAND.logo} alt="ZYREX IT" draggable={false} className="h-[clamp(46px,4vw,64px)] w-auto" />
+                        <img src={FOOTER_BRAND.logo} alt="ZYREX IT" draggable={false} className="ml-[calc(clamp(46px,4vw,64px)/-3)] h-[clamp(46px,4vw,64px)] w-auto" />
 
                         <p className="mt-8 text-[clamp(32px,3.4vw,52px)] leading-[1.1] font-normal tracking-[-0.02em]">
                             {FOOTER_BRAND.taglineTop}
