@@ -19,6 +19,9 @@ const RING = {
     duration: 30, // seconds per full turn
 };
 
+// Below 900px: smaller ring so it fits the phone screen and sits at eye/forehead level
+const RING_MOBILE = { cy: 20, radius: 0.48 };
+
 type Card =
     | { type: "info"; title: string; text: string; icon: string[] }
     | { type: "image"; src: string };
@@ -181,13 +184,14 @@ export default function CharacterOrbits() {
             const bw = w / k;
             const bh = h / k;
 
+            const { cy, radius } = window.innerWidth < 900 ? RING_MOBILE : RING;
             const x = boxX + (RING.cx / 100) * bw;
-            const y = boxY + (RING.cy / 100) * bh;
+            const y = boxY + (cy / 100) * bh;
             scenes.forEach((scene) => {
                 scene.style.left = `${x}px`;
                 scene.style.top = `${y}px`;
             });
-            wrapper.style.setProperty("--zx-r", `${bw * RING.radius}px`);
+            wrapper.style.setProperty("--zx-r", `${bw * radius}px`);
         };
         measure();
 

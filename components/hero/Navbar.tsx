@@ -39,7 +39,7 @@ export default function Navbar({ open, onToggle }: NavbarProps) {
                 aria-expanded={open}
                 aria-controls="zx-menu"
                 aria-label={open ? "Close menu" : "Open menu"}
-                className="group flex origin-right scale-[0.82] items-center gap-[5px] rounded-full bg-[url('/hero/menu-btn.svg')] bg-size-[100%_100%] bg-center bg-no-repeat py-1.5 pr-1.5 pl-[18px] text-[12px] leading-none tracking-[0.14em] text-[#f6f1f1] transition-[translate,scale,box-shadow,opacity] duration-300 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_0_24px_rgba(255,204,0,0.28)] sm:scale-100"
+                className="group relative flex origin-right scale-[0.9] items-center after:absolute after:-inset-[6px] after:rounded-full sm:after:hidden gap-[5px] rounded-full bg-[url('/hero/menu-btn.svg')] bg-size-[100%_100%] bg-center bg-no-repeat py-1.5 pr-1.5 pl-[18px] text-[12px] leading-none tracking-[0.14em] text-[#f6f1f1] transition-[translate,scale,box-shadow,opacity] duration-300 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_0_24px_rgba(255,204,0,0.28)] sm:scale-100"
             >
                 {/* Label slides MENU -> CLOSE */}
                 <span className="block h-3 overflow-hidden uppercase">

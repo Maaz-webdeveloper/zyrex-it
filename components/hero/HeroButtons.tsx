@@ -4,7 +4,7 @@ import { scrollParentTo } from "@/lib/embed";
 
 // Shared size/shape for both buttons (same as the old design)
 const BASE =
-    "relative inline-flex h-[42px] w-[170px] items-center justify-center rounded-full text-[11px] leading-none tracking-[0.12em] uppercase font-extrabold transition-[translate,box-shadow,opacity] duration-300 hover:-translate-y-0.5 max-[560px]:h-[42px] max-[560px]:w-[160px] max-[560px]:text-[11px]";
+    "relative inline-flex h-[42px] w-[170px] items-center justify-center rounded-full text-[11px] leading-none tracking-[0.12em] uppercase font-extrabold transition-[translate,box-shadow,opacity] duration-300 hover:-translate-y-0.5 max-[560px]:h-[48px] max-[560px]:w-[160px] max-[560px]:text-[11px]";
 
 export default function HeroButtons() {
     // Button click: smooth-scroll the GHL page to that section
@@ -14,7 +14,7 @@ export default function HeroButtons() {
     };
 
     return (
-        <div className="relative z-[7] mt-6 flex flex-wrap justify-center gap-3.5 min-[900px]:absolute min-[900px]:inset-x-0 min-[900px]:bottom-[3%] min-[900px]:mt-0">
+        <div className="relative z-[7] mt-6 flex flex-wrap justify-center gap-3.5 max-[560px]:gap-2.5 min-[900px]:absolute min-[900px]:inset-x-0 min-[900px]:bottom-[3%] min-[900px]:mt-0">
             {/* BOOK A CALL: gold, black circle with arrow */}
             <a
                 href="#contact"
