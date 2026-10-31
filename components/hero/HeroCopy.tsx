@@ -14,7 +14,7 @@ const SHINE_STYLE = {
 
 export default function HeroCopy() {
     return (
-        <div className="relative z-10 flex flex-col items-center px-5 pt-[clamp(80px,calc(var(--zx-vh,100svh)*0.1),110px)] text-center max-[560px]:pt-[72px] min-[900px]:[@media(max-height:760px)]:pt-[84px]">
+        <div className="relative z-10 flex flex-col items-center px-5 pt-[clamp(80px,calc(var(--zx-vh,100svh)*0.1),110px)] text-center max-[560px]:pt-[72px] min-[900px]:pb-[clamp(0px,calc((var(--zx-vh,100svh)-800px)*0.2),40px)] min-[900px]:[@media(max-height:760px)]:pt-[84px]">
             {/* Eyebrow */}
             <p className="mt-[50px] pl-[0.3em] max-[560px]:mt-6 text-[12px] tracking-[0.3em] text-white uppercase min-[561px]:pl-[0.5em] min-[561px]:tracking-[0.5em]" data-anim="eyebrow">
                 Marketing Agency
