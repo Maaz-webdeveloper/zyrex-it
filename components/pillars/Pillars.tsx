@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { PILLARS, PILLARS_COPY, type Pillar } from "./data";
 import { useParentScroll } from "@/components/embed/useParentScroll";
-import PillarsVisual from "./PillarsVisual";
+import PillarsVisual, { orbitOffset } from "./PillarsVisual";
 
 gsap.registerPlugin(useGSAP);
 
@@ -14,6 +14,8 @@ const LINE_GOLD = "linear-gradient(to bottom, #ffdd65, #ffcc00)";
 const STAGE_VH = 0.85; // stage height (x screen height)
 const PIN_VH = 1.2; // how long the stage stays pinned while you scroll (x screen height)
 const SHOW_AT = [0.1, 0.33, 0.56, 0.79]; // line progress at which pillar 1, 2, 3, 4 appear
+const ORBIT_DEG = 360; // how far the outer blocks turn around the core over the whole section
+const ORBIT_EASE = 0.86; // smoothing of the turn (closer to 1 = softer, slower to catch up with the scroll)
 
 function PillarText({ pillar, align }: { pillar: Pillar; align: "left" | "right" }) {
     const n = PILLARS.indexOf(pillar) + 1;
@@ -49,6 +51,7 @@ export default function Pillars() {
             const desktopItems = gsap.utils.toArray<HTMLElement>("[data-pillar]", stage);
             const mobileItems = gsap.utils.toArray<HTMLElement>("[data-pillar]", mList);
             const blocks = gsap.utils.toArray<SVGGElement>("[data-block-lit]", stage);
+            const orbits = gsap.utils.toArray<SVGGElement>("[data-orbit]", stage);
             const lit = new Map<Element, boolean>();
             const light = (el: Element, on: boolean) => {
                 if (lit.get(el) === on) return;
@@ -74,6 +77,9 @@ export default function Pillars() {
             // Position inside this embed page (same value whether the page scrolls itself or not)
             const pageTop = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
 
+            let angle = 0; // current orbit turn (deg), eases toward the scroll position
+            let drawnAngle = 0;
+
             const tick = () => {
                 const { top, viewport: vh } = scroll.current;
 
@@ -87,6 +93,19 @@ export default function Pillars() {
 
                     gsap.set(stage, { y: pin });
                     gsap.set(fill, { scaleY: p });
+
+                    // Orbit: scroll down = forward, scroll up = back. Only the position changes, so blocks stay upright.
+                    const targetAngle = p * ORBIT_DEG;
+                    angle += (targetAngle - angle) * (1 - Math.pow(ORBIT_EASE, gsap.ticker.deltaRatio()));
+                    if (Math.abs(targetAngle - angle) < 0.02) angle = targetAngle;
+                    if (angle !== drawnAngle) {
+                        drawnAngle = angle;
+                        orbits.forEach((el) => {
+                            const o = orbitOffset(Number(el.dataset.orbit), angle);
+                            el.setAttribute("transform", `translate(${o.x} ${o.y})`);
+                        });
+                    }
+
                     desktopItems.forEach((el) => toggle(el, p >= SHOW_AT[Number(el.dataset.pillar)]));
                     blocks.forEach((el) => {
                         const i = Number(el.dataset.blockLit);
