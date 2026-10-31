@@ -72,15 +72,15 @@ function Card({ name, role, photo, active }: { name: string; role: string; photo
                 />
 
                 {/* Name + role pills */}
-                <div className="absolute inset-x-0 bottom-[14%] flex translate-y-3 flex-col items-center gap-1.5 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-data-[active=true]:translate-y-0 group-data-[active=true]:opacity-100">
+                <div className="absolute inset-x-0 bottom-[9%] flex translate-y-3 flex-col items-center gap-1 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-data-[active=true]:translate-y-0 group-data-[active=true]:opacity-100">
                     <span
-                        className="rounded-full px-[clamp(18px,1.8vw,28px)] py-[clamp(8px,0.8vw,12px)] text-[clamp(14px,1.15vw,18px)] font-extrabold whitespace-nowrap text-black uppercase shadow-[0_10px_30px_rgba(255,204,0,0.3)]"
-                        style={{ background: GOLD }}
+                        className="inline-flex h-[clamp(27px,2vw,31px)] w-fit items-center justify-center rounded-full px-[clamp(14px,1.1vw,18px)] text-[clamp(11px,0.8vw,12.5px)] font-normal tracking-[0.08em] whitespace-nowrap text-black uppercase shadow-[0_6px_18px_rgba(255,204,0,0.22)]"
+                        style={{ background: GOLD, WebkitTextStroke: "0.012em currentColor" }} // Garet has no 500/600: faint stroke keeps the 400 text legible on gold
                     >
                         {name}
                     </span>
                     <span
-                        className="inline-flex h-[36px] w-fit items-center justify-center rounded-full px-6 text-[clamp(10px,0.8vw,12px)] font-extrabold tracking-[0.14em] whitespace-nowrap text-[#f9f3f3] uppercase"
+                        className="inline-flex h-[clamp(24px,1.75vw,27px)] w-fit items-center justify-center rounded-full px-[clamp(12px,0.95vw,15px)] text-[clamp(9px,0.62vw,10px)] font-normal tracking-[0.12em] whitespace-nowrap text-[#f9f3f3] uppercase"
                         style={{
                             border: "1px solid transparent",
                             background:
