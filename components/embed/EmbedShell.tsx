@@ -2,6 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import gsap from "gsap";
+import Lenis from "lenis";
+import "lenis/dist/lenis.css";
 import { MSG, inIframe, onParentMessage, sendToParent } from "@/lib/embed";
 
 /**
@@ -10,6 +13,7 @@ import { MSG, inIframe, onParentMessage, sendToParent } from "@/lib/embed";
  * 2. receives the real screen height -> CSS variable --zx-vh
  * 3. forwards the mouse wheel to the GHL page (Lenis smooth scroll)
  * 4. forwards the mouse position to the GHL page (one cursor ball everywhere)
+ * Opened directly (localhost / Vercel) it runs its own Lenis, so it scrolls like the GHL page.
  */
 export default function EmbedShell({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -25,6 +29,24 @@ export default function EmbedShell({ children }: { children: React.ReactNode }) 
       html.style.overflow = "hidden";
       body.style.overflow = "hidden";
     }
+  }, []);
+
+  // Opened directly: Lenis smooth scroll. Never inside the iframe (the GHL page already has it).
+  useEffect(() => {
+    if (inIframe()) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const lenis = new Lenis({
+      prevent: (node) => !!node.closest?.("[data-native-scroll]"), // inner scroll areas keep their own scroll
+    });
+    // Runs first in the GSAP tick, so sections read this frame's scroll position, not the last one
+    const raf = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(raf, false, true);
+    gsap.ticker.lagSmoothing(0);
+    return () => {
+      gsap.ticker.remove(raf);
+      gsap.ticker.lagSmoothing(500, 33);
+      lenis.destroy();
+    };
   }, []);
 
   // Screen height -> --zx-vh (use this instead of 100vh / h-screen inside embeds)

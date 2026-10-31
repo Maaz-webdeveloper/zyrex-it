@@ -15,16 +15,16 @@ export function useParentScroll() {
 
   useEffect(() => {
     if (!inIframe()) {
-      const update = () => {
-        ref.current = { top: -window.scrollY, viewport: window.innerHeight };
+      // Read live: the "scroll" event fires a frame late, which would make pinned parts shake
+      ref.current = {
+        get top() {
+          return -window.scrollY;
+        },
+        get viewport() {
+          return window.innerHeight;
+        },
       };
-      update();
-      window.addEventListener("scroll", update, { passive: true });
-      window.addEventListener("resize", update);
-      return () => {
-        window.removeEventListener("scroll", update);
-        window.removeEventListener("resize", update);
-      };
+      return;
     }
 
     return onParentMessage(MSG.scroll, (d) => {

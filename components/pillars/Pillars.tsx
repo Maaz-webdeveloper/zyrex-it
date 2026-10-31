@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { PILLARS, PILLARS_COPY, type Pillar } from "./data";
 import { useParentScroll } from "@/components/embed/useParentScroll";
+import { inIframe } from "@/lib/embed";
 import PillarsVisual, { orbitOffset } from "./PillarsVisual";
 
 gsap.registerPlugin(useGSAP);
@@ -15,7 +16,12 @@ const STAGE_VH = 0.85; // stage height (x screen height)
 const PIN_VH = 1.2; // how long the stage stays pinned while you scroll (x screen height)
 const SHOW_AT = [0.1, 0.33, 0.56, 0.79]; // line progress at which pillar 1, 2, 3, 4 appear
 const ORBIT_DEG = 360; // how far the outer blocks turn around the core over the whole section
-const ORBIT_EASE = 0.86; // smoothing of the turn (closer to 1 = softer, slower to catch up with the scroll)
+const PROGRESS_EASE = 0.86; // smoothing of the line, orbit and reveals (closer to 1 = softer, slower to catch up)
+const PROGRESS_SNAP = 0.0002; // this close to the target: land exactly on it
+// Inside the iframe the scroll position arrives late and unevenly. These steady it without adding lag:
+const FILTER_POSITION = 0.3; // how much of each new reading to trust
+const FILTER_SPEED = 0.05; // how fast the estimated scroll speed adapts
+const FILTER_LEAD_MS = 16; // look ahead by one frame, the delay of the message
 
 function PillarText({ pillar, align }: { pillar: Pillar; align: "left" | "right" }) {
     const n = PILLARS.indexOf(pillar) + 1;
@@ -77,11 +83,44 @@ export default function Pillars() {
             // Position inside this embed page (same value whether the page scrolls itself or not)
             const pageTop = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
 
-            let angle = 0; // current orbit turn (deg), eases toward the scroll position
-            let drawnAngle = 0;
+            let progress = 0; // eased line progress (0-1): drives the line, orbit and reveals
+            let drawnProgress = 0;
+
+            // Scroll position for the pin. Opened directly it is already exact (Lenis, read live). Easing it
+            // would make the stage drift, so only the late iframe signal is filtered.
+            const framed = inIframe();
+            let steady: number | null = null;
+            let speed = 0; // px per ms
+            let lastTop = 0;
+            let stillFrames = 0;
+            const steadyTop = (raw: number) => {
+                if (!framed) return raw;
+                const dt = Math.max(gsap.ticker.deltaRatio() * 16.67, 1);
+                if (steady === null || Math.abs(raw - steady) > 300) {
+                    // First reading or a jump (e.g. a menu link): no gliding
+                    steady = raw;
+                    speed = 0;
+                    return raw;
+                }
+                stillFrames = raw === lastTop ? stillFrames + 1 : 0;
+                lastTop = raw;
+                if (stillFrames >= 4) {
+                    // Scrolling stopped: land exactly on the real position
+                    speed = 0;
+                    steady += (raw - steady) * 0.3;
+                    if (Math.abs(raw - steady) < 0.25) steady = raw;
+                    return steady;
+                }
+                const predicted = steady + speed * dt;
+                const miss = raw - predicted;
+                steady = predicted + miss * FILTER_POSITION;
+                speed += (miss * FILTER_SPEED) / dt;
+                return steady + speed * FILTER_LEAD_MS;
+            };
 
             const tick = () => {
-                const { top, viewport: vh } = scroll.current;
+                const { top: rawTop, viewport: vh } = scroll.current;
+                const top = steadyTop(rawTop);
 
                 if (wrap.offsetParent !== null) {
                     // ===== Desktop: pin the stage, fill the line, reveal pillars =====
@@ -89,19 +128,20 @@ export default function Pillars() {
                     const distance = wrap.offsetHeight - stageH;
                     const wrapOnScreen = top + pageTop(wrap);
                     const pin = gsap.utils.clamp(0, distance, (vh - stageH) / 2 - wrapOnScreen);
-                    const p = distance > 0 ? pin / distance : 0;
+                    const target = distance > 0 ? pin / distance : 0;
 
+                    // The pin stays exact so the stage feels attached to the page; everything else glides
                     gsap.set(stage, { y: pin });
-                    gsap.set(fill, { scaleY: p });
+                    progress += (target - progress) * (1 - Math.pow(PROGRESS_EASE, gsap.ticker.deltaRatio()));
+                    if (Math.abs(target - progress) < PROGRESS_SNAP) progress = target;
+                    const p = progress;
 
-                    // Orbit: scroll down = forward, scroll up = back. Only the position changes, so blocks stay upright.
-                    const targetAngle = p * ORBIT_DEG;
-                    angle += (targetAngle - angle) * (1 - Math.pow(ORBIT_EASE, gsap.ticker.deltaRatio()));
-                    if (Math.abs(targetAngle - angle) < 0.02) angle = targetAngle;
-                    if (angle !== drawnAngle) {
-                        drawnAngle = angle;
+                    if (p !== drawnProgress) {
+                        drawnProgress = p;
+                        gsap.set(fill, { scaleY: p });
+                        // Orbit: scroll down = forward, scroll up = back. Only the position changes, so blocks stay upright.
                         orbits.forEach((el) => {
-                            const o = orbitOffset(Number(el.dataset.orbit), angle);
+                            const o = orbitOffset(Number(el.dataset.orbit), p * ORBIT_DEG);
                             el.setAttribute("transform", `translate(${o.x} ${o.y})`);
                         });
                     }
