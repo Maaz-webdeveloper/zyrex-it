@@ -4,7 +4,7 @@ export const TEAM_COPY = {
   label: "Our Team",
   heading: "Meet The Minds",
   headingLine2: "Behind", // white part of line 2
-  headingAccent: "ZYREXIT", // gold word at the end of line 2
+  headingAccent: "ZYREX IT", // gold word at the end of line 2
   text: "Strategists, designers and engineers who build, automate and scale growth for every client. Drag or swipe to meet the people behind ZYREX IT.",
 };
 

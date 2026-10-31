@@ -290,10 +290,11 @@ export default function Team() {
                     <br />
                     {TEAM_COPY.headingLine2}{" "}
                     <span
-                        className="animate-zx-shine bg-clip-text font-extrabold text-transparent"
+                        className="animate-zx-shine bg-clip-text font-normal text-transparent"
                         style={{
                             backgroundImage: "linear-gradient(90deg, #ffcc00 0%, #ffdd65 25%, #fff3b0 50%, #ffdd65 75%, #ffcc00 100%)",
                             backgroundSize: "200% 100%",
+                            WebkitTextStroke: "0.015em transparent", // Garet has no 500/600: this thickens the letters; bg-clip-text fills the stroke with the gold shine, so no outline
                         }}
                     >
                         {TEAM_COPY.headingAccent}
