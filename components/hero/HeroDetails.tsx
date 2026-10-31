@@ -20,7 +20,7 @@ const CARD_BG = {
 
 const ICON_BOX =
     "mb-3.5 grid size-[40px] place-items-center rounded-[11px] border border-accent/25 bg-accent/10 text-accent";
-const BIG = "text-[clamp(30px,2.6vw,44px)] leading-none font-extrabold text-white";
+const BIG = "text-[clamp(30px,2.6vw,44px)] leading-none font-normal tracking-[-0.01em] text-white";
 const TITLE = "mt-2.5 text-[clamp(14px,1.05vw,17px)] leading-snug text-white/90";
 const SMALL = "mt-1.5 text-[clamp(11px,0.8vw,13px)] leading-snug text-white/60";
 
@@ -32,7 +32,7 @@ function Avatars() {
             src="/hero/clients-avatars.svg"
             alt="Happy clients"
             draggable={false}
-            className="mb-3.5 h-[clamp(34px,2.6vw,44px)] w-auto max-w-full"
+            className="mb-3.5 h-[clamp(40px,2.8vw,53px)] w-auto max-w-full"
             style={{ clipPath: "inset(0 24% 0 0)" }}
         />
     );
