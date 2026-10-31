@@ -271,11 +271,11 @@ export default function Team() {
         <section
             ref={rootRef}
             id="team"
-            className="group/team relative w-full overflow-hidden px-5 py-[clamp(64px,8vw,120px)] text-white"
+            className="group/team relative w-full overflow-hidden px-5 pt-[clamp(56px,4.5vw,72px)] pb-[clamp(64px,8vw,120px)] text-white"
             style={{ background: "radial-gradient(ellipse 60% 45% at 50% 55%, rgba(255, 204, 0, 0.05), transparent 70%), #0a0a0a" }}
         >
             {/* Heading */}
-            <div className="mx-auto flex max-w-[52rem] flex-col items-center text-center">
+            <div className="mx-auto flex max-w-[72rem] flex-col items-center text-center">
                 <span
                     data-reveal="label"
                     className="rounded-full border border-accent/70 px-5 py-2 text-[11px] font-normal tracking-[0.18em] text-white uppercase"
@@ -284,17 +284,17 @@ export default function Team() {
                 </span>
                 <h2
                     data-reveal="heading"
-                    className="mt-6 text-[clamp(2.2rem,4.4vw,4rem)] leading-[1.08] font-normal tracking-[-0.02em]"
+                    className="mt-6 text-[clamp(2.2rem,3.6vw,4rem)] leading-[1.08] font-normal tracking-[-0.02em] min-[900px]:whitespace-nowrap"
                 >
-                    {TEAM_COPY.heading}
-                    <br />
+                    {TEAM_COPY.heading}{" "}
+                    <br className="min-[900px]:hidden" />
                     {TEAM_COPY.headingLine2}{" "}
                     <span
                         className="animate-zx-shine bg-clip-text font-normal text-transparent"
                         style={{
                             backgroundImage: "linear-gradient(90deg, #ffcc00 0%, #ffdd65 25%, #fff3b0 50%, #ffdd65 75%, #ffcc00 100%)",
                             backgroundSize: "200% 100%",
-                            WebkitTextStroke: "0.015em transparent", // Garet has no 500/600: this thickens the letters; bg-clip-text fills the stroke with the gold shine, so no outline
+                            WebkitTextStroke: "0.024em transparent", // Garet has no 500/600: this thickens the letters; bg-clip-text fills the stroke with the gold shine, so no outline
                         }}
                     >
                         {TEAM_COPY.headingAccent}
@@ -302,14 +302,14 @@ export default function Team() {
                 </h2>
                 <p
                     data-reveal="heading"
-                    className="mt-5 max-w-[40rem] text-[clamp(14px,1.15vw,17px)] leading-[1.65] text-balance text-white/75"
+                    className="mt-5 max-w-[46rem] text-[clamp(14px,1.15vw,17px)] leading-[1.65] text-balance text-white/75"
                 >
                     {TEAM_COPY.text}
                 </p>
             </div>
 
             {/* Slider */}
-            <div className="mx-auto mt-[clamp(40px,5vw,64px)] max-w-[1500px]">
+            <div className="mx-auto mt-[clamp(28px,2.6vw,40px)] max-w-[1500px]">
                 <div ref={emblaRef} className="-my-12 w-full cursor-grab overflow-hidden py-12 select-none active:cursor-grabbing">
                     <div className="-ml-[clamp(16px,1.6vw,24px)] flex touch-pan-y">
                         {TEAM.map((member, i) => (
