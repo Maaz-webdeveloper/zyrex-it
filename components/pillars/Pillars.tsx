@@ -119,14 +119,13 @@ export default function Pillars() {
             };
 
             const tick = () => {
-                const { top: rawTop, viewport: vh } = scroll.current;
-                const top = steadyTop(rawTop);
+                const { top, viewport: vh } = scroll.current;
 
                 if (wrap.offsetParent !== null) {
                     // ===== Desktop: pin the stage, fill the line, reveal pillars =====
                     const stageH = stage.offsetHeight;
                     const distance = wrap.offsetHeight - stageH;
-                    const wrapOnScreen = top + pageTop(wrap);
+                    const wrapOnScreen = steadyTop(top) + pageTop(wrap);
                     const pin = gsap.utils.clamp(0, distance, (vh - stageH) / 2 - wrapOnScreen);
                     const target = distance > 0 ? pin / distance : 0;
 
