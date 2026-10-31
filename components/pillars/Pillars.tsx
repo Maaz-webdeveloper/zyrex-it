@@ -31,7 +31,6 @@ export default function Pillars() {
     const wrapRef = useRef<HTMLDivElement>(null); // tall box that creates the scroll distance (desktop)
     const stageRef = useRef<HTMLDivElement>(null); // the part that stays pinned (desktop)
     const fillRef = useRef<HTMLSpanElement>(null);
-    const dotRef = useRef<HTMLSpanElement>(null);
     const mListRef = useRef<HTMLDivElement>(null); // mobile list
     const mFillRef = useRef<HTMLSpanElement>(null);
     const scroll = useParentScroll();
@@ -43,10 +42,9 @@ export default function Pillars() {
             const wrap = wrapRef.current;
             const stage = stageRef.current;
             const fill = fillRef.current;
-            const dot = dotRef.current;
             const mList = mListRef.current;
             const mFill = mFillRef.current;
-            if (!wrap || !stage || !fill || !dot || !mList || !mFill) return;
+            if (!wrap || !stage || !fill || !mList || !mFill) return;
 
             const desktopItems = gsap.utils.toArray<HTMLElement>("[data-pillar]", stage);
             const mobileItems = gsap.utils.toArray<HTMLElement>("[data-pillar]", mList);
@@ -89,7 +87,6 @@ export default function Pillars() {
 
                     gsap.set(stage, { y: pin });
                     gsap.set(fill, { scaleY: p });
-                    gsap.set(dot, { top: `${p * 100}%` });
                     desktopItems.forEach((el) => toggle(el, p >= SHOW_AT[Number(el.dataset.pillar)]));
                     blocks.forEach((el) => {
                         const i = Number(el.dataset.blockLit);
@@ -169,13 +166,8 @@ export default function Pillars() {
                             className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 origin-top"
                             style={{ background: LINE_GOLD, transform: "scaleY(0)", boxShadow: "0 0 8px rgba(255, 204, 0, 0.6)" }}
                         />
-                        <span
-                            ref={dotRef}
-                            className="absolute left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent shadow-[0_0_14px_rgba(255,204,0,0.9)]"
-                            style={{ top: "0%" }}
-                        />
-                        <span className="absolute top-0 left-1/2 size-2 -translate-x-1/2 bg-accent" />
-                        <span className="absolute bottom-0 left-1/2 size-2 -translate-x-1/2 bg-accent" />
+                        <span className="absolute top-0 left-1/2 size-2 -translate-x-1/2 rounded-full bg-accent" />
+                        <span className="absolute bottom-0 left-1/2 size-2 -translate-x-1/2 rounded-full bg-accent" />
                     </div>
 
                     <div className="flex flex-col justify-between py-[8%]">
