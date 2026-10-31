@@ -4,7 +4,7 @@
 // Card tilt uses the CSS "rotate"/"scale" properties, so it never conflicts with GSAP transforms.
 
 const CARD_OUTER =
-    "group absolute z-[7] hidden w-[clamp(200px,14vw,260px)] rounded-[20px] p-px shadow-[0_24px_60px_rgba(0,0,0,0.65)] transition-[box-shadow,rotate,scale] duration-500 animate-zx-float hover:rotate-0 hover:scale-[1.03] hover:shadow-[0_24px_60px_rgba(0,0,0,0.65),0_0_40px_rgba(255,204,0,0.15)] min-[900px]:block";
+    "group absolute z-[7] hidden w-[clamp(190px,12.5vw,232px)] rounded-[20px] p-px shadow-[0_24px_60px_rgba(0,0,0,0.65)] transition-[box-shadow,rotate,scale] duration-500 animate-zx-float hover:rotate-0 hover:scale-[1.03] hover:shadow-[0_24px_60px_rgba(0,0,0,0.65),0_0_40px_rgba(255,204,0,0.15)] min-[900px]:block";
 
 // Gold-to-glass gradient used as a 1px border
 const CARD_BORDER = {
@@ -13,16 +13,16 @@ const CARD_BORDER = {
 };
 
 const CARD_INNER =
-    "relative overflow-hidden rounded-[19px] p-[clamp(16px,1.3vw,22px)] backdrop-blur-xl";
+    "relative overflow-hidden rounded-[19px] p-[clamp(14px,1vw,20px)] backdrop-blur-xl";
 const CARD_BG = {
     background: "linear-gradient(160deg, rgba(28, 28, 28, 0.92), rgba(12, 12, 12, 0.88))",
 };
 
 const ICON_BOX =
-    "mb-3.5 grid size-[40px] place-items-center rounded-[11px] border border-accent/25 bg-accent/10 text-accent";
-const BIG = "text-[clamp(30px,2.6vw,44px)] leading-none font-normal tracking-[-0.01em] text-white";
-const TITLE = "mt-2.5 text-[clamp(14px,1.05vw,17px)] leading-snug text-white/90";
-const SMALL = "mt-1.5 text-[clamp(11px,0.8vw,13px)] leading-snug text-white/60";
+    "mb-3.5 grid size-[36px] place-items-center rounded-[11px] border border-accent/25 bg-accent/10 text-accent";
+const BIG = "text-[clamp(26px,2.3vw,38px)] leading-none font-normal tracking-[-0.01em] text-white";
+const TITLE = "mt-2.5 text-[clamp(13.5px,0.95vw,16px)] leading-snug text-white/90";
+const SMALL = "mt-1.5 text-[clamp(10.5px,0.68vw,12.5px)] leading-snug tracking-[-0.01em] text-white/60";
 
 function Avatars() {
     // Client avatars from the uploaded SVG (bigger, nothing cut off)
@@ -32,7 +32,7 @@ function Avatars() {
             src="/hero/clients-avatars.svg"
             alt="Happy clients"
             draggable={false}
-            className="mb-3.5 h-[clamp(40px,2.8vw,53px)] w-auto max-w-full"
+            className="mb-3.5 h-[clamp(36px,2.5vw,47px)] w-auto max-w-full"
             style={{ clipPath: "inset(0 24% 0 0)" }}
         />
     );
@@ -66,7 +66,7 @@ export default function HeroDetails() {
             <div
                 data-anim="card"
                 data-depth="22"
-                className={`${CARD_OUTER} top-[36%] left-[7%] -rotate-6`}
+                className={`${CARD_OUTER} top-[36%] left-[7%] -rotate-6 min-[1800px]:left-[5.5%] min-[2300px]:left-[4%]`}
                 style={CARD_BORDER}
             >
                 <div className={CARD_INNER} style={CARD_BG}>
@@ -95,7 +95,7 @@ export default function HeroDetails() {
             <div
                 data-anim="card"
                 data-depth="22"
-                className={`${CARD_OUTER} top-[40%] right-[7%] rotate-6`}
+                className={`${CARD_OUTER} top-[40%] right-[7%] rotate-6 min-[1800px]:right-[5.5%] min-[2300px]:right-[4%]`}
                 style={{ ...CARD_BORDER, animationDelay: "-3s" }}
             >
                 <div className={CARD_INNER} style={CARD_BG}>
