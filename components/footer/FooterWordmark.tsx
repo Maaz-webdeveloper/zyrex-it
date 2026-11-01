@@ -12,15 +12,15 @@ gsap.registerPlugin(useGSAP);
 
 const WORD = "ZYREX IT";
 const W = 1000; // drawing width
-const H = 192; // drawing height
+const H = 172; // drawing height
 
 const TEXT = {
     x: "0",
-    y: "182",
+    y: "167",
     textLength: String(W),
     lengthAdjust: "spacingAndGlyphs",
     fontSize: "230",
-    fontWeight: "800",
+    fontWeight: "400",
     style: { fontFamily: "var(--font-garet), Arial, sans-serif" },
 } as const;
 
@@ -74,7 +74,7 @@ export default function FooterWordmark() {
     });
 
     return (
-        <div ref={rootRef} aria-hidden="true" className="mt-[clamp(32px,4vw,64px)] pb-[clamp(16px,2vw,32px)] select-none">
+        <div ref={rootRef} aria-hidden="true" className="pb-[clamp(16px,2vw,28px)] select-none">
             <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible">
                 <defs>
                     <linearGradient id="zx-wm-gold" x1="0" y1="0" x2="1" y2="1">
@@ -97,7 +97,7 @@ export default function FooterWordmark() {
                 <text
                     {...TEXT}
                     fill="transparent"
-                    stroke="rgba(255, 255, 255, 0.22)"
+                    stroke="rgba(255, 255, 255, 0.34)"
                     strokeWidth="1"
                     vectorEffect="non-scaling-stroke"
                 >

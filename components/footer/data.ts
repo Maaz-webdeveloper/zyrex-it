@@ -2,8 +2,7 @@
 
 export const FOOTER_BRAND = {
   logo: "/hero/logo.png",
-  taglineTop: "Built. Automate.",
-  taglineGold: "Scale.",
+  text: "Websites, automation and ads in one connected system.",
   cta: { label: "Book a call", href: "#contact" },
 };
 
