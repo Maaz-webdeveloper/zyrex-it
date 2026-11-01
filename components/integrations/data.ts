@@ -17,33 +17,48 @@ export const FEATURES: { icon: FeatureIcon; title: string; text: string }[] = [
   { icon: "dashboard", title: "One Dashboard", text: "Every lead, call and sale tracked in one place." },
 ];
 
-// Tools in the moving band. icon = any image URL, or a file in /public (e.g. "/tools/hubspot.svg").
-// Placeholder logos come from Simple Icons; replace this list with your own tools later.
+// Tools in the moving band. icon = any image URL, or a file in /public (e.g. "/integrations/twilio.svg").
+// Brands missing from the Simple Icons CDN are local files in public/integrations/.
+// Pale logos get a darker color so they stay visible on the light tiles (si("slug", "hex")).
 const si = (slug: string, color?: string) => `https://cdn.simpleicons.org/${slug}${color ? `/${color}` : ""}`;
 
 export const TOOLS = [
   { name: "HubSpot", icon: si("hubspot") },
   { name: "Stripe", icon: si("stripe") },
+  { name: "Figma", icon: si("figma") },
   { name: "Zapier", icon: si("zapier") },
   { name: "Google", icon: si("google") },
+  { name: "Next.js", icon: si("nextdotjs") },
   { name: "Gmail", icon: si("gmail") },
   { name: "Google Calendar", icon: si("googlecalendar") },
+  { name: "Adobe Photoshop", icon: "/integrations/adobe-photoshop.svg" },
   { name: "Shopify", icon: si("shopify") },
   { name: "WordPress", icon: si("wordpress") },
-  { name: "Mailchimp", icon: si("mailchimp") },
+  { name: "GoHighLevel", icon: "/integrations/gohighlevel.svg" },
+  { name: "Mailchimp", icon: si("mailchimp", "241C15") },
   { name: "Notion", icon: si("notion") },
+  { name: "Canva", icon: "/integrations/canva.svg" },
   { name: "Trello", icon: si("trello") },
   { name: "Zoom", icon: si("zoom") },
+  { name: "React", icon: si("react", "087EA4") },
   { name: "WhatsApp", icon: si("whatsapp") },
   { name: "PayPal", icon: si("paypal") },
+  { name: "Adobe Premiere Pro", icon: "/integrations/adobe-premiere-pro.svg" },
   { name: "QuickBooks", icon: si("quickbooks") },
   { name: "Calendly", icon: si("calendly") },
+  { name: "Tailwind CSS", icon: si("tailwindcss") },
   { name: "Facebook", icon: si("facebook") },
   { name: "Instagram", icon: si("instagram") },
+  { name: "LeadConnector", icon: "/integrations/leadconnector.png" },
   { name: "Airtable", icon: si("airtable") },
   { name: "Asana", icon: si("asana") },
+  { name: "Adobe Illustrator", icon: "/integrations/adobe-illustrator.svg" },
   { name: "Wix", icon: si("wix") },
   { name: "WooCommerce", icon: si("woocommerce") },
-  { name: "Twilio", icon: si("twilio") },
+  { name: "TypeScript", icon: si("typescript") },
+  { name: "Twilio", icon: "/integrations/twilio.svg" },
+  { name: "Adobe After Effects", icon: "/integrations/adobe-after-effects.svg" },
   { name: "Google Analytics", icon: si("googleanalytics") },
+  { name: "GitHub", icon: si("github") },
+  { name: "Adobe XD", icon: "/integrations/adobe-xd.svg" },
 ];

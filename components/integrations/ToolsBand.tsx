@@ -12,8 +12,9 @@ import { TOOLS } from "./data";
 
 gsap.registerPlugin(useGSAP);
 
-const SPEED = 45; // seconds for one full loop on desktop (bigger = slower)
-const SPEED_MOBILE = 36; // seconds for one full loop on mobile
+// Seconds per tool: the loop length follows the list, so the tiles keep the same pace with any number of tools (bigger = slower)
+const SPEED = 1.875 * TOOLS.length; // desktop
+const SPEED_MOBILE = 1.5 * TOOLS.length; // mobile
 const LOGO = "https://assets.cdn.filesafe.space/bGYkTtwdgUDkTHqNb1v2/media/6ac083557d735ea2a1ec64a6.png";
 
 // Pipe lines in a 1440 x 600 space (pipe = between y 240 and 360). Mobile uses the same lines turned upright.
