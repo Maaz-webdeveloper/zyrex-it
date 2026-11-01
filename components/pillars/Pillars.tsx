@@ -73,11 +73,11 @@ export default function Pillars() {
             />
 
             {/* ===== Heading block ===== */}
-            <div className="relative mx-auto flex max-w-[60rem] flex-col items-center text-center">
-                <h2 className="text-[clamp(32px,4.4vw,64px)] leading-[1.08] font-normal tracking-[-0.02em] text-balance">
+            <div className="relative mx-auto flex max-w-[120rem] flex-col items-center text-center">
+                <h2 className="text-[clamp(32px,4.2vw,96px)] leading-[1.08] font-normal tracking-[-0.02em] text-balance">
                     {PILLARS_COPY.heading}
                 </h2>
-                <p className="mt-6 max-w-[40rem] text-[clamp(15px,1.15vw,17px)] leading-[1.65] text-balance text-white/75">
+                <p className="mt-[clamp(20px,1.8vw,36px)] max-w-[44em] text-[clamp(15px,1.4vw,28px)] leading-[1.6] text-balance text-white/75">
                     {PILLARS_COPY.text}
                 </p>
                 <a

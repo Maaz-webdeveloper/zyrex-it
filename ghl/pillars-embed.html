@@ -1,0 +1,43 @@
+<!-- ═══════════════════════════════════════════════════════════
+     ZYREX IT | Pillars (heading + desktop stage)
+     Paste into ONE Custom HTML element. Replaces the two old Pillars elements.
+
+     Heading iframe: /embed/pillars. The bridge sets its height.
+     Stage: the wrapper is the scroll distance, the iframe sticks to the top of the screen inside it.
+     Wrapper height = (1 + pin length) x 100vh. 2.2 = 1 + 1.2, keep 1.2 equal to PIN_VH in
+     components/pillars/PillarsStage.tsx (that value is only used when opened directly).
+     Below 768px the stage collapses to 0 height: the mobile list is in /embed/pillars.
+     Do not put overflow on .zx-pillars: it would stop the sticky pin.
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+  .zx-pillars { display: block; margin: 0; padding: 0; background: #0a0a0a; line-height: 0; font-size: 0; }
+  .zx-pillars iframe { display: block; width: 100%; margin: 0; padding: 0; border: 0; }
+  .zx-pillars-pin { position: relative; height: calc(2.2 * 100vh); margin: 0; background: #0a0a0a; }
+  .zx-pillars-pin iframe { position: sticky; top: 0; height: 100vh; }
+  @media (max-width: 767px) {
+    .zx-pillars-pin { height: 0; overflow: hidden; }
+    .zx-pillars-pin iframe { height: 0; }
+  }
+  /* Reduced motion: everything is already visible, so nothing to pin */
+  @media (min-width: 768px) and (prefers-reduced-motion: reduce) {
+    .zx-pillars-pin { height: 100vh; }
+  }
+</style>
+<div class="zx-pillars">
+  <iframe
+    src="https://zyrex-it.vercel.app/embed/pillars"
+    data-zyrex-embed="/embed/pillars"
+    title="ZYREX IT pillars"
+    scrolling="no"
+    frameborder="0"
+  ></iframe>
+  <div class="zx-pillars-pin" data-zyrex-pin>
+    <iframe
+      src="https://zyrex-it.vercel.app/embed/pillars-stage"
+      data-zyrex-embed="/embed/pillars-stage"
+      title="ZYREX IT pillars stage"
+      scrolling="no"
+      frameborder="0"
+    ></iframe>
+  </div>
+</div>

@@ -12,11 +12,11 @@ import PillarsVisual, { orbitOffset } from "./PillarsVisual";
 gsap.registerPlugin(useGSAP);
 
 // Desktop stage of the Pillars section. It is one screen tall and never moves itself:
-// on GHL the page pins this iframe with position: sticky (ghl/pillars-stage-embed.html).
+// on GHL the page pins this iframe with position: sticky (ghl/pillars-embed.html).
 // Mobile renders nothing here (the mobile list lives in Pillars.tsx).
 
 const STAGE_VH = 0.85; // height of the content inside the one-screen stage (x screen height)
-const PIN_VH = 1.2; // pin length (x screen height). Keep equal to the wrapper height in ghl/pillars-stage-embed.html
+const PIN_VH = 1.2; // pin length (x screen height). Keep equal to the wrapper height in ghl/pillars-embed.html
 const SHOW_AT = [0.1, 0.33, 0.56, 0.79]; // progress at which pillar 1, 2, 3, 4 appear
 const ORBIT_DEG = 360; // how far the outer blocks turn around the core over the whole pin
 const PROGRESS_EASE = 0.86; // smoothing of the line, orbit and reveals (closer to 1 = softer, slower to catch up)
