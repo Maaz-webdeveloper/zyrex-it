@@ -1,5 +1,5 @@
 export const PILLARS_COPY = {
-  heading: "Where design, automation and growth meet",
+  heading: "One connected system for your growth",
   text: "ZYREX IT brings your website, your CRM and your marketing into one connected system, so every visitor turns into a lead and every lead into a customer.",
   cta: { label: "Book a call", href: "#contact" },
 };
