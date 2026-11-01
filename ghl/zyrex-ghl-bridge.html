@@ -10,6 +10,7 @@
      5. Scrolls to a section when a menu link is clicked inside an iframe
      6. One golden cursor ball across GHL sections and Next.js sections
      7. Answers the Next.js "is the preloader gone?" question
+     8. Pinned iframes: reports the [data-zyrex-pin] wrapper and leaves the iframe height alone
      ═══════════════════════════════════════════════════════════ -->
 <style>
       /* Site font: Garet for the GHL sections too (same files as the preloader) */
@@ -216,15 +217,38 @@
 
   /* ---------- 4b. Scroll position -> embeds (for scroll animations inside iframes) ---------- */
   var scrollQueued = false;
+
+  // position: sticky stops working if a parent is a scroll container (overflow hidden/auto/scroll).
+  // overflow: clip still cuts off the same content but keeps sticky working.
+  function freePin(pin) {
+    if (pin.__zxFree || isLocked()) return; // while locked the page itself has overflow: hidden
+    pin.__zxFree = true;
+    function open(v) { return v === 'hidden' ? 'clip' : (v === 'auto' || v === 'scroll') ? 'visible' : v; }
+    for (var el = pin.parentElement; el && el !== html; el = el.parentElement) {
+      var cs = getComputedStyle(el);
+      var x = open(cs.overflowX), y = open(cs.overflowY);
+      if (x !== cs.overflowX) el.style.overflowX = x;
+      if (y !== cs.overflowY) el.style.overflowY = y;
+    }
+  }
+
   function sendScroll() {
     scrollQueued = false;
     var f = frames();
     for (var i = 0; i < f.length; i++) {
-      post(f[i].contentWindow, {
+      var msg = {
         type: 'zyrex-scroll',
         top: f[i].getBoundingClientRect().top,
         viewport: window.innerHeight
-      });
+      };
+      var pin = f[i].closest('[data-zyrex-pin]');
+      if (pin) {
+        var r = pin.getBoundingClientRect();
+        msg.pinTop = r.top;
+        msg.pinHeight = r.height;
+        if (r.height > 0) freePin(pin); // height 0 = mobile, nothing is pinned
+      }
+      post(f[i].contentWindow, msg);
     }
   }
   function queueScroll() {
@@ -244,7 +268,8 @@
 
     switch (d.type) {
       case 'zyrex-embed-height':
-        if (frame && typeof d.height === 'number') frame.style.height = d.height + 'px';
+        // Pinned iframes get their height from the GHL CSS (100vh), not from the content
+        if (frame && typeof d.height === 'number' && !frame.closest('[data-zyrex-pin]')) frame.style.height = d.height + 'px';
         break;
 
       case 'zyrex-hello':

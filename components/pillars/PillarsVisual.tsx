@@ -1,7 +1,7 @@
 // Center visual of the Pillars section: isometric gold wireframe blocks.
 // Block 0-3 = pillar 1-4 (Build, Automate, Scale, Insights), block 4 = the core in the middle.
-// Each block has an outline layer (always visible) and a "lit" layer ([data-block-lit]) that Pillars.tsx fades in.
-// Blocks 0-3 sit in a [data-orbit] group: Pillars.tsx moves it around the core while scrolling.
+// Each block has an outline layer (always visible) and a "lit" layer ([data-block-lit]) that PillarsStage.tsx fades in.
+// Blocks 0-3 sit in a [data-orbit] group: PillarsStage.tsx moves it around the core while scrolling.
 // Only the position changes, so the blocks stay upright.
 
 const S = 52; // block size in the 400 x 400 drawing
@@ -67,7 +67,7 @@ export default function PillarsVisual() {
                             ))}
                         </g>
 
-                        {/* Lit (gold), faded in by Pillars.tsx */}
+                        {/* Lit (gold), faded in by PillarsStage.tsx */}
                         <g
                             data-block-lit={i}
                             stroke="url(#zx-gold-edge)"
