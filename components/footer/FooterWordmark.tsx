@@ -12,15 +12,21 @@ gsap.registerPlugin(useGSAP);
 
 const WORD = "ZYREX IT";
 const W = 1000; // drawing width
-const H = 172; // drawing height
+const H = 178; // drawing height
+
+// Garet only has 400 and 800. A stroke around the 400 letters gives the medium weight of the Hero text.
+// x and fontSize put the outer edge of Z and T exactly on 0 and W, so the word lines up with the divider lines.
+const WEIGHT = 16;
+const OUTLINE = 2; // thin line around the letters, in drawing units (half of it shows on each side)
 
 const TEXT = {
-    x: "0",
-    y: "167",
-    textLength: String(W),
-    lengthAdjust: "spacingAndGlyphs",
-    fontSize: "230",
+    x: "-5",
+    y: "169.8",
+    dx: "0 14 6 6 6 0 -23.4 0", // the thicker letters need more room: space taken from the gap before IT, so the total width stays the same
+    fontSize: "229.6",
     fontWeight: "400",
+    strokeLinejoin: "miter",
+    strokeMiterlimit: 8,
     style: { fontFamily: "var(--font-garet), Arial, sans-serif" },
 } as const;
 
@@ -93,20 +99,17 @@ export default function FooterWordmark() {
                     </mask>
                 </defs>
 
-                {/* Outline (always visible) */}
-                <text
-                    {...TEXT}
-                    fill="transparent"
-                    stroke="rgba(255, 255, 255, 0.34)"
-                    strokeWidth="1"
-                    vectorEffect="non-scaling-stroke"
-                >
+                {/* Outline (always visible): the thick letter, then the same letter in the footer's black on top, leaving a thin line */}
+                <text {...TEXT} fill="#575757" stroke="#575757" strokeWidth={WEIGHT}>
+                    {WORD}
+                </text>
+                <text {...TEXT} fill="#000" stroke="#000" strokeWidth={WEIGHT - OUTLINE}>
                     {WORD}
                 </text>
 
                 {/* Gold fill, only visible inside the moving light */}
                 <g ref={glowRef} mask="url(#zx-wm-mask)" style={{ opacity: 0 }}>
-                    <text {...TEXT} fill="url(#zx-wm-gold)" stroke="#ffdd65" strokeWidth="1" vectorEffect="non-scaling-stroke">
+                    <text {...TEXT} fill="url(#zx-wm-gold)" stroke="url(#zx-wm-gold)" strokeWidth={WEIGHT}>
                         {WORD}
                     </text>
                 </g>

@@ -37,7 +37,7 @@ export default function Footer() {
     useEffect(() => setYear(new Date().getFullYear()), []);
 
     return (
-        <footer className="relative flex w-full flex-col overflow-hidden bg-black px-5 pt-16 text-white lg:min-h-(--zx-vh) lg:pt-[clamp(36px,calc((var(--zx-vh)-640px)*0.35),120px)]">
+        <footer className="relative w-full overflow-hidden bg-black px-5 pt-16 text-white lg:pt-[clamp(36px,calc((var(--zx-vh)-640px)*0.35),120px)]">
             <div className="mx-auto w-full max-w-[80rem]">
                 <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_1px_minmax(0,2.1fr)] lg:gap-[clamp(32px,3.4vw,64px)]">
                     {/* ===== Left: brand ===== */}
@@ -132,11 +132,11 @@ export default function Footer() {
                     <p>{ADDRESS}</p>
                     <p className="text-white/80">© {year} ZYREX IT. All Rights Reserved</p>
                 </div>
-            </div>
 
-            {/* Takes the full width, but on short screens shrinks so the whole footer still fits (480px = everything else, 5.8 = word width / height) */}
-            <div className="mx-auto mt-auto w-full pt-8 lg:max-w-[max(640px,calc((var(--zx-vh)-480px)*5.8))] lg:pt-6">
-                <FooterWordmark />
+                {/* Same width as the divider lines above */}
+                <div className="pt-8 lg:pt-[clamp(24px,calc((var(--zx-vh)-640px)*0.2),64px)]">
+                    <FooterWordmark />
+                </div>
             </div>
         </footer>
     );

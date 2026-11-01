@@ -97,6 +97,15 @@ export default function EmbedShell({ children }: { children: React.ReactNode }) 
     };
   }, [pathname]);
 
+  // No drag "ghost" on links and images. Dragging selected text keeps working.
+  useEffect(() => {
+    const onDragStart = (e: DragEvent) => {
+      if (e.target instanceof Element && e.target.closest("a, img, svg")) e.preventDefault();
+    };
+    window.addEventListener("dragstart", onDragStart);
+    return () => window.removeEventListener("dragstart", onDragStart);
+  }, []);
+
   // Mouse wheel -> GHL page (so Lenis smooth scroll works over this section)
   useEffect(() => {
     if (!inIframe()) return;

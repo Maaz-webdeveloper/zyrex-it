@@ -56,6 +56,13 @@ body {
   text-shadow: none;
 }
 
+/* No drag "ghost" on links and images (Firefox: see the dragstart listener in EmbedShell) */
+a,
+img,
+svg {
+  -webkit-user-drag: none;
+}
+
 /* Things that should never be selected: images, icons, buttons, links, navigation */
 img,
 svg,
