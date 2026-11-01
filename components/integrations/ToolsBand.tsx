@@ -181,10 +181,12 @@ export default function ToolsBand() {
         { scope: rootRef }
     );
 
+    // The curves reach 36.67% of the band height below the band. Up to 1699px they run above the feature columns,
+    // so the bottom margin clears them. From 1700px the columns sit between the curves and need no extra room.
     return (
         <div
             ref={rootRef}
-            className="relative mx-auto my-[clamp(40px,5vw,72px)] h-[clamp(200px,22vw,320px)] w-full [--gap:clamp(28px,3.4vw,56px)] [--tile:clamp(46px,4.2vw,64px)] max-[767px]:my-8 max-[767px]:h-[440px] max-[767px]:[--gap:16px] max-[767px]:[--tile:56px]"
+            className="relative mx-auto my-[clamp(40px,5vw,72px)] h-(--band-h) w-full [--band-h:clamp(200px,22vw,320px)] [--gap:clamp(28px,3.4vw,56px)] md:max-[1699px]:mb-[calc(var(--band-h)*0.3667+clamp(24px,2.6vw,36px))] [--tile:clamp(46px,4.2vw,64px)] max-[767px]:my-8 max-[767px]:h-[440px] max-[767px]:[--gap:16px] max-[767px]:[--tile:56px]"
         >
             {/* ===== Desktop: horizontal pipe ===== */}
             <div className="absolute inset-0 max-[767px]:hidden">
