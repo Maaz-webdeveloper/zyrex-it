@@ -37,7 +37,7 @@ export default function Footer() {
     useEffect(() => setYear(new Date().getFullYear()), []);
 
     return (
-        <footer className="relative w-full overflow-hidden bg-black px-5 pt-16 text-white lg:pt-[clamp(36px,calc((var(--zx-vh)-640px)*0.35),120px)]">
+        <footer className="relative min-h-(--zx-vh) w-full overflow-hidden bg-black px-5 pt-16 text-white lg:pt-[clamp(36px,calc((var(--zx-vh)-640px)*0.35),120px)]">
             <div className="mx-auto w-full max-w-[80rem]">
                 <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_1px_minmax(0,2.1fr)] lg:gap-[clamp(32px,3.4vw,64px)]">
                     {/* ===== Left: brand ===== */}

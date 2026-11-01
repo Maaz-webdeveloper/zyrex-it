@@ -11,6 +11,7 @@
      6. One golden cursor ball across GHL sections and Next.js sections
      7. Answers the Next.js "is the preloader gone?" question
      8. Pinned iframes: reports the [data-zyrex-pin] wrapper and leaves the iframe height alone
+     9. Footer: its GHL section and row turn black, so no white shows around or below it
      ═══════════════════════════════════════════════════════════ -->
 <style>
       /* Site font: Garet for the GHL sections too (same files as the preloader) */
@@ -33,6 +34,8 @@
   body *:not(.fa):not(.fas):not(.far):not(.fab):not(.fal):not([class^="fa-"]):not([class*=" fa-"]) {
     font-family: "Garet", Arial, sans-serif !important;
   }
+  /* Without this an iframe sits on the text baseline, leaving a small gap below it */
+  iframe[data-zyrex-embed] { display: block; }
   /* Lenis basics (own version: no rule that blocks clicks on iframes) */
   html.lenis, html.lenis body { height: auto; }
   html.lenis.lenis-stopped { overflow: clip; }
@@ -259,6 +262,20 @@
   window.addEventListener('scroll', queueScroll, { passive: true });
   window.addEventListener('resize', queueScroll);
 
+  /* ---------- 4c. Footer: black up to the GHL section around it ---------- */
+  // Stops at the first parent that also holds other visible content (the page itself)
+  function blackenFooter(frame) {
+    if ((frame.getAttribute('src') || '').indexOf('/embed/footer') < 0) return;
+    for (var el = frame.parentElement; el && el !== document.body; el = el.parentElement) {
+      var kids = el.children, others = 0;
+      for (var i = 0; i < kids.length; i++) {
+        if (!kids[i].contains(frame) && kids[i].getBoundingClientRect().height > 0) others++;
+      }
+      if (others) break;
+      el.style.backgroundColor = '#000';
+    }
+  }
+
   /* ---------- 5. Messages from the Next.js sections ---------- */
   window.addEventListener('message', function (e) {
     if (e.origin !== EMBED_ORIGIN) return;
@@ -275,6 +292,7 @@
       case 'zyrex-hello':
         post(e.source, viewportMsg());
         if (noPreloader()) post(e.source, { type: 'zyrex-preloader-done' });
+        if (frame) blackenFooter(frame);
         queueScroll();
         break;
 

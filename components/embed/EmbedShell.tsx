@@ -19,13 +19,14 @@ export default function EmbedShell({ children }: { children: React.ReactNode }) 
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-  // Page setup: transparent background, no scrollbars inside the iframe
+  // Page setup. Inside the iframe: transparent background, no scrollbars.
+  // Opened directly the dark page color from globals.css stays, so nothing white shows.
   useEffect(() => {
     const { documentElement: html, body } = document;
-    html.style.background = "transparent";
-    body.style.background = "transparent";
     body.style.margin = "0";
     if (inIframe()) {
+      html.style.background = "transparent";
+      body.style.background = "transparent";
       html.style.overflow = "hidden";
       body.style.overflow = "hidden";
     }
