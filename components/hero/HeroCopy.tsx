@@ -10,6 +10,9 @@ const SHINE_CLASS =
 
 const SHINE_STYLE = {
   backgroundSize: "200% 100%",
+  // Garet has only 400/800: 400 + a thin stroke reads as a medium weight; bg-clip-text fills the stroke with the shine, so no outline.
+  // The stroke doesn't change letter widths, so the mobile 2-line fit is unaffected.
+  WebkitTextStroke: "0.03em transparent",
 } as const;
 
 export default function HeroCopy() {
@@ -21,7 +24,7 @@ export default function HeroCopy() {
             </p>
 
             {/* Heading: line 1 yellow-white-yellow, line 2 white-yellow-white */}
-            <h1 className="mt-[18px] max-w-[1000px] text-[clamp(1.5rem,3.5vw,3.2rem)] leading-[1.04] font-extrabold tracking-[-0.01em] uppercase max-[560px]:mt-3.5 max-[560px]:text-[calc((100vw-40px)/15.9)] max-[560px]:leading-[1.12] max-[560px]:tracking-normal min-[900px]:[@media(max-height:760px)]:mt-3 min-[1600px]:max-w-[1300px] min-[1600px]:text-[clamp(3rem,3.2vw,4.6rem)]">
+            <h1 className="mt-[18px] max-w-[1000px] text-[clamp(1.5rem,3.5vw,3.2rem)] leading-[1.04] font-normal tracking-[-0.01em] uppercase max-[560px]:mt-3.5 max-[560px]:text-[calc((100vw-40px)/15.9)] max-[560px]:leading-[1.12] max-[560px]:tracking-normal min-[900px]:[@media(max-height:760px)]:mt-3 min-[1600px]:max-w-[1300px] min-[1600px]:text-[clamp(3rem,3.2vw,4.6rem)]">
                 <span className={SHINE_CLASS} style={{ ...SHINE_STYLE, backgroundImage: SHINE_A }} data-anim="line">
                     Powering businesses with
                 </span>
