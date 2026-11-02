@@ -41,6 +41,8 @@ export default function ServicesStage() {
 
             const cards = gsap.utils.toArray<HTMLElement>("[data-service-card]", stage);
             const dims = cards.map((el) => el.querySelector<HTMLElement>("[data-card-dim]"));
+            // Shrink toward the center, so a card underneath pulls in on every side and no edge peeks out past the top card
+            cards.forEach((el) => (el.style.transformOrigin = "50% 50%"));
             const landed = cards.map(() => 0);
 
             let stageH = stage.clientHeight;
@@ -114,16 +116,18 @@ export default function ServicesStage() {
                 className="sticky top-0 flex items-center overflow-hidden bg-[#0a0a0a] px-5 text-white [--pad:clamp(16px,3.4vh,40px)] [--step:clamp(8px,1.3vh,14px)]"
                 style={{ height: "var(--zx-vh, 100svh)" }}
             >
-                {/* Room for the card plus the offset of the stack, centered in the screen */}
+                {/* All cards in exactly the same spot, centered in the screen: each new card covers the one below
+                    completely (the ones underneath only shrink/darken, so they stay hidden behind it).
+                    --card-h keeps the same card size as before (it still leaves room for the old stack offset). */}
                 <div
                     className="relative mx-auto w-full max-w-[80rem] [--card-h:min(calc(var(--zx-vh,100svh)-var(--pad)*2-var(--step)*var(--last)),720px)]"
-                    style={{ "--last": last, height: "calc(var(--card-h) + var(--step) * var(--last))" } as React.CSSProperties}
+                    style={{ "--last": last, height: "var(--card-h)" } as React.CSSProperties}
                 >
                     {SERVICES.map((s, i) => (
                         <div
                             key={s.title}
-                            className="absolute inset-x-0"
-                            style={{ top: `calc(var(--step) * ${i})`, zIndex: i }}
+                            className="absolute inset-x-0 top-0"
+                            style={{ zIndex: i }}
                         >
                             <ServiceCard
                                 service={s}
