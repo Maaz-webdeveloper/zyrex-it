@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { scrollParentTo } from "@/lib/embed";
 import { ADDRESS, FOOTER_BRAND, FOOTER_COLUMNS, LEGAL, SOCIALS } from "./data";
 import FooterWordmark from "./FooterWordmark";
@@ -33,9 +33,47 @@ function FooterLink({ href, children, className = "" }: { href: string; children
     );
 }
 
+// Logo PNG (/hero/logo.png, 3326x1014): the visible "T" ends at x = 2991px, i.e. 2.9497 x the image height.
+// The image starts 0.336 x height left of the column (ml below), so the letters span 2.6137 x height from the "Z".
+const LOGO_T_RIGHT = 2991 / 1014;
+const LOGO_ML = 0.336;
+const LOGO_VISIBLE_W = LOGO_T_RIGHT - LOGO_ML;
+
 export default function Footer() {
     const [year, setYear] = useState(2026);
     useEffect(() => setYear(new Date().getFullYear()), []);
+
+    // Desktop: size the logo so the right edge of the "T" lines up with the right edge of "Book a call".
+    // Layout offsets (not getBoundingClientRect), so the magnetic button's movement doesn't affect it.
+    // Mobile (or when the row wraps): the CSS size in the class is used.
+    const logoRef = useRef<HTMLImageElement>(null);
+    const rowRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const logo = logoRef.current;
+        const row = rowRef.current;
+        const socials = row?.firstElementChild as HTMLElement | null;
+        const btn = row?.lastElementChild as HTMLElement | null;
+        if (!logo || !row || !socials || !btn) return;
+        const desktop = window.matchMedia("(min-width: 1024px)");
+        const fit = () => {
+            const sameLine = btn.offsetTop < socials.offsetTop + socials.offsetHeight;
+            if (!desktop.matches || !sameLine) {
+                logo.style.removeProperty("--logo-h");
+                return;
+            }
+            const width = btn.offsetLeft + btn.offsetWidth - row.offsetLeft;
+            logo.style.setProperty("--logo-h", `${(width / LOGO_VISIBLE_W).toFixed(2)}px`);
+        };
+        fit();
+        const ro = new ResizeObserver(fit);
+        ro.observe(row);
+        ro.observe(btn);
+        desktop.addEventListener("change", fit);
+        return () => {
+            ro.disconnect();
+            desktop.removeEventListener("change", fit);
+        };
+    }, []);
 
     return (
         <footer className="relative min-h-(--zx-vh) w-full overflow-hidden bg-black px-5 pt-16 text-white lg:pt-[clamp(36px,calc((var(--zx-vh)-640px)*0.35),120px)]">
@@ -46,6 +84,7 @@ export default function Footer() {
                         {/* The PNG has empty space around the letters: these margins line the letters up with the text below */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
+                            ref={logoRef}
                             src={FOOTER_BRAND.logo}
                             alt="ZYREX IT"
                             draggable={false}
@@ -55,7 +94,7 @@ export default function Footer() {
                         <p className="mt-6 max-w-[24rem] text-[clamp(15px,1.15vw,17px)] leading-[1.6] text-balance text-white/70">{FOOTER_BRAND.text}</p>
 
                         {/* Social icons + Book a call: bottom edge lines up with the link columns */}
-                        <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-5 lg:mt-auto lg:pt-6">
+                        <div ref={rowRef} className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-5 lg:mt-auto lg:pt-6">
                             <div className="flex gap-3">
                                 {SOCIALS.map((s) => (
                                     <a
