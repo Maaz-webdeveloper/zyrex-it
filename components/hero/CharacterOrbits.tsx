@@ -28,7 +28,7 @@ const BAND = {
     count: 12, // cards on the ring (CARDS repeated)
     infoW: 0.34, // info card width, × character width (the head is ~0.65 × at forehead level)
     gap: 0.012, // gap between neighbouring cards, × character width
-    stagger: 0.68, // alternate cards sit this much higher / lower, × card height (zig-zag: the eye line stays clear)
+    stagger: 0.75, // alternate cards sit this much higher / lower, × card height (zig-zag: the eye line stays clear)
     minR: 0.54, // smallest ring radius, × character width (must clear the head)
 };
 
@@ -68,13 +68,14 @@ const MOBILE_CARDS = [0, 1, 3, 5, 7, 9].map((i) => CARDS[i]);
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 // Clean frosted glass (no gold tint)
 const GLASS_BG = "linear-gradient(160deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05))";
-// Front copy: no backdrop blur (too heavy on 3D strips), a light dark tint under the glass gives the frosted look instead
-const GLASS_BG_FRONT = `${GLASS_BG}, rgba(22, 22, 22, 0.38)`;
+// Front copy: solid frosted glass (no backdrop blur, too heavy on 3D strips), so the far-side cards never show through
+const GLASS_BG_FRONT = `${GLASS_BG}, rgba(26, 26, 26, 0.96)`;
 
 // Curved cards: each card is cut into this many vertical strips, each one turned a little around the ring
 // center, so together they bend along the ring's circle. Neighbouring strip edges meet exactly (chord math in measure()).
 const STRIPS = 6;
-const SEAM = 1; // px each strip reaches into its neighbour (soft cross-fade, hides the seam lines)
+const SEAM = 0.75; // px each strip reaches into its neighbour (covers the hairline gap between strips)
+const PERSPECTIVE_DESKTOP = 8; // desktop perspective = this × ring radius, so the depth looks the same at every screen size
 const CURVE = 1; // 1 = cards bend exactly like the ring; lower = flatter (e.g. 0.7), higher = stronger
 
 function Face({ card, glass }: { card: Card; glass?: boolean }) {
@@ -155,16 +156,8 @@ function CurvedCard({ card, back }: { card: Card; back: boolean }) {
                 const transform = back
                     ? `${move} translateZ(${r}) rotateY(${angle}) translateZ(calc(${r} * -1))`
                     : `${move} translateZ(calc(${r} * -1)) rotateY(${angle}) translateZ(${r})`;
-                // No seams: each strip reaches SEAM px into its neighbours and fades out there while the neighbour
-                // fades in (the two add up to the full card), so there's no see-through gap and no darker overlap line.
-                // The card's own outer edges stay sharp.
-                const fade = `${SEAM * 2}px`;
-                const mask =
-                    j === 0
-                        ? `linear-gradient(to right, #000 calc(100% - ${fade}), transparent)`
-                        : j === STRIPS - 1
-                          ? `linear-gradient(to right, transparent, #000 ${fade})`
-                          : `linear-gradient(to right, transparent, #000 ${fade}, #000 calc(100% - ${fade}), transparent)`;
+                // No seams: each strip reaches SEAM px into its neighbours, so there's no see-through hairline.
+                // The front cards are nearly solid, so the tiny overlap doesn't show as a darker line.
                 return (
                     <div
                         key={j}
@@ -174,11 +167,9 @@ function CurvedCard({ card, back }: { card: Card; back: boolean }) {
                             width: `calc(${sw} + ${SEAM * 2}px)`,
                             overflowX: "clip", // cut the slice sideways only, the shadow below stays
                             transform,
-                            WebkitMaskImage: mask,
-                            maskImage: mask,
                             backfaceVisibility: "hidden",
                             WebkitBackfaceVisibility: "hidden",
-                            opacity: back ? 0.4 : 0.85, // front: slightly see-through so the face stays visible
+                            opacity: back ? 0.3 : 1, // back: dim behind the head; front: solid (nothing shows through)
                         }}
                     >
                         <div
@@ -325,6 +316,10 @@ export default function CharacterOrbits() {
             }
             r = Math.max(r, 0);
             wrapper.style.setProperty("--zx-r", `${r}px`);
+            // Desktop: perspective follows the ring size (a fixed value zooms the front cards more on big screens)
+            scenes.forEach((scene) => {
+                scene.style.perspective = `${isMobile || !r ? PERSPECTIVE : r * PERSPECTIVE_DESKTOP}px`;
+            });
 
             let arc = 0; // running arc length along the ring
             list.forEach((c, n) => {
