@@ -6,13 +6,13 @@ import { useGSAP } from "@gsap/react";
 import { PILLARS, PILLARS_COPY } from "./data";
 import { useParentScroll } from "@/components/embed/useParentScroll";
 import PillarText, { LINE_GOLD } from "./PillarText";
+import GoldButton from "@/components/ui/GoldButton";
 
 gsap.registerPlugin(useGSAP);
 
 // Heading block + mobile list of the Pillars section.
 // The desktop stage is its own embed: PillarsStage.tsx (/embed/pillars-stage).
 
-const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 
 export default function Pillars() {
     const rootRef = useRef<HTMLElement>(null);
@@ -80,18 +80,9 @@ export default function Pillars() {
                 <p className="mt-[clamp(20px,1.8vw,36px)] max-w-[44em] text-[clamp(15px,1.4vw,28px)] leading-[1.6] text-balance text-white/75">
                     {PILLARS_COPY.text}
                 </p>
-                <a
-                    href={PILLARS_COPY.cta.href}
-                    className="group/cta relative mt-8 inline-flex h-[46px] items-center rounded-full pr-[52px] pl-6 text-[12px] font-extrabold tracking-[0.12em] text-black uppercase transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(255,204,0,0.35)]"
-                    style={{ background: GOLD }}
-                >
+                <GoldButton href={PILLARS_COPY.cta.href} className="mt-8">
                     {PILLARS_COPY.cta.label}
-                    <span className="absolute top-1/2 right-[5px] grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black text-accent transition-transform duration-300 group-hover/cta:translate-x-[3px]">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <path d="M5 12h14M13 6l6 6-6 6" />
-                        </svg>
-                    </span>
-                </a>
+                </GoldButton>
             </div>
 
             {/* ===== Mobile: line on the left, pillars stacked ===== */}

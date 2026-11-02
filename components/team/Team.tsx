@@ -17,10 +17,10 @@ import type { EmblaCarouselType } from "embla-carousel";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { TEAM, TEAM_COPY } from "./data";
+import OutlinePill from "@/components/ui/OutlinePill";
 
 gsap.registerPlugin(useGSAP);
 
-const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 
 const AUTOPLAY_DELAY = 3000; // ms between cards
 
@@ -94,21 +94,13 @@ function Card({ name, role, photo, active, onPick }: { name: string; role: strin
                 {/* Name + role pills */}
                 <div className="absolute inset-x-0 bottom-[9%] flex translate-y-3 flex-col items-center gap-1 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-data-[active=true]:translate-y-0 group-data-[active=true]:opacity-100">
                     <span
-                        className="inline-flex h-[clamp(27px,2vw,31px)] w-fit items-center justify-center rounded-full px-[clamp(14px,1.1vw,18px)] text-[clamp(11px,0.8vw,12.5px)] font-normal tracking-[0.08em] whitespace-nowrap text-black uppercase shadow-[0_6px_18px_rgba(255,204,0,0.22)]"
-                        style={{ background: GOLD, WebkitTextStroke: "0.012em currentColor" }} // Garet has no 500/600: faint stroke keeps the 400 text legible on gold
+                        className="inline-flex h-[clamp(26px,2vw,30px)] w-fit items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent))] px-[clamp(12px,1vw,16px)] text-[clamp(10px,0.75vw,11px)] leading-none font-extrabold tracking-[0.12em] whitespace-nowrap text-black uppercase shadow-[0_6px_18px_rgba(255,204,0,0.22)]" // same gold and text as the "Book a call" button
                     >
                         {name}
                     </span>
-                    <span
-                        className="inline-flex h-[clamp(24px,1.75vw,27px)] w-fit items-center justify-center rounded-full px-[clamp(12px,0.95vw,15px)] text-[clamp(9px,0.62vw,10px)] font-normal tracking-[0.12em] whitespace-nowrap text-[#f9f3f3] uppercase"
-                        style={{
-                            border: "1px solid transparent",
-                            background:
-                                "linear-gradient(#0d0d0d, #0d0d0d) padding-box, linear-gradient(135deg, #ffdd65, rgba(255, 204, 0, 0.25), #ffcc00) border-box",
-                        }}
-                    >
+                    <OutlinePill size="sm" solid>
                         {role}
-                    </span>
+                    </OutlinePill>
                 </div>
             </div>
         </article>
@@ -276,11 +268,8 @@ export default function Team() {
         >
             {/* Heading */}
             <div className="mx-auto flex max-w-[72rem] flex-col items-center text-center">
-                <span
-                    data-reveal="label"
-                    className="rounded-full border border-accent/70 px-5 py-2 text-[11px] font-normal tracking-[0.18em] text-white uppercase"
-                >
-                    {TEAM_COPY.label}
+                <span data-reveal="label">
+                    <OutlinePill>{TEAM_COPY.label}</OutlinePill>
                 </span>
                 <h2
                     data-reveal="heading"

@@ -1,8 +1,8 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { scrollParentTo } from "@/lib/embed";
 import { SERVICES, type Service } from "./data";
+import GoldButton from "@/components/ui/GoldButton";
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 const CARD_EDGE =
@@ -89,24 +89,9 @@ export default function ServiceCard({
                     {/* Slider: pushes the button to the bottom, so it lines up on every card */}
                     {slide && <span aria-hidden="true" className="min-h-8 grow" />}
 
-                    <a
-                        href="#contact"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            scrollParentTo("#contact");
-                        }}
-                        className={`group/cta relative inline-flex h-[46px] w-fit shrink-0 items-center rounded-full pr-[52px] pl-6 text-[12px] font-extrabold tracking-[0.12em] text-black uppercase transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(255,204,0,0.35)] ${
-                            stacked ? "mt-[clamp(14px,3vh,32px)]" : slide ? "" : "mt-8"
-                        }`}
-                        style={{ background: GOLD }}
-                    >
+                    <GoldButton href="#contact" className={stacked ? "mt-[clamp(14px,3vh,32px)]" : slide ? "" : "mt-8"}>
                         {service.cta}
-                        <span className="absolute top-1/2 right-[5px] grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black text-accent transition-transform duration-300 group-hover/cta:translate-x-[3px]">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                <path d="M5 12h14M13 6l6 6-6 6" />
-                            </svg>
-                        </span>
-                    </a>
+                    </GoldButton>
                 </div>
 
                 {/* Image */}

@@ -1,6 +1,7 @@
 import ServiceCard from "./ServiceCard";
 import ServicesSlider from "./ServicesSlider";
 import { SERVICES, SERVICES_COPY } from "./data";
+import OutlinePill from "@/components/ui/OutlinePill";
 
 // Heading of the Services section, plus the swipe slider on mobile.
 // The desktop stacking cards are in ServicesStage.tsx; with reduced motion the desktop shows the plain card list here.
@@ -11,9 +12,9 @@ export default function Services() {
             <div className="mx-auto max-w-[80rem]">
                 {/* Heading (same pattern as Team) */}
                 <div className="mx-auto flex max-w-[72rem] flex-col items-center text-center">
-                    <span className="rounded-full border border-accent/70 px-5 py-2 text-[11px] font-normal tracking-[0.18em] text-white uppercase">
+                    <OutlinePill>
                         {SERVICES_COPY.label}
-                    </span>
+                    </OutlinePill>
                     <h2 className="mt-6 text-[clamp(2.2rem,3.6vw,4rem)] leading-[1.08] font-normal tracking-[-0.02em] max-[480px]:text-[length:calc((100vw-40px)*0.082)] min-[900px]:whitespace-nowrap">
                         {SERVICES_COPY.heading}{" "}
                         <br className="min-[900px]:hidden" />

@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { lockParentScroll, scrollParentTo } from "@/lib/embed";
+import GoldButton from "@/components/ui/GoldButton";
+import OutlinePill from "@/components/ui/OutlinePill";
 
 const MENU_ITEMS = [
     { label: "Home", href: "#top" },
@@ -306,9 +308,7 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                                             className="flex h-full flex-col rounded-[17px] p-[clamp(18px,1.6vw,26px)]"
                                             style={{ background: FEATURED_BG }}
                                         >
-                                            <span className="w-fit rounded-full border border-accent/40 px-3 py-1 text-[10px] tracking-[0.25em] text-accent uppercase">
-                                                Featured
-                                            </span>
+                                            <OutlinePill size="sm">Featured</OutlinePill>
                                             <span
                                                 className="mt-5 grid size-14 place-items-center rounded-[14px] text-black shadow-[0_10px_30px_rgba(255,204,0,0.35)]"
                                                 style={{ background: GOLD }}
@@ -389,22 +389,9 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                                     <span className="text-[clamp(14px,1vw,16px)] text-white/60">
                                         Not sure what you need? <span className="text-white">Let&apos;s talk it through.</span>
                                     </span>
-                                    <a
-                                        href="#contact"
-                                        onClick={go("#contact")}
-                                        className="group/cta relative inline-flex h-[46px] shrink-0 items-center rounded-full pr-[52px] pl-6 text-[13px] font-extrabold tracking-[0.12em] text-black uppercase transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(255,204,0,0.35)]"
-                                        style={{ background: GOLD }}
-                                    >
+                                    <GoldButton href="#contact" onClick={go("#contact")}>
                                         Book a free call
-                                        <span
-                                            aria-hidden="true"
-                                            className="absolute top-1/2 right-[5px] grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black text-accent transition-transform duration-300 group-hover/cta:translate-x-[3px]"
-                                        >
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M5 12h14M13 6l6 6-6 6" />
-                                            </svg>
-                                        </span>
-                                    </a>
+                                    </GoldButton>
                                 </div>
                             </div>
                         </div>

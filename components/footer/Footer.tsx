@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { scrollParentTo } from "@/lib/embed";
 import { ADDRESS, FOOTER_BRAND, FOOTER_COLUMNS, LEGAL, SOCIALS } from "./data";
 import FooterWordmark from "./FooterWordmark";
+import GoldButton from "@/components/ui/GoldButton";
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 
@@ -78,22 +79,7 @@ export default function Footer() {
                             </div>
 
                             {/* Book a call */}
-                            <a
-                                href={FOOTER_BRAND.cta.href}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    scrollParentTo(FOOTER_BRAND.cta.href);
-                                }}
-                                className="group/cta relative inline-flex h-[46px] items-center rounded-full pr-[52px] pl-6 text-[12px] font-extrabold tracking-[0.12em] text-black uppercase transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(255,204,0,0.35)]"
-                                style={{ background: GOLD }}
-                            >
-                                {FOOTER_BRAND.cta.label}
-                                <span className="absolute top-1/2 right-[5px] grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black text-accent transition-transform duration-300 group-hover/cta:translate-x-[3px]">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                        <path d="M5 12h14M13 6l6 6-6 6" />
-                                    </svg>
-                                </span>
-                            </a>
+                            <GoldButton href={FOOTER_BRAND.cta.href}>{FOOTER_BRAND.cta.label}</GoldButton>
                         </div>
                     </div>
 

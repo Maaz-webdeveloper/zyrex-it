@@ -13,13 +13,13 @@ import HeroBackdrop from "./HeroBackdrop";
 import HeroDetails from "./HeroDetails";
 import { usePreloaderDone } from "@/components/embed/usePreloaderDone";
 import { signalReady } from "@/lib/embed";
+import { MAGNET } from "@/components/ui/GoldButton";
 
 gsap.registerPlugin(useGSAP);
 
 // Images the preloader should wait for
 const HERO_IMAGES = ["/hero/character.svg", "/hero/giant-text.svg", "/hero/clients-avatars.svg"];
 
-const MAGNET = 0.3; // how strongly buttons follow the mouse (0 = off)
 
 export default function Hero() {
     const rootRef = useRef<HTMLDivElement>(null);

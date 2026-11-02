@@ -54,6 +54,46 @@ html[data-zx-offscreen] .animate-zx-float {
   animation-play-state: paused !important;
 }
 
+/* Gold outline pill (components/ui/OutlinePill.tsx): the same look as the hero MENU button (public/hero/menu-btn.svg),
+   built in CSS so it fits any width without stretching.
+   Ring: 1.5px, white -> #ffdd65 -> #ffcc00 from left to right (the SVG's stroke gradient).
+   Inside: soft gold light in the top-left and bottom-right corners, none in the middle (the SVG's masked image). */
+.zx-outline {
+  --zx-outline-glow: linear-gradient(
+    130deg,
+    rgba(255, 204, 0, 0.49),
+    rgba(255, 204, 0, 0.276) 12.5%,
+    rgba(255, 204, 0, 0.123) 25%,
+    rgba(255, 204, 0, 0.031) 37.5%,
+    rgba(255, 204, 0, 0) 50%,
+    rgba(255, 204, 0, 0.031) 62.5%,
+    rgba(255, 204, 0, 0.123) 75%,
+    rgba(255, 204, 0, 0.276) 87.5%,
+    rgba(255, 204, 0, 0.49)
+  );
+  position: relative;
+  border-radius: 9999px;
+  background: var(--zx-outline-glow);
+}
+
+/* Solid version (on photos): same, on a dark fill so the text stays readable */
+.zx-outline-solid {
+  background: var(--zx-outline-glow), #0b0b0b;
+}
+
+.zx-outline::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #fff, #ffdd65 50%, #ffcc00);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+
 /* Text selection in the brand gold (all sections) */
 ::selection {
   background: #ffcc00;
