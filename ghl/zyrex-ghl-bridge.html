@@ -344,13 +344,23 @@
       try { el = document.querySelector(target); } catch (e) { return; }
       if (!el) return;
     }
+    // Going up, the sticky navbar slides in: stop below it so it does not cover the top of the section.
+    // Going down it hides, so the section starts right at the top of the screen.
+    var offset = 0;
+    if (!toTop && el.getBoundingClientRect().top < 0) offset = -navCover();
     if (lenis) {
-      lenis.scrollTo(toTop ? 0 : el, { duration: SCROLL_TO_DURATION, force: true });
+      lenis.scrollTo(toTop ? 0 : el, { offset: offset, duration: SCROLL_TO_DURATION, force: true });
     } else if (toTop) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      el.scrollIntoView({ behavior: 'smooth' });
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset + offset, behavior: 'smooth' });
     }
+  }
+  // Space the navbar takes at the top of the screen when it is shown (+ a little air)
+  function navCover() {
+    var bar = document.querySelector('.zx-nav-bar');
+    if (!bar) return 0;
+    return parseFloat(getComputedStyle(document.querySelector('.zx-nav')).top) + bar.offsetHeight + 12;
   }
 
   /* ---------- 4. Cursor ball (one ball for GHL + Next.js sections) ---------- */
@@ -626,6 +636,7 @@
       var a = e.target.closest('a[data-zx-to]');
       if (a) {
         e.preventDefault();
+        e.stopPropagation(); // Lenis (anchors: true) would start its own scroll to the same link, without the navbar offset
         setMenu(false);
         scrollToTarget(a.getAttribute('data-zx-to'));
         return;

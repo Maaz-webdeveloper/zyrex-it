@@ -9,7 +9,9 @@
      Below 768px the stage collapses to 0 height: the mobile cards are in /embed/services.
      Reduced motion: same collapse, /embed/services then shows the normal card list on desktop too.
      Do not put overflow on .zx-services: it would stop the sticky pin.
+     The empty #services div at the top is the target of every "Services" link (navbar, menu, footer).
      ═══════════════════════════════════════════════════════════ -->
+<div id="services"></div>
 <style>
   .zx-services { display: block; margin: 0; padding: 0; background: #0a0a0a; line-height: 0; font-size: 0; }
   .zx-services iframe { display: block; width: 100%; margin: 0; padding: 0; border: 0; }
