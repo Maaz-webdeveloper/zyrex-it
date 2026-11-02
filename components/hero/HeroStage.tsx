@@ -21,7 +21,7 @@ export default function HeroStage() {
           alt=""
           draggable={false}
           fetchPriority="high"
-          className="absolute z-[2] bottom-0 left-1/2 h-full w-full -translate-x-[55%] object-contain object-bottom select-none max-[899px]:w-[130%] max-[899px]:max-w-none max-[899px]:[mask-image:linear-gradient(to_bottom,#000_80%,transparent_100%)] min-[900px]:-translate-x-1/2"
+          className="absolute z-[2] bottom-0 left-1/2 h-full w-full -translate-x-[55%] object-contain object-bottom select-none max-[899px]:w-[130%] max-[899px]:max-w-none max-[899px]:[mask-image:linear-gradient(to_bottom,#000_80%,transparent_100%)] min-[900px]:origin-bottom min-[900px]:-translate-x-1/2 min-[900px]:scale-[1.08]"
         />
         <CharacterOrbits />
       </div>

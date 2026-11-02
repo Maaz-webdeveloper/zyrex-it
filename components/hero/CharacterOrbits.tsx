@@ -13,18 +13,21 @@ import gsap from "gsap";
 // Ring position/size relative to the character's visible box. Tweak these to fit the head.
 const RING = {
     cx: 52, // center X, % of the character's width
-    cy: 24, // center Y, % of the character's height (forehead level)
-    radius: 0.75, // ring radius = this × character width
-    tiltX: -12, // tilt toward the viewer (deg)
+    cy: 31, // center Y, % of the character's height (forehead level)
+    radius: 0.64, // ring radius = this × character width
+    tiltX: 7, // tilt (deg): above 0 the front of the ring is higher than the back
     tiltZ: -6, // sideways tilt to follow the head (deg)
     duration: 30, // seconds per full turn
 };
+
+const ROW_GAP = "clamp(8px, 0.6vw, 12px)"; // half the gap between the two rows of cards (desktop)
 
 // Below 900px: 6 smaller cards on a ring that always fits inside the screen, at forehead level
 const MOBILE_QUERY = "(max-width: 899px)";
 const PERSPECTIVE = 2400; // px
 const RING_MOBILE = {
     cy: 14, // center Y, % of the character's height (above the eyes)
+    tiltX: -12, // tilt (deg): below 0 the front of the ring is lower than the back
     radius: 0.4, // max ring radius = this × screen width (shrinks further if cards would leave the screen)
     cardW: 96, // mobile info card width (px), keep in sync with Face
     edge: 10, // min gap between a card and the screen edge (px)
@@ -129,7 +132,12 @@ function Ring({
             style={{ perspective: `${PERSPECTIVE}px` }}
         >
             {/* Static tilt */}
-            <div style={{ transformStyle: "preserve-3d", transform: `rotateX(${RING.tiltX}deg) rotateZ(${RING.tiltZ}deg)` }}>
+            <div
+                style={{
+                    transformStyle: "preserve-3d",
+                    transform: `rotateX(${cards === MOBILE_CARDS ? RING_MOBILE.tiltX : RING.tiltX}deg) rotateZ(${RING.tiltZ}deg)`,
+                }}
+            >
                 {/* Spinning part (GSAP rotates this) */}
                 <div data-ring-spin="" style={{ transformStyle: "preserve-3d" }}>
                     {/* Thin gold ring line (back copy only) */}
@@ -153,8 +161,8 @@ function Ring({
                             className="absolute top-0 left-0"
                             style={{
                                 transformStyle: "preserve-3d",
-                                // desktop: two rows (even cards a bit higher, odd a bit lower); mobile: one row
-                                transform: `translate(-50%, ${cards === MOBILE_CARDS ? "-50%" : i % 2 ? "0%" : "-100%"}) rotateY(${(i * 360) / cards.length}deg) translateZ(var(--zx-r, 220px))`,
+                                // desktop: two rows with a small gap (even cards a bit higher, odd a bit lower); mobile: one row
+                                transform: `translate(-50%, ${cards === MOBILE_CARDS ? "-50%" : i % 2 ? ROW_GAP : `calc(-100% - ${ROW_GAP})`}) rotateY(${(i * 360) / cards.length}deg) translateZ(var(--zx-r, 220px))`,
                             }}
                         >
                             <div
