@@ -13,6 +13,7 @@ import { MSG, inIframe, onParentMessage, sendToParent } from "@/lib/embed";
  * 2. receives the real screen height -> CSS variable --zx-vh
  * 3. forwards the mouse wheel to the GHL page (Lenis smooth scroll)
  * 4. forwards the mouse position to the GHL page (one cursor ball everywhere)
+ * 5. pauses every animation while this section is off-screen (all iframes share one thread)
  * Opened directly (localhost / Vercel) it runs its own Lenis, so it scrolls like the GHL page.
  */
 export default function EmbedShell({ children }: { children: React.ReactNode }) {
@@ -97,6 +98,26 @@ export default function EmbedShell({ children }: { children: React.ReactNode }) 
       window.removeEventListener("load", send);
     };
   }, [pathname]);
+
+  // Off-screen: stop GSAP, CSS and SVG animations. All iframes share one main thread with each other.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !inIframe()) return;
+    const html = document.documentElement;
+    const io = new IntersectionObserver(([entry]) => {
+      const on = entry.isIntersecting;
+      html.toggleAttribute("data-zx-offscreen", !on);
+      document.querySelectorAll("svg").forEach((svg) => (on ? svg.unpauseAnimations() : svg.pauseAnimations()));
+      if (on) gsap.ticker.wake();
+      else gsap.ticker.sleep();
+    });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      html.removeAttribute("data-zx-offscreen");
+      gsap.ticker.wake();
+    };
+  }, []);
 
   // No drag "ghost" on links and images. Dragging selected text keeps working.
   useEffect(() => {

@@ -58,7 +58,7 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     if (card.type === "image") {
         return (
             <div
-                className={`h-[clamp(40px,3.6vw,64px)] w-[clamp(90px,7.5vw,150px)] max-[899px]:h-[40px] max-[899px]:w-[72px] overflow-hidden rounded-[clamp(10px,1vw,16px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-xl" : ""}`}
+                className={`h-[clamp(40px,3.6vw,64px)] w-[clamp(90px,7.5vw,150px)] max-[899px]:h-[40px] max-[899px]:w-[72px] overflow-hidden rounded-[clamp(10px,1vw,16px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)]`}
                 style={{ border: "1px solid rgba(255, 255, 255, 0.2)" }}
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -70,7 +70,7 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     }
     return (
         <div
-            className={`relative flex w-[clamp(130px,11vw,220px)] items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(10px,1vw,16px)] p-[clamp(8px,0.8vw,14px)] max-[899px]:w-[96px] max-[899px]:gap-[6px] max-[899px]:p-[7px] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-xl" : ""}`}
+            className={`relative flex w-[clamp(130px,11vw,220px)] items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(10px,1vw,16px)] p-[clamp(8px,0.8vw,14px)] max-[899px]:w-[96px] max-[899px]:gap-[6px] max-[899px]:p-[7px] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-md" : ""}`}
             style={{ background: GLASS_BG, border: "1px solid rgba(255, 255, 255, 0.18)" }}
         >
             {/* Thin white highlight along the top edge */}

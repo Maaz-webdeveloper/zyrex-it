@@ -13,7 +13,7 @@ const CARD_BORDER = {
 };
 
 const CARD_INNER =
-    "relative overflow-hidden rounded-[19px] p-[clamp(14px,1vw,20px)] backdrop-blur-xl";
+    "relative overflow-hidden rounded-[19px] p-[clamp(14px,1vw,20px)]";
 const CARD_BG = {
     background: "linear-gradient(160deg, rgba(28, 28, 28, 0.92), rgba(12, 12, 12, 0.88))",
 };

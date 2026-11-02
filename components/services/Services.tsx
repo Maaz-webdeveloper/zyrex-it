@@ -24,6 +24,7 @@ const GLIDE = 0.14; // share of the remaining distance covered per frame (at 60f
 type CardMotion = { exit: number; enter: number };
 
 // Position inside this embed page. Unlike getBoundingClientRect it ignores the card's own transform.
+// Measured only when the size changes, never per frame.
 function layoutTop(el: HTMLElement) {
     let y = 0;
     for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) y += n.offsetTop;
@@ -36,6 +37,8 @@ function paint(el: HTMLElement, { exit, enter }: CardMotion, mobile: boolean) {
     el.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${(exit * m.rotate).toFixed(3)}deg) scale(${(1 - exit * (1 - m.scale)).toFixed(4)})`;
     el.style.opacity = ((1 - exit) * (ENTER_OPACITY + enter * (1 - ENTER_OPACITY))).toFixed(3);
     el.style.filter = exit > 0.002 ? `blur(${(exit * m.blur).toFixed(2)}px) brightness(${(1 - exit * (1 - m.dim)).toFixed(3)})` : "";
+    // Keeps the scale from re-rendering the card every frame; only while it is moving
+    el.style.willChange = exit > 0 || enter < 1 ? "transform, opacity, filter" : "";
 }
 
 function ServiceCard({ service, index }: { service: Service; index: number }) {
@@ -115,15 +118,20 @@ export default function Services() {
         const cards = Array.from(root.querySelectorAll<HTMLElement>("[data-service-card]"));
         const state = cards.map<CardMotion | null>(() => null);
         const phone = window.matchMedia("(max-width: 767px)");
+        let boxes = cards.map((el) => ({ top: layoutTop(el), height: el.offsetHeight }));
+        const ro = new ResizeObserver(() => {
+            boxes = cards.map((el) => ({ top: layoutTop(el), height: el.offsetHeight }));
+        });
+        ro.observe(root);
 
         const tick = () => {
             const { top, viewport: vh } = scroll.current;
             const k = 1 - Math.pow(1 - GLIDE, gsap.ticker.deltaRatio(60)); // same glide at any refresh rate
 
             cards.forEach((el, i) => {
-                const cardTop = top + layoutTop(el);
+                const cardTop = top + boxes[i].top;
                 const target = {
-                    exit: gsap.utils.clamp(0, 1, -cardTop / (el.offsetHeight * EXIT_LENGTH)),
+                    exit: gsap.utils.clamp(0, 1, -cardTop / (boxes[i].height * EXIT_LENGTH)),
                     enter: gsap.utils.clamp(0, 1, (vh - cardTop) / (vh * ENTER_LENGTH)),
                 };
                 const now = state[i];
@@ -144,8 +152,9 @@ export default function Services() {
         gsap.ticker.add(tick);
         return () => {
             gsap.ticker.remove(tick);
+            ro.disconnect();
             cards.forEach((el) => {
-                el.style.transform = el.style.opacity = el.style.filter = "";
+                el.style.transform = el.style.opacity = el.style.filter = el.style.willChange = "";
             });
         };
     }, [scroll]);

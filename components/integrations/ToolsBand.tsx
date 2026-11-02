@@ -35,6 +35,13 @@ const BOX_EDGE_LIGHT =
     "conic-gradient(from -45deg, transparent 0deg, rgba(255, 204, 0, 0.9) 30deg, transparent 80deg, transparent 180deg, rgba(255, 204, 0, 0.6) 210deg, transparent 260deg, transparent 360deg)";
 const BOX_INSIDE = "radial-gradient(circle at 50% 35%, #1f1a0a 0%, #0d0d0d 60%, #080808 100%)";
 
+// Gold light on the pipe lines: wide soft strokes, then the bright core
+const GLOW = [
+    { width: 12, opacity: 0.14 },
+    { width: 7, opacity: 0.28 },
+    { width: 3, opacity: 1 },
+];
+
 /* ---------- pieces ---------- */
 
 function PipeLines({ id, vertical }: { id: string; vertical?: boolean }) {
@@ -72,25 +79,28 @@ function PipeLines({ id, vertical }: { id: string; vertical?: boolean }) {
                 {[LINE_TOP, LINE_BOTTOM].map((d, i) => (
                     <g key={d}>
                         <path d={d} fill="none" stroke={`url(#${id})`} strokeWidth={1.25} vectorEffect="non-scaling-stroke" />
-                        {/* Small gold light running along the line */}
-                        <path
-                            d={d}
-                            fill="none"
-                            stroke={`url(#${id}-light)`}
-                            strokeWidth={3}
-                            strokeLinecap="round"
-                            pathLength={1}
-                            strokeDasharray="0.03 0.97"
-                            style={{ filter: "drop-shadow(0 0 6px rgba(255, 204, 0, 0.9))" }}
-                        >
-                            <animate
-                                attributeName="stroke-dashoffset"
-                                from={i === 0 ? "1" : "0"}
-                                to={i === 0 ? "0" : "1"}
-                                dur={i === 0 ? "3.5s" : "4s"}
-                                repeatCount="indefinite"
-                            />
-                        </path>
+                        {/* Small gold light running along the line. The glow is two wider strokes: a drop-shadow here repaints the whole band every frame. */}
+                        {GLOW.map((g) => (
+                            <path
+                                key={g.width}
+                                d={d}
+                                fill="none"
+                                stroke={`url(#${id}-light)`}
+                                strokeWidth={g.width}
+                                strokeOpacity={g.opacity}
+                                strokeLinecap="round"
+                                pathLength={1}
+                                strokeDasharray="0.03 0.97"
+                            >
+                                <animate
+                                    attributeName="stroke-dashoffset"
+                                    from={i === 0 ? "1" : "0"}
+                                    to={i === 0 ? "0" : "1"}
+                                    dur={i === 0 ? "3.5s" : "4s"}
+                                    repeatCount="indefinite"
+                                />
+                            </path>
+                        ))}
                     </g>
                 ))}
             </g>

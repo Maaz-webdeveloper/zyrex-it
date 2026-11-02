@@ -48,6 +48,13 @@ body {
   font-family: var(--font-garet), Arial, sans-serif;
 }
 
+/* Section off-screen (set by EmbedShell): CSS animations rest */
+html[data-zx-offscreen] *,
+html[data-zx-offscreen] *::before,
+html[data-zx-offscreen] *::after {
+  animation-play-state: paused !important;
+}
+
 /* Text selection in the brand gold (all sections) */
 ::selection {
   background: #ffcc00;

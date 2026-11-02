@@ -81,7 +81,7 @@
 
   /* ---------- Settings ---------- */
   var EMBED_ORIGIN = 'https://zyrex-it.vercel.app';
-  var LENIS_SRC    = 'https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js';
+  var LENIS_SRC    = 'https://cdn.jsdelivr.net/npm/lenis@1.3.27/dist/lenis.min.js';
   var SCROLL_TO_DURATION = 1.4; // seconds, for menu links
 
   var html  = document.documentElement;
@@ -160,7 +160,9 @@
 
   function scrollByWheel(dy) {
     if (isLocked()) return;
-    if (lenis) lenis.scrollTo(lenis.targetScroll + dy);
+    // programmatic: false = same path as a normal wheel. With the default, Lenis overwrites targetScroll
+    // every frame, so each notch would replace the previous one instead of adding to it.
+    if (lenis) lenis.scrollTo(lenis.targetScroll + dy, { programmatic: false, lerp: lenis.options.lerp });
     else window.scrollBy(0, dy);
   }
 
@@ -185,7 +187,21 @@
   var ball = null, mx = -100, my = -100, bx = -100, by = -100, t = 0;
 
   function setHover(on) { if (ball) ball.classList.toggle('is-hover', !!on); }
-  function showBall() { if (ball) ball.classList.add('is-visible'); }
+  var ballRunning = false;
+  function showBall() {
+    if (!ball) return;
+    ball.classList.add('is-visible');
+    if (!ballRunning) { ballRunning = true; requestAnimationFrame(ballLoop); }
+  }
+  function ballLoop() {
+    if (!ball.classList.contains('is-visible')) { ballRunning = false; return; } // no work while hidden
+    bx += (mx - bx) * 0.15;
+    by += (my - by) * 0.15;
+    t += 0.05;
+    var scale = 1 + Math.sin(t) * 0.06;
+    ball.style.transform = 'translate3d(' + bx + 'px,' + by + 'px,0) translate(-50%,-50%) scale(' + scale + ')';
+    requestAnimationFrame(ballLoop);
+  }
 
   function startBall() {
     ball = document.createElement('div');
@@ -203,15 +219,6 @@
     document.addEventListener('mouseout', function (e) {
       if (!e.relatedTarget) ball.classList.remove('is-visible'); // mouse left the window
     });
-
-    (function loop() {
-      bx += (mx - bx) * 0.15;
-      by += (my - by) * 0.15;
-      t += 0.05;
-      var scale = 1 + Math.sin(t) * 0.06;
-      ball.style.transform = 'translate3d(' + bx + 'px,' + by + 'px,0) translate(-50%,-50%) scale(' + scale + ')';
-      requestAnimationFrame(loop);
-    })();
   }
   if (fine) {
     if (document.body) startBall();
@@ -235,24 +242,45 @@
     }
   }
 
-  function sendScroll() {
-    scrollQueued = false;
+  // Only iframes within one screen of the view get the scroll position: every message wakes up
+  // the thread all the iframes share, so far-away sections must not get one each frame.
+  var nearFrames = new Set();
+  var seenFrames = new WeakSet();
+  var nearObserver = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) nearFrames.add(en.target);
+      else { nearFrames.delete(en.target); sendScrollTo(en.target); } // last position as it leaves
+    });
+    queueScroll();
+  }, { rootMargin: '100% 0px' }) : null;
+  function watchFrames() {
     var f = frames();
     for (var i = 0; i < f.length; i++) {
-      var msg = {
-        type: 'zyrex-scroll',
-        top: f[i].getBoundingClientRect().top,
-        viewport: window.innerHeight
-      };
-      var pin = f[i].closest('[data-zyrex-pin]');
-      if (pin) {
-        var r = pin.getBoundingClientRect();
-        msg.pinTop = r.top;
-        msg.pinHeight = r.height;
-        if (r.height > 0) freePin(pin); // height 0 = mobile, nothing is pinned
-      }
-      post(f[i].contentWindow, msg);
+      if (seenFrames.has(f[i])) continue;
+      seenFrames.add(f[i]);
+      if (nearObserver) nearObserver.observe(f[i]); else nearFrames.add(f[i]);
     }
+  }
+
+  function sendScrollTo(frame) {
+    var msg = {
+      type: 'zyrex-scroll',
+      top: frame.getBoundingClientRect().top,
+      viewport: window.innerHeight
+    };
+    var pin = frame.closest('[data-zyrex-pin]');
+    if (pin) {
+      var r = pin.getBoundingClientRect();
+      msg.pinTop = r.top;
+      msg.pinHeight = r.height;
+      if (r.height > 0) freePin(pin); // height 0 = mobile, nothing is pinned
+    }
+    post(frame.contentWindow, msg);
+  }
+  function sendScroll() {
+    scrollQueued = false;
+    watchFrames();
+    nearFrames.forEach(sendScrollTo);
   }
   function queueScroll() {
     if (scrollQueued) return;
@@ -286,13 +314,16 @@
     switch (d.type) {
       case 'zyrex-embed-height':
         // Pinned iframes get their height from the GHL CSS (100vh), not from the content
-        if (frame && typeof d.height === 'number' && !frame.closest('[data-zyrex-pin]')) frame.style.height = d.height + 'px';
+        if (frame && typeof d.height === 'number' && !frame.closest('[data-zyrex-pin]')) {
+          var px = d.height + 'px';
+          if (frame.style.height !== px) frame.style.height = px;
+        }
         break;
 
       case 'zyrex-hello':
         post(e.source, viewportMsg());
         if (noPreloader()) post(e.source, { type: 'zyrex-preloader-done' });
-        if (frame) blackenFooter(frame);
+        if (frame) { blackenFooter(frame); sendScrollTo(frame); }
         queueScroll();
         break;
 
