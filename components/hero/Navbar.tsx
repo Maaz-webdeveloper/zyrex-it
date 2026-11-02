@@ -11,12 +11,16 @@ const EASE = "ease-[cubic-bezier(0.76,0,0.24,1)]";
 
 export default function Navbar({ open, onToggle }: NavbarProps) {
     return (
-        <header className="absolute inset-x-0 top-0 z-50 flex items-center justify-between px-4 py-3.5 sm:px-[clamp(12px,2.5vw,40px)] sm:py-[22px]" data-anim="nav">
-            {/* Logo: scrolls the GHL page back to the top */}
+        <header className="absolute inset-x-0 top-0 z-50 flex items-center justify-between px-4 py-3.5 sm:px-[round(clamp(12px,2.5vw,40px),1px)] sm:py-[22px]" data-anim="nav">
+            {/* Logo: scrolls the GHL page back to the top.
+                logo.png has transparent space around the letters: 10.19% of its width on the left (width = 3.28 x height),
+                and more on top (30.3%) than at the bottom (25.6%). The margin pulls the "Z" out so its gap to the screen edge
+                equals the MENU button's visible gap on the right (2px inside the button box); the small lift puts the
+                letters on the same center line as the button. Both follow --logo-h, so they are right at every size. */}
             <a
                 href="#top"
                 aria-label="ZYREX IT, back to top"
-                className="block sm:-ml-[26px]"
+                className="block [--logo-h:37px] sm:[--logo-h:45px] lg:[--logo-h:60px] ml-[calc(2px-var(--logo-h)*0.3343)] -translate-y-[calc(var(--logo-h)*0.0232+0.8px)]"
                 onClick={(e) => {
                     e.preventDefault();
                     if (open) onToggle();
@@ -28,7 +32,7 @@ export default function Navbar({ open, onToggle }: NavbarProps) {
                     src="/hero/logo.png"
                     alt="ZYREX IT"
                     draggable={false}
-                    className="block h-[37px] w-auto select-none sm:h-[45px] lg:h-[60px]"
+                    className="block h-(--logo-h) w-auto select-none"
                 />
             </a>
 
