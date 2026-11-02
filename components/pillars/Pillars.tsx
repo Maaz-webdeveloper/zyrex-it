@@ -7,6 +7,7 @@ import { PILLARS, PILLARS_COPY } from "./data";
 import { useParentScroll } from "@/components/embed/useParentScroll";
 import PillarText, { LINE_GOLD } from "./PillarText";
 import GoldButton from "@/components/ui/GoldButton";
+import OutlinePill from "@/components/ui/OutlinePill";
 
 gsap.registerPlugin(useGSAP);
 
@@ -74,10 +75,23 @@ export default function Pillars() {
 
             {/* ===== Heading block ===== */}
             <div className="relative mx-auto flex max-w-[120rem] flex-col items-center text-center">
-                <h2 className="text-[clamp(32px,4.2vw,96px)] leading-[1.08] font-normal tracking-[-0.02em] text-balance">
-                    {PILLARS_COPY.heading}
+                {/* Same look as the Team heading block (label pill, heading, gold shine accent, paragraph) */}
+                <OutlinePill>{PILLARS_COPY.label}</OutlinePill>
+                <h2 className="mt-6 text-[clamp(2.2rem,3.6vw,4rem)] leading-[1.08] font-normal tracking-[-0.02em] max-[480px]:text-[length:calc((100vw-40px)*0.082)] min-[900px]:whitespace-nowrap">
+                    {PILLARS_COPY.heading}{" "}
+                    <br className="min-[900px]:hidden" />
+                    <span
+                        className="animate-zx-shine bg-clip-text font-normal text-transparent"
+                        style={{
+                            backgroundImage: "linear-gradient(90deg, #ffcc00 0%, #ffdd65 25%, #fff3b0 50%, #ffdd65 75%, #ffcc00 100%)",
+                            backgroundSize: "200% 100%",
+                            WebkitTextStroke: "0.024em transparent", // Garet has no 500/600: this thickens the letters; bg-clip-text fills the stroke with the gold shine, so no outline
+                        }}
+                    >
+                        {PILLARS_COPY.headingAccent}
+                    </span>
                 </h2>
-                <p className="mt-[clamp(20px,1.8vw,36px)] max-w-[44em] text-[clamp(15px,1.4vw,28px)] leading-[1.6] text-balance text-white/75">
+                <p className="mt-5 max-w-[46rem] text-[clamp(14px,1.15vw,17px)] leading-[1.65] text-balance text-white/75">
                     {PILLARS_COPY.text}
                 </p>
                 <GoldButton href={PILLARS_COPY.cta.href} className="mt-8">
