@@ -20,7 +20,15 @@ const RING = {
     duration: 30, // seconds per full turn
 };
 
-const ROW_GAP = "clamp(4px, 0.3vw, 6px)"; // half the gap between the two rows of cards (desktop)
+// Desktop band (dense wall of cards, Mindly-style). measure() scales every card the same so an info card is
+// INFO_W × the character width (≈ half the face), then packs them around the ring with GAP between neighbours.
+// If they don't all fit at that size, they shrink just enough to fit with GAP.
+const BAND = {
+    count: 12, // cards on the ring (CARDS repeated)
+    infoW: 0.34, // info card width, × character width (the head is ~0.65 × at forehead level)
+    gap: 0.012, // gap between neighbouring cards, × character width
+    stagger: 0.14, // alternate cards sit this much higher / lower, × info card height
+};
 
 // Below 900px: 6 smaller cards on a ring that always fits inside the screen, at forehead level
 const MOBILE_QUERY = "(max-width: 899px)";
@@ -50,6 +58,8 @@ const CARDS: Card[] = [
     { type: "info", title: "Ads", text: "Campaigns that convert", icon: ["M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z", "M16 9a4 4 0 0 1 0 6"] },
     { type: "info", title: "Web", text: "Fast, modern websites", icon: ["M3 4h18v12H3z", "M8 20h8", "M12 16v4"] },
 ];
+// Desktop: the cards repeated to fill the band (never two image cards side by side)
+const RING_CARDS = Array.from({ length: BAND.count }, (_, i) => CARDS[i % CARDS.length]);
 // Mobile: Strategy, image, SEO, Growth, image, Web
 const MOBILE_CARDS = [0, 1, 3, 5, 7, 9].map((i) => CARDS[i]);
 
@@ -214,8 +224,9 @@ function Ring({
                             className="absolute top-0 left-0"
                             style={{
                                 transformStyle: "preserve-3d",
-                                // desktop: two rows with a small gap (even cards a bit higher, odd a bit lower); mobile: one row
-                                transform: `translate(-50%, ${cards === MOBILE_CARDS ? "-50%" : i % 2 ? ROW_GAP : `calc(-100% - ${ROW_GAP})`}) rotateY(${(i * 360) / cards.length}deg) translateZ(var(--zx-r, 220px))`,
+                                // One band: angle and size come from measure() (--zx-a<i>, --zx-s); even cards sit a bit higher,
+                                // odd a bit lower (--zx-stag, 0 on mobile). The scale is last, so each card grows around its own center.
+                                transform: `translate(-50%, calc(-50% + var(--zx-stag, 0px) * ${i % 2 ? 1 : -1})) rotateY(var(--zx-a${i}, ${(i * 360) / cards.length}deg)) translateZ(var(--zx-r, 220px)) scale(var(--zx-s, 1))`,
                             }}
                         >
                             {/* back copy: each strip shows only while it is on the far side (flip + backface hidden) */}
@@ -284,12 +295,42 @@ export default function CharacterOrbits() {
             r = Math.max(r, 0);
             wrapper.style.setProperty("--zx-r", `${r}px`);
 
+            // Card sizes as drawn by CSS (before the scale below)
+            const sizerOf = (kind: "info" | "img") => wrapper.querySelector<HTMLElement>(`[data-face-sizer="${kind}"]`);
+            const infoEl = sizerOf("info");
+            const imgEl = sizerOf("img");
+            const infoW = infoEl?.offsetWidth ?? 0;
+            const imgW = imgEl?.offsetWidth ?? 0;
+
+            // Band layout: one scale for all cards, packed edge to edge with a small gap
+            const list = isMobile ? MOBILE_CARDS : RING_CARDS;
+            let scale = 1;
+            let gap = 0;
+            let stagger = 0;
+            if (!isMobile && infoW && imgW && r > 0) {
+                const widths = list.reduce((sum, c) => sum + (c.type === "image" ? imgW : infoW), 0);
+                const room = 2 * Math.PI * r; // the cards are bent along the ring, so their width is arc length
+                gap = BAND.gap * bw;
+                scale = Math.min((BAND.infoW * bw) / infoW, (room - gap * list.length) / widths);
+                gap = (room - scale * widths) / list.length; // spread what's left evenly
+                stagger = BAND.stagger * scale * (infoEl?.offsetHeight ?? 0);
+            }
+            let arc = 0; // running arc length along the ring
+            list.forEach((c, n) => {
+                const w = (c.type === "image" ? imgW : infoW) * scale;
+                const deg = isMobile || !r ? (n * 360) / list.length : (((arc + w / 2) / r) * 180) / Math.PI;
+                wrapper.style.setProperty(`--zx-a${n}`, `${deg.toFixed(3)}deg`);
+                arc += w + gap;
+            });
+            wrapper.style.setProperty("--zx-s", scale.toFixed(4));
+            wrapper.style.setProperty("--zx-stag", `${stagger.toFixed(2)}px`);
+
             // Curved cards: angle between two strips, so a strip (a chord of the ring) spans exactly its share of
-            // the circle and neighbouring strip edges meet with no gap
-            const rc = r > 0 ? r / CURVE : 0;
+            // the circle and neighbouring strip edges meet with no gap. Worked out in the card's own (unscaled) size,
+            // so the bend radius is divided by the scale.
+            const rc = r > 0 ? r / CURVE / scale : 0;
             wrapper.style.setProperty("--zx-rc", `${rc}px`);
-            (["info", "img"] as const).forEach((kind) => {
-                const sizer = wrapper.querySelector<HTMLElement>(`[data-face-sizer="${kind}"]`);
+            ([["info", infoEl], ["img", imgEl]] as const).forEach(([kind, sizer]) => {
                 if (!sizer) return;
                 const sw = sizer.offsetWidth / STRIPS;
                 wrapper.style.setProperty(`--zx-sw-${kind}`, `${sw.toFixed(3)}px`);
@@ -328,8 +369,8 @@ export default function CharacterOrbits() {
 
     return (
         <>
-            <Ring layer="back" cards={mobile ? MOBILE_CARDS : CARDS} sceneRef={backRef} />
-            <Ring layer="front" cards={mobile ? MOBILE_CARDS : CARDS} />
+            <Ring layer="back" cards={mobile ? MOBILE_CARDS : RING_CARDS} sceneRef={backRef} />
+            <Ring layer="front" cards={mobile ? MOBILE_CARDS : RING_CARDS} />
         </>
     );
 }
