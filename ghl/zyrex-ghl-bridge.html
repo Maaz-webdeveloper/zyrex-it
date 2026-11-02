@@ -160,6 +160,12 @@
     white-space: nowrap;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
+  /* Medium label (same as the site's GoldButton: Garet 400 + 0.035em stroke). !important + extra specificity,
+     so GHL's own link/button styles can't put it back to bold */
+  .zx-nav .zx-nav-cta {
+    font-weight: 400 !important;
+    -webkit-text-stroke: 0.035em currentColor !important;
+  }
   .zx-nav-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 204, 0, 0.35); }
   .zx-nav-cta i {
     position: absolute;
