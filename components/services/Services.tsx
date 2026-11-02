@@ -3,19 +3,14 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { useParentScroll } from "@/components/embed/useParentScroll";
-import { scrollParentTo } from "@/lib/embed";
-import { SERVICES, SERVICES_COPY, type Service } from "./data";
+import ServiceCard from "./ServiceCard";
+import { SERVICES, SERVICES_COPY } from "./data";
 
-const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
-const CARD_EDGE =
-    "linear-gradient(140deg, rgba(255, 204, 0, 0.5), rgba(255, 255, 255, 0.08) 35%, rgba(255, 255, 255, 0.04) 70%, rgba(255, 204, 0, 0.25))";
-const CARD_BG = "linear-gradient(160deg, rgba(24, 24, 24, 0.96), rgba(10, 10, 10, 0.96))";
+// Heading of the Services section, plus the card list on mobile (and on desktop with reduced motion).
+// The desktop stacking cards are in ServicesStage.tsx.
 
 // Fully left through the top of the screen / still entering at the bottom
-const MOTION = {
-    desktop: { rotate: -4, scale: 0.92, y: 48, blur: 6, dim: 0.55, enterY: 36 },
-    mobile: { rotate: 0, scale: 0.96, y: 16, blur: 0, dim: 0.7, enterY: 20 },
-};
+const MOTION = { scale: 0.96, y: 16, dim: 0.7, enterY: 20 };
 const EXIT_LENGTH = 0.9; // the exit finishes when this share of the card is above the screen
 const ENTER_LENGTH = 0.18; // the fade-in finishes after this share of the screen
 const ENTER_OPACITY = 0.35;
@@ -31,80 +26,14 @@ function layoutTop(el: HTMLElement) {
     return y;
 }
 
-function paint(el: HTMLElement, { exit, enter }: CardMotion, mobile: boolean) {
-    const m = mobile ? MOTION.mobile : MOTION.desktop;
+function paint(el: HTMLElement, { exit, enter }: CardMotion) {
+    const m = MOTION;
     const y = exit * m.y + (1 - enter) * m.enterY;
-    el.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${(exit * m.rotate).toFixed(3)}deg) scale(${(1 - exit * (1 - m.scale)).toFixed(4)})`;
+    el.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0) scale(${(1 - exit * (1 - m.scale)).toFixed(4)})`;
     el.style.opacity = ((1 - exit) * (ENTER_OPACITY + enter * (1 - ENTER_OPACITY))).toFixed(3);
-    el.style.filter = exit > 0.002 ? `blur(${(exit * m.blur).toFixed(2)}px) brightness(${(1 - exit * (1 - m.dim)).toFixed(3)})` : "";
+    el.style.filter = exit > 0.002 ? `brightness(${(1 - exit * (1 - m.dim)).toFixed(3)})` : "";
     // Keeps the scale from re-rendering the card every frame; only while it is moving
     el.style.willChange = exit > 0 || enter < 1 ? "transform, opacity, filter" : "";
-}
-
-function ServiceCard({ service, index }: { service: Service; index: number }) {
-    const n = (i: number) => String(i).padStart(2, "0");
-    return (
-        <article data-service-card="" className="origin-bottom rounded-[28px] p-px shadow-[0_30px_80px_rgba(0,0,0,0.55)]" style={{ background: CARD_EDGE }}>
-            <div
-                className="grid overflow-hidden rounded-[27px] md:grid-cols-[1fr_1.1fr]"
-                style={{ background: CARD_BG }}
-            >
-                {/* Text */}
-                <div className="order-2 flex flex-col justify-center p-[clamp(24px,3.2vw,56px)] md:order-1">
-                    <span className="text-[13px] tracking-[0.12em] text-white/60">
-                        <span className="text-accent">{n(index + 1)}</span> / {n(SERVICES.length)}
-                    </span>
-                    <span className="mt-3 block h-px w-10" style={{ background: GOLD }} />
-                    <h3 className="mt-5 text-[clamp(28px,3vw,48px)] leading-[1.08] font-normal tracking-[-0.02em]">{service.title}</h3>
-
-                    <ul className="mt-6 flex flex-wrap gap-2">
-                        {service.tags.map((t) => (
-                            <li
-                                key={t}
-                                className="rounded-full border border-accent/25 bg-accent/[0.06] px-3.5 py-1.5 text-[12.5px] text-white/80"
-                            >
-                                {t}
-                            </li>
-                        ))}
-                    </ul>
-
-                    <p className="mt-6 max-w-[34rem] text-[clamp(14px,1.05vw,16px)] leading-[1.7] text-white/65">{service.text}</p>
-
-                    <a
-                        href="#contact"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            scrollParentTo("#contact");
-                        }}
-                        className="group/cta relative mt-8 inline-flex h-[46px] w-fit items-center rounded-full pr-[52px] pl-6 text-[12px] font-extrabold tracking-[0.12em] text-black uppercase transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(255,204,0,0.35)]"
-                        style={{ background: GOLD }}
-                    >
-                        {service.cta}
-                        <span className="absolute top-1/2 right-[5px] grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black text-accent transition-transform duration-300 group-hover/cta:translate-x-[3px]">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                <path d="M5 12h14M13 6l6 6-6 6" />
-                            </svg>
-                        </span>
-                    </a>
-                </div>
-
-                {/* Image */}
-                <div className="relative order-1 aspect-[4/3] md:order-2 md:aspect-auto md:min-h-[clamp(420px,38vw,640px)]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={service.image} alt="" loading="lazy" draggable={false} className="absolute inset-0 size-full object-cover" />
-                    {/* Soft gold tint + fade toward the text side */}
-                    <div
-                        aria-hidden="true"
-                        className="absolute inset-0"
-                        style={{
-                            background:
-                                "radial-gradient(circle at 70% 30%, rgba(255, 204, 0, 0.18), transparent 55%), linear-gradient(to right, rgba(10, 10, 10, 0.6), transparent 35%)",
-                        }}
-                    />
-                </div>
-            </div>
-        </article>
-    );
 }
 
 export default function Services() {
@@ -125,6 +54,7 @@ export default function Services() {
         ro.observe(root);
 
         const tick = () => {
+            if (!phone.matches) return; // desktop: the list is hidden, the cards are in the stage
             const { top, viewport: vh } = scroll.current;
             const k = 1 - Math.pow(1 - GLIDE, gsap.ticker.deltaRatio(60)); // same glide at any refresh rate
 
@@ -137,7 +67,7 @@ export default function Services() {
                 const now = state[i];
                 if (!now) {
                     state[i] = target; // first frame: no glide from nothing
-                    paint(el, target, phone.matches);
+                    paint(el, target);
                     return;
                 }
                 if (now.exit === target.exit && now.enter === target.enter) return;
@@ -145,7 +75,7 @@ export default function Services() {
                 now.enter += (target.enter - now.enter) * k;
                 if (Math.abs(target.exit - now.exit) < 0.001) now.exit = target.exit;
                 if (Math.abs(target.enter - now.enter) < 0.001) now.enter = target.enter;
-                paint(el, now, phone.matches);
+                paint(el, now);
             });
         };
 
@@ -160,7 +90,7 @@ export default function Services() {
     }, [scroll]);
 
     return (
-        <section ref={rootRef} className="relative w-full overflow-hidden bg-[#0a0a0a] px-5 py-[clamp(72px,9vw,140px)] text-white">
+        <section ref={rootRef} className="relative w-full overflow-hidden bg-[#0a0a0a] px-5 py-[clamp(72px,9vw,140px)] text-white md:motion-safe:pb-[clamp(16px,2vw,40px)]">
             <div className="mx-auto max-w-[80rem]">
                 {/* Heading (same pattern as Team) */}
                 <div className="mx-auto flex max-w-[72rem] flex-col items-center text-center">
@@ -186,8 +116,8 @@ export default function Services() {
                     </p>
                 </div>
 
-                {/* Cards */}
-                <div className="mt-[clamp(48px,6vw,96px)] flex flex-col gap-[clamp(24px,3vw,48px)]">
+                {/* Cards: mobile, and desktop with reduced motion */}
+                <div className="mt-[clamp(48px,6vw,96px)] flex flex-col gap-[clamp(24px,3vw,48px)] md:motion-safe:hidden">
                     {SERVICES.map((s, i) => (
                         <ServiceCard key={s.title} service={s} index={i} />
                     ))}

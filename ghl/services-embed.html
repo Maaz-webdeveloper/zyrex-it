@@ -1,0 +1,40 @@
+<!-- ═══════════════════════════════════════════════════════════
+     ZYREX IT | Services (heading + desktop stacking cards)
+     Paste into ONE Custom HTML element. Replaces the old Services element.
+
+     Heading iframe: /embed/services (on mobile also the card list). The bridge sets its height.
+     Stage: the wrapper is the scroll distance, the iframe sticks to the top of the screen inside it.
+     Wrapper height = (1 + pin length) x 100vh. 6.25 = 1 + 5.25, keep 5.25 equal to PIN_VH in
+     components/services/ServicesStage.tsx (that value is only used when opened directly).
+     Below 768px the stage collapses to 0 height: the mobile cards are in /embed/services.
+     Reduced motion: same collapse, /embed/services then shows the normal card list on desktop too.
+     Do not put overflow on .zx-services: it would stop the sticky pin.
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+  .zx-services { display: block; margin: 0; padding: 0; background: #0a0a0a; line-height: 0; font-size: 0; }
+  .zx-services iframe { display: block; width: 100%; margin: 0; padding: 0; border: 0; }
+  .zx-services-pin { position: relative; height: calc(6.25 * 100vh); margin: 0; background: #0a0a0a; }
+  .zx-services-pin iframe { position: sticky; top: 0; height: 100vh; }
+  @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+    .zx-services-pin { height: 0; overflow: hidden; }
+    .zx-services-pin iframe { height: 0; }
+  }
+</style>
+<div class="zx-services">
+  <iframe
+    src="https://zyrex-it.vercel.app/embed/services"
+    data-zyrex-embed="/embed/services"
+    title="ZYREX IT services"
+    scrolling="no"
+    frameborder="0"
+  ></iframe>
+  <div class="zx-services-pin" data-zyrex-pin>
+    <iframe
+      src="https://zyrex-it.vercel.app/embed/services-stage"
+      data-zyrex-embed="/embed/services-stage"
+      title="ZYREX IT services stage"
+      scrolling="no"
+      frameborder="0"
+    ></iframe>
+  </div>
+</div>
