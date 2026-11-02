@@ -13,6 +13,8 @@
      8. Pinned iframes: reports the [data-zyrex-pin] wrapper and leaves the iframe height alone
      9. Footer: its GHL section and row turn black, so no white shows around or below it
     10. Sticky navbar: hidden on the hero, slides in when scrolling up, out when scrolling down
+    11. Floating "Book a call" bar at the bottom: after the first screen, hidden over the footer
+        (set CALENDAR_URL in the Settings at the top of the script)
      ═══════════════════════════════════════════════════════════ -->
 <style>
       /* Site font: Garet for the GHL sections too (same files as the preloader) */
@@ -249,6 +251,100 @@
   @media (prefers-reduced-motion: reduce) {
     .zx-nav, .zx-nav.is-shown { transition: none; }
   }
+
+  /* ---------- Floating "Book a call" bar (section 7 in the script) ---------- */
+  /* Same pill as the navbar; no backdrop-filter (a solid dark fill instead, cheaper while scrolling) */
+  .zx-callbar {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    z-index: 999989; /* just below the navbar */
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    max-width: calc(100% - 24px);
+    padding: 5px 5px 5px 22px;
+    border: 1px solid rgba(255, 204, 0, 0.22);
+    border-radius: 999px;
+    background:
+      radial-gradient(160px 60px at 0% 0%, rgba(255, 204, 0, 0.14), transparent 70%),
+      radial-gradient(160px 60px at 100% 100%, rgba(255, 204, 0, 0.12), transparent 70%),
+      rgba(14, 14, 14, 0.94);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(-50%, 18px, 0);
+    transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.55s;
+  }
+  .zx-callbar.is-shown {
+    opacity: 1;
+    visibility: visible;
+    transform: translate3d(-50%, 0, 0);
+    transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
+  }
+  /* Medium weight: Garet 400 + a very thin stroke (same as the site's .zx-medium) */
+  .zx-callbar-text {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    font-weight: 400 !important;
+    -webkit-text-stroke: 0.035em currentColor;
+    letter-spacing: 0.01em;
+  }
+  .zx-callbar-text .zx-short { display: none; }
+  /* Gold button: same look as GoldButton (components/ui/GoldButton.tsx) */
+  .zx-callbar .zx-callbar-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    height: 42px;
+    padding: 0 46px 0 22px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ffdd65, #ffcc00);
+    color: #000;
+    font-size: 11px;
+    font-weight: 400 !important;
+    -webkit-text-stroke: 0.035em currentColor;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .zx-callbar .zx-callbar-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 204, 0, 0.35); }
+  .zx-callbar .zx-callbar-btn i {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #000;
+    color: #ffcc00;
+    -webkit-text-stroke: 0;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+  }
+  .zx-callbar .zx-callbar-btn:hover i { transform: translate(3px, -50%); }
+  /* Mobile: a bit smaller, never wider than the screen */
+  @media (max-width: 767px) {
+    .zx-callbar { bottom: 14px; gap: 12px; padding: 4px 4px 4px 16px; }
+    .zx-callbar-text { font-size: 13px; }
+    .zx-callbar .zx-callbar-btn { height: 38px; padding: 0 40px 0 16px; font-size: 10px; }
+    .zx-callbar .zx-callbar-btn i { width: 30px; height: 30px; }
+  }
+  /* Very narrow phones: short text, so nothing wraps */
+  @media (max-width: 419px) {
+    .zx-callbar-text .zx-full { display: none; }
+    .zx-callbar-text .zx-short { display: inline; }
+  }
+  /* Reduced motion: fade only, no slide */
+  @media (prefers-reduced-motion: reduce) {
+    .zx-callbar, .zx-callbar.is-shown { transform: translate3d(-50%, 0, 0); }
+  }
 </style>
 
 <script>
@@ -260,6 +356,9 @@
   var EMBED_ORIGIN = 'https://zyrex-it.vercel.app';
   var LENIS_SRC    = 'https://cdn.jsdelivr.net/npm/lenis@1.3.27/dist/lenis.min.js';
   var SCROLL_TO_DURATION = 1.4; // seconds, for menu links
+  // Floating "Book a call" bar: replace with the GHL calendar link (opens in the same tab).
+  // While it is still this placeholder, the button scrolls to the #contact section instead.
+  var CALENDAR_URL = 'REPLACE_WITH_GHL_CALENDAR_LINK';
 
   var html  = document.documentElement;
   var lenis = null;
@@ -594,6 +693,7 @@
     navOpen = open;
     nav.classList.toggle('is-open', open);
     nav.querySelector('.zx-nav-menu-btn').setAttribute('aria-expanded', open ? 'true' : 'false');
+    updateCallbar(); // the floating bar hides while the dropdown is open
   }
   function setNav(show) {
     if (!nav || show === navShown) return;
@@ -602,6 +702,7 @@
     if (!show) setMenu(false);
   }
   function updateNav() {
+    updateCallbar(); // same scroll listener, just one comparison
     if (!nav) return;
     var y = window.pageYOffset;
     var dy = y - lastY;
@@ -651,11 +752,70 @@
     document.addEventListener('click', function (e) { if (navOpen && !nav.contains(e.target)) setMenu(false); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setMenu(false); });
     // Preloader or full-screen menu: hide at once
-    new MutationObserver(function () { if (isLocked()) setNav(false); }).observe(html, { attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(function () { if (isLocked()) setNav(false); updateCallbar(); }).observe(html, { attributes: true, attributeFilter: ['class'] });
     window.addEventListener('scroll', updateNav, { passive: true });
     lastY = window.pageYOffset;
   }
   if (document.body) buildNav();
   else document.addEventListener('DOMContentLoaded', buildNav);
+
+  /* ---------- 7. Floating "Book a call" bar ---------- */
+  // Shows after the first screen, hides while the footer is on screen (it has its own Book a call button),
+  // while the mobile menu dropdown is open and while the page is locked (preloader / full-screen menu).
+  // Updated from the navbar's scroll listener (one comparison per scroll event) and an IntersectionObserver
+  // on the footer, so it adds no work of its own per frame.
+  var CALLBAR_TEXT = "Let's discuss your project.";
+  var CALLBAR_TEXT_SHORT = "Let's talk."; // very narrow phones
+  var CALLBAR_BTN = 'Book a call';
+  var CALLBAR_AFTER = 0.9; // shows once scrolled past this × the screen height
+
+  var callbar = null, callbarShown = false, footerInView = false, footerWatched = null;
+  var footerIO = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { footerInView = en.isIntersecting; });
+    updateCallbar();
+  }) : null;
+
+  function calendarReady() { return CALENDAR_URL && CALENDAR_URL.indexOf('REPLACE_WITH') < 0; }
+  // Watch the footer iframe (also called when a frame says hello, in case it is added later)
+  function watchFooter() {
+    if (!footerIO) return;
+    var f = document.querySelector('iframe[data-zyrex-embed="/embed/footer"]');
+    if (!f || f === footerWatched) return;
+    if (footerWatched) footerIO.unobserve(footerWatched);
+    footerWatched = f;
+    footerIO.observe(f);
+  }
+  function updateCallbar() {
+    if (!callbar) return;
+    var show = window.pageYOffset > vh * CALLBAR_AFTER && !footerInView && !navOpen && !isLocked();
+    if (show === callbarShown) return;
+    callbarShown = show;
+    callbar.classList.toggle('is-shown', show);
+  }
+  function buildCallbar() {
+    var arrow = '<i aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i>';
+    callbar = document.createElement('div');
+    callbar.className = 'zx-callbar';
+    callbar.setAttribute('role', 'complementary');
+    callbar.setAttribute('aria-label', 'Book a call');
+    callbar.innerHTML =
+      '<span class="zx-callbar-text"><span class="zx-full">' + CALLBAR_TEXT + '</span><span class="zx-short">' + CALLBAR_TEXT_SHORT + '</span></span>' +
+      '<a class="zx-callbar-btn" href="' + (calendarReady() ? CALENDAR_URL : '#contact') + '">' + CALLBAR_BTN + arrow + '</a>';
+    document.body.appendChild(callbar);
+
+    callbar.querySelector('.zx-callbar-btn').addEventListener('click', function (e) {
+      if (calendarReady()) return; // real calendar link: normal navigation, same tab
+      e.preventDefault();
+      e.stopPropagation(); // Lenis (anchors: true) would start its own scroll to the same link
+      scrollToTarget('#contact');
+    });
+    watchFooter();
+    window.addEventListener('message', function (e) {
+      if (e.origin === EMBED_ORIGIN && e.data && e.data.type === 'zyrex-hello') watchFooter();
+    });
+    updateCallbar();
+  }
+  if (document.body) buildCallbar();
+  else document.addEventListener('DOMContentLoaded', buildCallbar);
 })();
 </script>
