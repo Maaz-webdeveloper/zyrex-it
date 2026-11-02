@@ -13,21 +13,23 @@ import gsap from "gsap";
 // Ring position/size relative to the character's visible box. Tweak these to fit the head.
 const RING = {
     cx: 52, // center X, % of the character's width
-    cy: 31, // center Y, % of the character's height (forehead level)
-    radius: 0.58, // ring radius = this × character width (smaller = cards closer together)
-    tiltX: 7, // tilt (deg): above 0 the front of the ring is higher than the back
+    cy: 34, // center Y, % of the character's height (eye line: upper cards over the forehead, lower over the cheeks)
+    radius: 0.62, // max ring radius = this × character width (desktop radius comes from the cards, see BAND)
+    tiltX: 3, // tilt (deg): above 0 the front of the ring is higher than the back
     tiltZ: -6, // sideways tilt to follow the head (deg)
     duration: 30, // seconds per full turn
 };
 
-// Desktop band (dense wall of cards, Mindly-style). measure() scales every card the same so an info card is
-// INFO_W × the character width (≈ half the face), then packs them around the ring with GAP between neighbours.
-// If they don't all fit at that size, they shrink just enough to fit with GAP.
+// Desktop band (wall of cards, Mindly-style). measure() scales every card the same so an info card is
+// infoW × the character width, and sets the ring radius so the cards go all the way round with only `gap`
+// between neighbours (kept between minR and RING.radius). Alternate cards zig-zag up/down, leaving the eye line clear.
+// Tuned against the reference with screenshots at 1366x768.
 const BAND = {
     count: 12, // cards on the ring (CARDS repeated)
     infoW: 0.34, // info card width, × character width (the head is ~0.65 × at forehead level)
     gap: 0.012, // gap between neighbouring cards, × character width
-    stagger: 0.14, // alternate cards sit this much higher / lower, × info card height
+    stagger: 0.68, // alternate cards sit this much higher / lower, × card height (zig-zag: the eye line stays clear)
+    minR: 0.54, // smallest ring radius, × character width (must clear the head)
 };
 
 // Below 900px: 6 smaller cards on a ring that always fits inside the screen, at forehead level
@@ -79,7 +81,8 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     if (card.type === "image") {
         return (
             <div
-                className={`h-[clamp(40px,3.6vw,64px)] w-[clamp(90px,7.5vw,150px)] max-[899px]:h-[40px] max-[899px]:w-[72px] overflow-hidden rounded-[clamp(10px,1vw,16px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)]`}
+                // desktop: as tall as an info card (11vw / 2), a little narrower than tall (portrait, like the reference)
+                className={`h-[clamp(65px,5.5vw,110px)] w-[clamp(55px,4.7vw,94px)] max-[899px]:h-[40px] max-[899px]:w-[72px] overflow-hidden rounded-[clamp(10px,1vw,16px)] shadow-[0_14px_40px_rgba(0,0,0,0.6)]`}
                 style={{ border: "1px solid rgba(255, 255, 255, 0.2)" }}
             >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -91,7 +94,7 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     }
     return (
         <div
-            className={`relative flex w-[clamp(130px,11vw,220px)] items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(10px,1vw,16px)] p-[clamp(8px,0.8vw,14px)] max-[899px]:w-[96px] max-[899px]:gap-[6px] max-[899px]:p-[7px] shadow-[0_14px_40px_rgba(0,0,0,0.6)]`}
+            className={`relative flex w-[clamp(130px,11vw,220px)] items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(10px,1vw,16px)] p-[clamp(8px,0.8vw,14px)] max-[899px]:w-[96px] max-[899px]:gap-[6px] max-[899px]:p-[7px] shadow-[0_14px_40px_rgba(0,0,0,0.6)] min-[900px]:aspect-[2]`}
             style={{ background: glass ? GLASS_BG_FRONT : GLASS_BG, border: "1px solid rgba(255, 255, 255, 0.18)" }}
         >
             {/* Thin white highlight along the top edge */}
@@ -283,7 +286,35 @@ export default function CharacterOrbits() {
                 scene.style.top = `${y}px`;
             });
 
+            // Card sizes as drawn by CSS (before the band scale)
+            const sizerOf = (kind: "info" | "img") => wrapper.querySelector<HTMLElement>(`[data-face-sizer="${kind}"]`);
+            const infoEl = sizerOf("info");
+            const imgEl = sizerOf("img");
+            const infoW = infoEl?.offsetWidth ?? 0;
+            const imgW = imgEl?.offsetWidth ?? 0;
+            const list = isMobile ? MOBILE_CARDS : RING_CARDS;
+
+            // Desktop band: cards at BAND.infoW, packed with BAND.gap; the ring radius is whatever that needs
+            // (between BAND.minR and RING.radius; above the max the cards shrink to fit)
+            let scale = 1;
+            let gap = 0;
+            let stagger = 0;
             let r = bw * RING.radius;
+            if (!isMobile && infoW && imgW) {
+                const widths = list.reduce((sum, c) => sum + (c.type === "image" ? imgW : infoW), 0);
+                gap = BAND.gap * bw;
+                scale = (BAND.infoW * bw) / infoW;
+                r = (scale * widths + gap * list.length) / (2 * Math.PI); // the cards are bent along the ring: width = arc
+                if (r > RING.radius * bw) {
+                    r = RING.radius * bw;
+                    scale = (2 * Math.PI * r - gap * list.length) / widths;
+                }
+                if (r < BAND.minR * bw) {
+                    r = BAND.minR * bw;
+                    gap = (2 * Math.PI * r - scale * widths) / list.length;
+                }
+                stagger = BAND.stagger * scale * (infoEl?.offsetHeight ?? 0);
+            }
             if (isMobile) {
                 // Largest radius where every card (incl. perspective zoom) stays inside the screen
                 const W = wrapper.offsetWidth;
@@ -295,26 +326,6 @@ export default function CharacterOrbits() {
             r = Math.max(r, 0);
             wrapper.style.setProperty("--zx-r", `${r}px`);
 
-            // Card sizes as drawn by CSS (before the scale below)
-            const sizerOf = (kind: "info" | "img") => wrapper.querySelector<HTMLElement>(`[data-face-sizer="${kind}"]`);
-            const infoEl = sizerOf("info");
-            const imgEl = sizerOf("img");
-            const infoW = infoEl?.offsetWidth ?? 0;
-            const imgW = imgEl?.offsetWidth ?? 0;
-
-            // Band layout: one scale for all cards, packed edge to edge with a small gap
-            const list = isMobile ? MOBILE_CARDS : RING_CARDS;
-            let scale = 1;
-            let gap = 0;
-            let stagger = 0;
-            if (!isMobile && infoW && imgW && r > 0) {
-                const widths = list.reduce((sum, c) => sum + (c.type === "image" ? imgW : infoW), 0);
-                const room = 2 * Math.PI * r; // the cards are bent along the ring, so their width is arc length
-                gap = BAND.gap * bw;
-                scale = Math.min((BAND.infoW * bw) / infoW, (room - gap * list.length) / widths);
-                gap = (room - scale * widths) / list.length; // spread what's left evenly
-                stagger = BAND.stagger * scale * (infoEl?.offsetHeight ?? 0);
-            }
             let arc = 0; // running arc length along the ring
             list.forEach((c, n) => {
                 const w = (c.type === "image" ? imgW : infoW) * scale;
