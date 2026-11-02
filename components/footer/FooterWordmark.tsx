@@ -3,7 +3,6 @@
 // Big outline "ZYREX IT" at the very bottom of the footer.
 // Desktop: a soft gold light follows the mouse and fills the letters where it is (Sheryians style).
 // Mobile / touch: the gold light slowly moves across the word by itself.
-// The "Z" is always gold, like the Z in the logo. It has its own SVG on top, so its glow is not redrawn while the light moves.
 
 import { useRef } from "react";
 import gsap from "gsap";
@@ -12,7 +11,6 @@ import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(useGSAP);
 
 const WORD = "ZYREX IT";
-const GOLD_LETTER = "Z";
 const W = 1000; // drawing width
 const H = 178; // drawing height
 
@@ -82,7 +80,7 @@ export default function FooterWordmark() {
     });
 
     return (
-        <div ref={rootRef} aria-hidden="true" className="relative pb-[clamp(16px,2vw,28px)] select-none">
+        <div ref={rootRef} aria-hidden="true" className="pb-[clamp(16px,2vw,28px)] select-none">
             <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible">
                 <defs>
                     <linearGradient id="zx-wm-gold" x1="0" y1="0" x2="1" y2="1">
@@ -115,28 +113,6 @@ export default function FooterWordmark() {
                         {WORD}
                     </text>
                 </g>
-            </svg>
-
-            {/* Permanent gold Z: same letter, same position as in the word above */}
-            <svg
-                viewBox={`0 0 ${W} ${H}`}
-                className="pointer-events-none absolute inset-x-0 top-0 block h-auto w-full overflow-visible will-change-transform"
-                style={{ filter: "drop-shadow(0 0 14px rgba(255, 204, 0, 0.32)) drop-shadow(0 0 3px rgba(255, 204, 0, 0.3))" }}
-            >
-                <defs>
-                    {/* Polished metal, like the Z in the logo */}
-                    <linearGradient id="zx-wm-z" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stopColor="#fff0a8" />
-                        <stop offset="0.22" stopColor="#ffd23f" />
-                        <stop offset="0.48" stopColor="#e2a30c" />
-                        <stop offset="0.62" stopColor="#ffdf6b" />
-                        <stop offset="0.82" stopColor="#d59408" />
-                        <stop offset="1" stopColor="#9a6a05" />
-                    </linearGradient>
-                </defs>
-                <text {...TEXT} fill="url(#zx-wm-z)" stroke="url(#zx-wm-z)" strokeWidth={WEIGHT}>
-                    {GOLD_LETTER}
-                </text>
             </svg>
         </div>
     );
