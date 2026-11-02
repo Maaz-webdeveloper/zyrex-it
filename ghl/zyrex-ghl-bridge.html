@@ -12,6 +12,7 @@
      7. Answers the Next.js "is the preloader gone?" question
      8. Pinned iframes: reports the [data-zyrex-pin] wrapper and leaves the iframe height alone
      9. Footer: its GHL section and row turn black, so no white shows around or below it
+    10. Sticky navbar: hidden on the hero, slides in when scrolling up, out when scrolling down
      ═══════════════════════════════════════════════════════════ -->
 <style>
       /* Site font: Garet for the GHL sections too (same files as the preloader) */
@@ -71,6 +72,160 @@
     height: 45px;
     background: radial-gradient(circle, rgba(255,204,0,0.4) 0%, rgba(255,204,0,0.1) 70%, transparent 100%);
     border-color: rgba(255,204,0,0.9);
+  }
+
+  /* ---------- Sticky navbar (section 6 in the script) ---------- */
+  .zx-nav {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    z-index: 999990; /* above the page, below the cursor ball (999998) and the preloader (999999) */
+    width: min(1180px, calc(100% - 32px));
+    transform: translate3d(-50%, calc(-100% - 28px), 0);
+    visibility: hidden;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.55s;
+    will-change: transform;
+  }
+  .zx-nav.is-shown {
+    transform: translate3d(-50%, 0, 0);
+    visibility: visible;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
+  }
+  .zx-nav-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 64px;
+    padding: 0 10px 0 22px;
+    border: 1px solid rgba(255, 204, 0, 0.22);
+    border-radius: 999px;
+    background:
+      radial-gradient(160px 70px at 0% 0%, rgba(255, 204, 0, 0.16), transparent 70%),
+      radial-gradient(160px 70px at 100% 100%, rgba(255, 204, 0, 0.13), transparent 70%),
+      rgba(14, 14, 14, 0.78);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+  .zx-nav a { text-decoration: none; -webkit-tap-highlight-color: transparent; }
+  /* The PNG has empty space around the letters: the negative margins trim it, the ratio stays natural */
+  .zx-nav-logo { display: block; flex: none; --h: 60px; }
+  .zx-nav-logo img {
+    display: block;
+    height: var(--h);
+    width: auto;
+    max-width: none;
+    margin: calc(var(--h) * -0.3) calc(var(--h) * -0.33) calc(var(--h) * -0.257) calc(var(--h) * -0.336);
+  }
+  .zx-nav-links { display: flex; align-items: center; gap: 30px; margin: 0 auto; padding: 0; list-style: none; }
+  .zx-nav-link {
+    position: relative;
+    padding: 6px 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+  }
+  .zx-nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, #ffdd65, #ffcc00);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.45s cubic-bezier(0.76, 0, 0.24, 1);
+  }
+  .zx-nav-link:hover, .zx-nav-link:focus-visible { color: #ffcc00; }
+  .zx-nav-link:hover::after, .zx-nav-link:focus-visible::after { transform: scaleX(1); }
+  .zx-nav-right { display: flex; align-items: center; gap: 22px; flex: none; }
+  .zx-nav-cta {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 50px 0 22px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ffdd65, #ffcc00);
+    color: #000;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .zx-nav-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 204, 0, 0.35); }
+  .zx-nav-cta i {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #000;
+    color: #ffcc00;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+  }
+  .zx-nav-cta:hover i { transform: translate(3px, -50%); }
+  .zx-nav-menu-btn {
+    display: none;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid rgba(255, 204, 0, 0.35);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .zx-nav-menu-btn span { display: block; width: 16px; height: 1.5px; background: #fff; transition: transform 0.3s ease; }
+  .zx-nav-menu-btn span + span { margin-top: 5px; }
+  .zx-nav.is-open .zx-nav-menu-btn span:first-child { transform: translateY(3.25px) rotate(45deg); }
+  .zx-nav.is-open .zx-nav-menu-btn span:last-child { transform: translateY(-3.25px) rotate(-45deg); }
+  .zx-nav-drop {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    display: none;
+    padding: 10px;
+    border: 1px solid rgba(255, 204, 0, 0.2);
+    border-radius: 22px;
+    background: rgba(12, 12, 12, 0.96);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  }
+  .zx-nav-drop a {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+  }
+  .zx-nav-drop a:hover, .zx-nav-drop a:focus-visible { color: #ffcc00; background: rgba(255, 204, 0, 0.06); }
+  @media (max-width: 767px) {
+    .zx-nav { top: 10px; width: calc(100% - 20px); }
+    .zx-nav-bar { height: 56px; gap: 10px; padding: 0 7px 0 16px; }
+    .zx-nav-logo { --h: 50px; }
+    .zx-nav-links, .zx-nav-contact { display: none; }
+    .zx-nav-right { gap: 8px; margin-left: auto; }
+    .zx-nav-cta { height: 40px; padding: 0 44px 0 14px; font-size: 10.5px; letter-spacing: 0.1em; }
+    .zx-nav-cta i { width: 30px; height: 30px; }
+    .zx-nav-menu-btn { display: flex; }
+    .zx-nav.is-open .zx-nav-drop { display: block; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-nav, .zx-nav.is-shown { transition: none; }
   }
 </style>
 
@@ -384,5 +539,90 @@
         break;
     }
   });
+  /* ---------- 6. Sticky navbar: hidden on the hero, slides in when scrolling up ---------- */
+  // Change the links here. Each one smooth-scrolls to the GHL section with that id.
+  var NAV_LINKS = [['About', '#about'], ['Services', '#services'], ['Portfolio', '#portfolio'], ['Team', '#team'], ['Blog', '#blog']];
+  var NAV_CONTACT = ['Contact', '#contact'];
+  var NAV_CTA = ['Book a call', '#contact'];
+  var NAV_LOGO = EMBED_ORIGIN + '/hero/logo.png';
+  var NAV_SHOW_AFTER = 8; // px of upward scroll before it slides in (ignores tiny movements)
+
+  var nav = null, navShown = false, navOpen = false, lastY = 0, upTravel = 0, heroFrame = null;
+
+  // Bottom of the hero on the page (cached by pageBox, re-measured only when the layout changes)
+  function heroEnd() {
+    if (!heroFrame || !heroFrame.isConnected) {
+      heroFrame = document.querySelector('iframe[data-zyrex-embed="/embed/hero"]') || frames()[0] || null;
+    }
+    if (!heroFrame) return vh;
+    var b = pageBox(heroFrame);
+    return b.top + b.height;
+  }
+  function setMenu(open) {
+    if (!nav || open === navOpen) return;
+    navOpen = open;
+    nav.classList.toggle('is-open', open);
+    nav.querySelector('.zx-nav-menu-btn').setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  function setNav(show) {
+    if (!nav || show === navShown) return;
+    navShown = show;
+    nav.classList.toggle('is-shown', show);
+    if (!show) setMenu(false);
+  }
+  function updateNav() {
+    if (!nav) return;
+    var y = window.pageYOffset;
+    var dy = y - lastY;
+    lastY = y;
+    if (isLocked() || y < heroEnd() - 2) { upTravel = 0; setNav(false); return; }
+    // Lenis knows the direction of the scroll it is animating; plain scrolling uses the change in position
+    var dir = lenis && lenis.direction ? lenis.direction : dy < 0 ? -1 : dy > 0 ? 1 : 0;
+    if (dir < 0 && dy < 0) {
+      upTravel -= dy;
+      if (upTravel > NAV_SHOW_AFTER) setNav(true);
+    } else if (dir > 0 && dy > 0) {
+      upTravel = 0;
+      setNav(false);
+    }
+  }
+  function buildNav() {
+    var arrow = '<i aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i>';
+    var link = function (l, cls) { return '<a class="' + cls + '" href="' + l[1] + '" data-zx-to="' + l[1] + '">' + l[0] + '</a>'; };
+    nav = document.createElement('nav');
+    nav.className = 'zx-nav';
+    nav.setAttribute('aria-label', 'Main');
+    nav.innerHTML =
+      '<div class="zx-nav-bar">' +
+        '<a class="zx-nav-logo" href="#top" data-zx-to="#top" aria-label="ZYREX IT, back to top"><img src="' + NAV_LOGO + '" alt="ZYREX IT" draggable="false"></a>' +
+        '<ul class="zx-nav-links">' + NAV_LINKS.map(function (l) { return '<li>' + link(l, 'zx-nav-link') + '</li>'; }).join('') + '</ul>' +
+        '<div class="zx-nav-right">' +
+          link(NAV_CONTACT, 'zx-nav-link zx-nav-contact') +
+          '<a class="zx-nav-cta" href="' + NAV_CTA[1] + '" data-zx-to="' + NAV_CTA[1] + '">' + NAV_CTA[0] + arrow + '</a>' +
+          '<button class="zx-nav-menu-btn" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>' +
+        '</div>' +
+        '<div class="zx-nav-drop">' + NAV_LINKS.concat([NAV_CONTACT]).map(function (l) { return link(l, ''); }).join('') + '</div>' +
+      '</div>';
+    document.body.appendChild(nav);
+
+    nav.addEventListener('click', function (e) {
+      var a = e.target.closest('a[data-zx-to]');
+      if (a) {
+        e.preventDefault();
+        setMenu(false);
+        scrollToTarget(a.getAttribute('data-zx-to'));
+        return;
+      }
+      if (e.target.closest('.zx-nav-menu-btn')) setMenu(!navOpen);
+    });
+    document.addEventListener('click', function (e) { if (navOpen && !nav.contains(e.target)) setMenu(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setMenu(false); });
+    // Preloader or full-screen menu: hide at once
+    new MutationObserver(function () { if (isLocked()) setNav(false); }).observe(html, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('scroll', updateNav, { passive: true });
+    lastY = window.pageYOffset;
+  }
+  if (document.body) buildNav();
+  else document.addEventListener('DOMContentLoaded', buildNav);
 })();
 </script>
