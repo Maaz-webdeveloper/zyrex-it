@@ -2,7 +2,7 @@
 
 // Real 3D ring of cards around the character's head (Mindly-style).
 // Two copies of the same ring spin together:
-//   - BACK copy (z 1, behind the character img): shows only the far-side cards, dimmed, plus a thin gold ring line
+//   - BACK copy (z 1, behind the character img): shows only the far-side cards, dimmed
 //   - FRONT copy (z 3, over the character): shows only the near-side cards
 // The character <img> in HeroStage is z 2.
 
@@ -14,13 +14,13 @@ import gsap from "gsap";
 const RING = {
     cx: 52, // center X, % of the character's width
     cy: 31, // center Y, % of the character's height (forehead level)
-    radius: 0.64, // ring radius = this × character width
+    radius: 0.58, // ring radius = this × character width (smaller = cards closer together)
     tiltX: 7, // tilt (deg): above 0 the front of the ring is higher than the back
     tiltZ: -6, // sideways tilt to follow the head (deg)
     duration: 30, // seconds per full turn
 };
 
-const ROW_GAP = "clamp(8px, 0.6vw, 12px)"; // half the gap between the two rows of cards (desktop)
+const ROW_GAP = "clamp(4px, 0.3vw, 6px)"; // half the gap between the two rows of cards (desktop)
 
 // Below 900px: 6 smaller cards on a ring that always fits inside the screen, at forehead level
 const MOBILE_QUERY = "(max-width: 899px)";
@@ -62,6 +62,7 @@ const GLASS_BG_FRONT = `${GLASS_BG}, rgba(22, 22, 22, 0.38)`;
 // Curved cards: each card is cut into this many vertical strips, each one turned a little around the ring
 // center, so together they bend along the ring's circle. Neighbouring strip edges meet exactly (chord math in measure()).
 const STRIPS = 6;
+const SEAM = 1; // px each strip reaches into its neighbour (soft cross-fade, hides the seam lines)
 const CURVE = 1; // 1 = cards bend exactly like the ring; lower = flatter (e.g. 0.7), higher = stronger
 
 function Face({ card, glass }: { card: Card; glass?: boolean }) {
@@ -133,27 +134,44 @@ function CurvedCard({ card, back }: { card: Card; back: boolean }) {
                 <Face card={card} />
             </div>
             {Array.from({ length: STRIPS }, (_, j) => {
+                const sw = `var(--zx-sw-${kind}, 30px)`; // strip width (card width / STRIPS, set in measure())
                 const k = j - (STRIPS - 1) / 2; // strip position from the middle
                 const shift = STRIPS / 2 - (j + 0.5); // in strip widths: moves the strip to the card center first
                 const angle = `calc(var(--zx-da-${kind}, 0deg) * ${back ? -k : k})`;
+                const move = `translateX(calc(${sw} * ${shift}))`;
                 const transform = back
-                    ? `translateX(${shift * 100}%) translateZ(${r}) rotateY(${angle}) translateZ(calc(${r} * -1))`
-                    : `translateX(${shift * 100}%) translateZ(calc(${r} * -1)) rotateY(${angle}) translateZ(${r})`;
+                    ? `${move} translateZ(${r}) rotateY(${angle}) translateZ(calc(${r} * -1))`
+                    : `${move} translateZ(calc(${r} * -1)) rotateY(${angle}) translateZ(${r})`;
+                // No seams: each strip reaches SEAM px into its neighbours and fades out there while the neighbour
+                // fades in (the two add up to the full card), so there's no see-through gap and no darker overlap line.
+                // The card's own outer edges stay sharp.
+                const fade = `${SEAM * 2}px`;
+                const mask =
+                    j === 0
+                        ? `linear-gradient(to right, #000 calc(100% - ${fade}), transparent)`
+                        : j === STRIPS - 1
+                          ? `linear-gradient(to right, transparent, #000 ${fade})`
+                          : `linear-gradient(to right, transparent, #000 ${fade}, #000 calc(100% - ${fade}), transparent)`;
                 return (
                     <div
                         key={j}
                         className="absolute inset-y-0"
                         style={{
-                            left: `${(j * 100) / STRIPS}%`,
-                            width: `${100 / STRIPS}%`,
+                            left: `calc(${sw} * ${j} - ${SEAM}px)`,
+                            width: `calc(${sw} + ${SEAM * 2}px)`,
                             overflowX: "clip", // cut the slice sideways only, the shadow below stays
                             transform,
+                            WebkitMaskImage: mask,
+                            maskImage: mask,
                             backfaceVisibility: "hidden",
                             WebkitBackfaceVisibility: "hidden",
                             opacity: back ? 0.4 : 0.85, // front: slightly see-through so the face stays visible
                         }}
                     >
-                        <div className="absolute top-0" style={{ left: `${-j * 100}%`, width: `${STRIPS * 100}%` }}>
+                        <div
+                            className="absolute top-0"
+                            style={{ left: `calc(${SEAM}px - ${sw} * ${j})`, width: `calc(${sw} * ${STRIPS})` }}
+                        >
                             <Face card={card} glass={!back} />
                         </div>
                     </div>
@@ -190,21 +208,6 @@ function Ring({
             >
                 {/* Spinning part (GSAP rotates this) */}
                 <div data-ring-spin="" style={{ transformStyle: "preserve-3d" }}>
-                    {/* Thin gold ring line (back copy only) */}
-                    {back && (
-                        <span
-                            className="absolute rounded-full"
-                            style={{
-                                width: "calc(var(--zx-r, 220px) * var(--zx-line, 2.3))",
-                                height: "calc(var(--zx-r, 220px) * var(--zx-line, 2.3))",
-                                left: "calc(var(--zx-r, 220px) * var(--zx-line, 2.3) / -2)",
-                                top: "calc(var(--zx-r, 220px) * var(--zx-line, 2.3) / -2)",
-                                border: "1px solid rgba(255, 204, 0, 0.35)",
-                                transform: "rotateX(90deg)",
-                            }}
-                        />
-                    )}
-
                     {cards.map((card, i) => (
                         <div
                             key={i}
@@ -280,7 +283,6 @@ export default function CharacterOrbits() {
             }
             r = Math.max(r, 0);
             wrapper.style.setProperty("--zx-r", `${r}px`);
-            wrapper.style.setProperty("--zx-line", isMobile ? "2.1" : "2.3"); // gold line diameter, × radius
 
             // Curved cards: angle between two strips, so a strip (a chord of the ring) spans exactly its share of
             // the circle and neighbouring strip edges meet with no gap
@@ -290,6 +292,7 @@ export default function CharacterOrbits() {
                 const sizer = wrapper.querySelector<HTMLElement>(`[data-face-sizer="${kind}"]`);
                 if (!sizer) return;
                 const sw = sizer.offsetWidth / STRIPS;
+                wrapper.style.setProperty(`--zx-sw-${kind}`, `${sw.toFixed(3)}px`);
                 const deg = rc > 0 ? (2 * Math.asin(Math.min(1, sw / (2 * rc))) * 180) / Math.PI : 0;
                 wrapper.style.setProperty(`--zx-da-${kind}`, `${deg.toFixed(4)}deg`);
             });
