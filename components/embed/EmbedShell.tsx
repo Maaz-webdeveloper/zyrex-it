@@ -107,7 +107,10 @@ export default function EmbedShell({ children }: { children: React.ReactNode }) 
     const io = new IntersectionObserver(([entry]) => {
       const on = entry.isIntersecting;
       html.toggleAttribute("data-zx-offscreen", !on);
-      document.querySelectorAll("svg").forEach((svg) => (on ? svg.unpauseAnimations() : svg.pauseAnimations()));
+      document.querySelectorAll("svg").forEach((svg) => {
+        if (on && svg.getClientRects().length) svg.unpauseAnimations(); // hidden SVGs stay paused
+        else svg.pauseAnimations();
+      });
       if (on) gsap.ticker.wake();
       else gsap.ticker.sleep();
     });

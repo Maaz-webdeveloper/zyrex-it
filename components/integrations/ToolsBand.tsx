@@ -37,8 +37,7 @@ const BOX_INSIDE = "radial-gradient(circle at 50% 35%, #1f1a0a 0%, #0d0d0d 60%, 
 
 // Gold light on the pipe lines: wide soft strokes, then the bright core
 const GLOW = [
-    { width: 12, opacity: 0.14 },
-    { width: 7, opacity: 0.28 },
+    { width: 9, opacity: 0.22 },
     { width: 3, opacity: 1 },
 ];
 
@@ -47,6 +46,7 @@ const GLOW = [
 function PipeLines({ id, vertical }: { id: string; vertical?: boolean }) {
     return (
         <svg
+            data-pipe={vertical ? "v" : "h"}
             aria-hidden="true"
             className={
                 vertical
@@ -166,6 +166,13 @@ export default function ToolsBand() {
                 },
                 (ctx) => {
                     const { desktop, reduce } = ctx.conditions as { desktop: boolean; mobile: boolean; reduce: boolean };
+
+                    // The hidden pipe (desktop or mobile) must not animate behind the scenes
+                    const hPipe = rootRef.current?.querySelector<SVGSVGElement>("[data-pipe='h']");
+                    const vPipe = rootRef.current?.querySelector<SVGSVGElement>("[data-pipe='v']");
+                    (desktop ? vPipe : hPipe)?.pauseAnimations();
+                    (desktop ? hPipe : vPipe)?.unpauseAnimations();
+
                     if (reduce) return;
 
                     const tween = desktop

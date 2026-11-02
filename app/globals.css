@@ -49,9 +49,8 @@ body {
 }
 
 /* Section off-screen (set by EmbedShell): CSS animations rest */
-html[data-zx-offscreen] *,
-html[data-zx-offscreen] *::before,
-html[data-zx-offscreen] *::after {
+html[data-zx-offscreen] .animate-zx-shine,
+html[data-zx-offscreen] .animate-zx-float {
   animation-play-state: paused !important;
 }
 

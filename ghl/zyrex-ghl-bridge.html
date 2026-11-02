@@ -133,6 +133,7 @@
     if (locked === lockedNow) return;
     lockedNow = locked;
     if (locked) lenis.stop(); else lenis.start();
+    if (!locked) prepareFrames();
   }
   new MutationObserver(syncLock).observe(html, { attributes: true, attributeFilter: ['class'] });
 
@@ -262,18 +263,47 @@
     }
   }
 
+  // Positions on the page, measured once and again only when the page layout changes.
+  // getBoundingClientRect on every frame forces the browser to recalculate styles mid-frame.
+  var boxes = new Map();
+  function resetBoxes() { if (boxes) boxes.clear(); } // can run before this line when Lenis is already there
+  function pageBox(el) {
+    var b = boxes.get(el);
+    if (!b) {
+      var r = el.getBoundingClientRect();
+      b = { top: r.top + window.pageYOffset, height: r.height };
+      boxes.set(el, b);
+    }
+    return b;
+  }
+  if ('ResizeObserver' in window) {
+    (function watchPage() {
+      if (!document.body) return document.addEventListener('DOMContentLoaded', watchPage);
+      new ResizeObserver(resetBoxes).observe(document.body);
+    })();
+  }
+
+  // Sticky set-up for pinned sections: right after the page unlocks, not when the scroll reaches them
+  function prepareFrames() {
+    var pins = document.querySelectorAll('[data-zyrex-pin]');
+    for (var i = 0; i < pins.length; i++) {
+      if (pins[i].getBoundingClientRect().height > 0) freePin(pins[i]); // height 0 = mobile, nothing is pinned
+    }
+    resetBoxes();
+  }
+
   function sendScrollTo(frame) {
+    var y = lenis && !coarse ? lenis.animatedScroll : window.pageYOffset; // touch scrolls natively
+    var pin = frame.closest('[data-zyrex-pin]');
     var msg = {
       type: 'zyrex-scroll',
-      top: frame.getBoundingClientRect().top,
-      viewport: window.innerHeight
+      top: pageBox(pin || frame).top - y,
+      viewport: vh
     };
-    var pin = frame.closest('[data-zyrex-pin]');
     if (pin) {
-      var r = pin.getBoundingClientRect();
-      msg.pinTop = r.top;
-      msg.pinHeight = r.height;
-      if (r.height > 0) freePin(pin); // height 0 = mobile, nothing is pinned
+      var b = pageBox(pin);
+      msg.pinTop = b.top - y;
+      msg.pinHeight = b.height;
     }
     post(frame.contentWindow, msg);
   }
@@ -288,7 +318,7 @@
     requestAnimationFrame(sendScroll); // max one message per frame
   }
   window.addEventListener('scroll', queueScroll, { passive: true });
-  window.addEventListener('resize', queueScroll);
+  window.addEventListener('resize', function () { resetBoxes(); queueScroll(); });
 
   /* ---------- 4c. Footer: black up to the GHL section around it ---------- */
   // Stops at the first parent that also holds other visible content (the page itself)
@@ -316,14 +346,14 @@
         // Pinned iframes get their height from the GHL CSS (100vh), not from the content
         if (frame && typeof d.height === 'number' && !frame.closest('[data-zyrex-pin]')) {
           var px = d.height + 'px';
-          if (frame.style.height !== px) frame.style.height = px;
+          if (frame.style.height !== px) { frame.style.height = px; resetBoxes(); }
         }
         break;
 
       case 'zyrex-hello':
         post(e.source, viewportMsg());
         if (noPreloader()) post(e.source, { type: 'zyrex-preloader-done' });
-        if (frame) { blackenFooter(frame); sendScrollTo(frame); }
+        if (frame) { blackenFooter(frame); prepareFrames(); sendScrollTo(frame); }
         queueScroll();
         break;
 
