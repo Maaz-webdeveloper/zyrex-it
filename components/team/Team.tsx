@@ -2,11 +2,12 @@
 
 // Team carousel in a 3D overlapping "coverflow" layout, ZYREX dark + gold theme.
 // Drag with the mouse or swipe on mobile, endless loop, pagination dots below.
-// The center card is big and in color with a gold ring; side cards sit behind it, smaller, darker and in grayscale.
-// Name + role pills sit under the center card. Hover (mouse devices): a side card shows its color.
+// Cards are tall ovals. The center card is "active": photo in color, gold ring with a glow, name + role pills
+// inside the card (same look as the old carousel). Side cards sit behind it, smaller, darker and in grayscale.
+// Hover (mouse devices): a side card shows the same active look while the mouse is over it.
 // Embla does the dragging, snapping, looping and auto-play on an invisible track; its live position
 // places the real cards (transform + opacity only, no animated filters, so scrolling stays smooth).
-// Scroll entrance: label, heading, cards, pills and dots rise in when the section comes into view.
+// Scroll entrance: label, heading, cards and dots rise in when the section comes into view.
 // Auto-play: next card every few seconds; pauses on mouse hover, while touching/dragging and when the section is off screen.
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -39,48 +40,76 @@ const flow = (values: number[], d: number) => {
     return values[i] + (values[i + 1] - values[i]) * Math.min(d - i, 1);
 };
 
-function Card({ name, photo, onPick }: { name: string; photo: string; onPick: () => void }) {
+// active = the card in the center of the slider; it looks the same as a hovered card
+function Card({ name, role, photo, active, onPick }: { name: string; role: string; photo: string; active: boolean; onPick: () => void }) {
     return (
         <article
             data-reveal="card"
+            data-active={active}
             onClick={onPick}
-            aria-label={name}
-            className="group relative h-full w-full overflow-hidden rounded-[28px] bg-[#141414] shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
+            className="group relative isolate mx-auto aspect-[41/58] w-full rounded-full p-0 transition-[padding,background-color] duration-500 hover:bg-white/[0.04] hover:p-[7%] data-[active=true]:bg-white/[0.04] data-[active=true]:p-[7%]"
         >
-            {/* Grayscale photo, the color copy fades in on top: cheaper than animating a filter */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photo} alt={name} loading="lazy" draggable={false} className="absolute inset-0 size-full object-cover grayscale" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-                data-color=""
-                src={photo}
-                alt=""
-                aria-hidden="true"
-                loading="lazy"
-                draggable={false}
-                className="absolute inset-0 size-full object-cover opacity-0 group-hover:!opacity-100"
-            />
-            {/* Soft dark fade at the bottom */}
+            {/* Soft gold glow behind the card (on hover and on the center card) */}
             <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0"
-                style={{ background: "linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.55))" }}
+                className="pointer-events-none absolute -inset-[6%] -z-10 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100 group-data-[active=true]:opacity-100"
+                style={{
+                    background:
+                        "radial-gradient(closest-side, rgba(255, 204, 0, 0.35), rgba(255, 204, 0, 0.12) 60%, transparent)",
+                }}
             />
-            {/* Side cards: darker the further they are */}
-            <span data-dim="" aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black opacity-0 group-hover:!opacity-0" />
-            {/* Gold ring on the center card */}
+            {/* Gold ring */}
             <span
-                data-ring=""
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-[28px] border-[1.5px] border-accent opacity-0 shadow-[inset_0_0_25px_rgba(255,204,0,0.14)]"
+                className="pointer-events-none absolute inset-0 scale-95 rounded-full border-[1.5px] border-accent opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100 group-hover:shadow-[0_0_35px_rgba(255,204,0,0.35),inset_0_0_25px_rgba(255,204,0,0.12)] group-data-[active=true]:scale-100 group-data-[active=true]:opacity-100 group-data-[active=true]:shadow-[0_0_35px_rgba(255,204,0,0.35),inset_0_0_25px_rgba(255,204,0,0.12)]"
             />
+
+            <div className="relative h-full w-full overflow-hidden rounded-full bg-[#141414]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src={photo}
+                    alt={name}
+                    loading="lazy"
+                    draggable={false}
+                    className="h-full w-full object-cover grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0 group-data-[active=true]:scale-105 group-data-[active=true]:grayscale-0"
+                />
+
+                {/* Soft dark fade at the bottom */}
+                <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0"
+                    style={{ background: "linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.8))" }}
+                />
+
+                {/* Side cards: darker the further they are (set by the coverflow) */}
+                <span data-dim="" aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-black opacity-0 group-hover:!opacity-0" />
+
+                {/* Name + role pills */}
+                <div className="absolute inset-x-0 bottom-[9%] flex translate-y-3 flex-col items-center gap-1 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-data-[active=true]:translate-y-0 group-data-[active=true]:opacity-100">
+                    <span
+                        className="inline-flex h-[clamp(27px,2vw,31px)] w-fit items-center justify-center rounded-full px-[clamp(14px,1.1vw,18px)] text-[clamp(11px,0.8vw,12.5px)] font-normal tracking-[0.08em] whitespace-nowrap text-black uppercase shadow-[0_6px_18px_rgba(255,204,0,0.22)]"
+                        style={{ background: GOLD, WebkitTextStroke: "0.012em currentColor" }} // Garet has no 500/600: faint stroke keeps the 400 text legible on gold
+                    >
+                        {name}
+                    </span>
+                    <span
+                        className="inline-flex h-[clamp(24px,1.75vw,27px)] w-fit items-center justify-center rounded-full px-[clamp(12px,0.95vw,15px)] text-[clamp(9px,0.62vw,10px)] font-normal tracking-[0.12em] whitespace-nowrap text-[#f9f3f3] uppercase"
+                        style={{
+                            border: "1px solid transparent",
+                            background:
+                                "linear-gradient(#0d0d0d, #0d0d0d) padding-box, linear-gradient(135deg, #ffdd65, rgba(255, 204, 0, 0.25), #ffcc00) border-box",
+                        }}
+                    >
+                        {role}
+                    </span>
+                </div>
+            </div>
         </article>
     );
 }
 
 export default function Team() {
     const rootRef = useRef<HTMLElement>(null);
-    const pillsRef = useRef<HTMLDivElement>(null);
     const reduce = useRef(false);
     const [selected, setSelected] = useState(0); // card in the center (the "active" one)
     // Started/stopped by the effect below (hover, drag, visibility), not by the plugin itself
@@ -127,12 +156,7 @@ export default function Team() {
             slot.style.visibility = fade > 0 ? "visible" : "hidden";
             slot.style.zIndex = String(100 - Math.round(d * 10));
 
-            const color = slot.querySelector<HTMLElement>("[data-color]");
             const dim = slot.querySelector<HTMLElement>("[data-dim]");
-            const ring = slot.querySelector<HTMLElement>("[data-ring]");
-            const active = clamp01(1 - d).toFixed(3);
-            if (color) color.style.opacity = active;
-            if (ring) ring.style.opacity = active;
             if (dim) dim.style.opacity = flow(FLOW.dim, d).toFixed(3);
         });
     }, []);
@@ -146,16 +170,6 @@ export default function Team() {
             emblaApi.off("scroll", place).off("reInit", place).off("select", place).off("settle", place);
         };
     }, [emblaApi, place]);
-
-    // The pills change with the center card
-    useEffect(() => {
-        const el = pillsRef.current;
-        if (!el || reduce.current) return;
-        const tween = gsap.fromTo(el, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" });
-        return () => {
-            tween.kill();
-        };
-    }, [selected]);
 
     /* ---------- Auto-play: pause on mouse hover, while dragging and when the section is off screen ---------- */
     useEffect(() => {
@@ -235,7 +249,6 @@ export default function Team() {
                         .to(q('[data-reveal="label"]'), { autoAlpha: 1, y: 0 }, 0)
                         .to(q('[data-reveal="heading"]'), { autoAlpha: 1, y: 0, duration: 1.1 }, 0.1)
                         .to(q('[data-reveal="card"]'), { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08 }, 0.35)
-                        .to(q('[data-reveal="pills"]'), { autoAlpha: 1, y: 0 }, 0.55)
                         .to(q('[data-reveal="dots"]'), { autoAlpha: 1, y: 0 }, 0.6);
                 },
                 { threshold: 0.2 }
@@ -288,13 +301,7 @@ export default function Team() {
             </div>
 
             {/* Carousel. Embla's track is invisible; the stage on top of it shows the cards. */}
-            <div className="relative mx-auto mt-[clamp(32px,3vw,48px)] [--card-h:calc(var(--card-w)*1.3)] [--card-w:min(clamp(230px,23vw,380px),calc(var(--zx-vh,100svh)*0.46))] max-[767px]:[--card-w:min(62vw,290px)]">
-                {/* Soft gold glow behind the center card */}
-                <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute top-1/2 left-1/2 h-[calc(var(--card-h)*1.25)] w-[calc(var(--card-w)*1.5)] -translate-x-1/2 -translate-y-1/2"
-                    style={{ background: "radial-gradient(closest-side, rgba(255, 204, 0, 0.24), rgba(255, 204, 0, 0.08) 60%, transparent)" }}
-                />
+            <div className="relative mx-auto mt-[clamp(40px,3.6vw,56px)] mb-[clamp(8px,1vw,16px)] [--card-h:calc(var(--card-w)*58/41)] [--card-w:min(clamp(210px,20vw,330px),calc(var(--zx-vh,100svh)*0.4))] max-[767px]:[--card-w:min(60vw,280px)]">
                 <div ref={emblaRef} className="relative mx-auto h-(--card-h) w-(--card-w) cursor-grab touch-pan-y select-none active:cursor-grabbing">
                     <div aria-hidden="true" className="flex h-full">
                         {TEAM.map((member) => (
@@ -309,31 +316,9 @@ export default function Team() {
                             }}
                             className="absolute inset-0 will-change-transform"
                         >
-                            <Card name={member.name} photo={member.photo} onPick={() => goTo(i)} />
+                            <Card {...member} active={i === selected} onPick={() => goTo(i)} />
                         </div>
                     ))}
-                </div>
-            </div>
-
-            {/* Name + role of the center card */}
-            <div data-reveal="pills" className="relative mt-[clamp(16px,1.6vw,24px)] flex h-[clamp(58px,4.2vw,66px)] justify-center">
-                <div ref={pillsRef} className="flex flex-col items-center gap-1">
-                    <span
-                        className="inline-flex h-[clamp(27px,2vw,31px)] w-fit items-center justify-center rounded-full px-[clamp(14px,1.1vw,18px)] text-[clamp(11px,0.8vw,12.5px)] font-normal tracking-[0.08em] whitespace-nowrap text-black uppercase shadow-[0_6px_18px_rgba(255,204,0,0.22)]"
-                        style={{ background: GOLD, WebkitTextStroke: "0.012em currentColor" }} // Garet has no 500/600: faint stroke keeps the 400 text legible on gold
-                    >
-                        {TEAM[selected].name}
-                    </span>
-                    <span
-                        className="inline-flex h-[clamp(24px,1.75vw,27px)] w-fit items-center justify-center rounded-full px-[clamp(12px,0.95vw,15px)] text-[clamp(9px,0.62vw,10px)] font-normal tracking-[0.12em] whitespace-nowrap text-[#f9f3f3] uppercase"
-                        style={{
-                            border: "1px solid transparent",
-                            background:
-                                "linear-gradient(#0d0d0d, #0d0d0d) padding-box, linear-gradient(135deg, #ffdd65, rgba(255, 204, 0, 0.25), #ffcc00) border-box",
-                        }}
-                    >
-                        {TEAM[selected].role}
-                    </span>
                 </div>
             </div>
 
