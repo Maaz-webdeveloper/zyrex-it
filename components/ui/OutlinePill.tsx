@@ -22,7 +22,7 @@ export default function OutlinePill({
 }) {
     return (
         <span
-            className={`zx-outline ${solid ? "zx-outline-solid" : ""} inline-flex w-fit items-center justify-center leading-none font-normal tracking-[0.14em] whitespace-nowrap text-[#f6f1f1] uppercase ${SIZES[size]} ${className}`}
+            className={`zx-outline ${solid ? "zx-outline-solid" : ""} inline-flex w-fit items-center justify-center leading-none zx-medium tracking-[0.14em] whitespace-nowrap text-[#f6f1f1] uppercase ${SIZES[size]} ${className}`}
         >
             {children}
         </span>

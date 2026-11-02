@@ -63,7 +63,7 @@ export default function GoldButton({
                 e.preventDefault();
                 scrollParentTo(href);
             }}
-            className={`group/gold relative inline-flex h-[42px] w-fit min-w-[170px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent))] pr-[34px] pl-3.5 text-[11px] leading-none font-extrabold tracking-[0.12em] whitespace-nowrap text-black uppercase transition-[translate,box-shadow,opacity] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(255,204,0,0.35)] max-[560px]:h-[44px] max-[560px]:pr-7 max-[560px]:pl-2 max-[560px]:text-[10px] ${className}`}
+            className={`group/gold relative inline-flex h-[42px] w-fit min-w-[170px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent))] pr-[34px] pl-3.5 text-[11px] leading-none zx-medium tracking-[0.12em] whitespace-nowrap text-black uppercase transition-[translate,box-shadow,opacity] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(255,204,0,0.35)] max-[560px]:h-[44px] max-[560px]:pr-7 max-[560px]:pl-2 max-[560px]:text-[10px] ${className}`}
         >
             {/* Side padding keeps long labels clear of the arrow; "Book a call" sits exactly where it does in the hero */}
             <span className="px-2.5">{children}</span>

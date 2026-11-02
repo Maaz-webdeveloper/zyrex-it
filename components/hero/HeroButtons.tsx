@@ -5,7 +5,7 @@ import GoldButton from "@/components/ui/GoldButton";
 
 // Size/shape of the outline button (the gold one is components/ui/GoldButton.tsx, same size)
 const BASE =
-    "relative inline-flex h-[42px] w-[170px] items-center justify-center rounded-full text-[11px] leading-none tracking-[0.12em] uppercase font-extrabold transition-[translate,box-shadow,opacity] duration-300 hover:-translate-y-0.5 max-[560px]:h-[44px] max-[560px]:w-full max-[560px]:text-[10px]";
+    "relative inline-flex h-[42px] w-[170px] items-center justify-center rounded-full text-[11px] leading-none tracking-[0.12em] uppercase zx-medium transition-[translate,box-shadow,opacity] duration-300 hover:-translate-y-0.5 max-[560px]:h-[44px] max-[560px]:w-full max-[560px]:text-[10px]";
 
 // Mobile: CSS outline instead of the SVG (the SVG keeps its own aspect ratio and draws shorter than the box)
 const OUTLINE_MOBILE =

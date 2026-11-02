@@ -100,6 +100,14 @@ html[data-zx-offscreen] .animate-zx-float {
   pointer-events: none;
 }
 
+/* Medium weight for button/pill labels: Garet has only 400/800, so 400 + a very thin stroke in the text color.
+   Used by GoldButton, the hero outline button, OutlinePill, the MENU/CLOSE button and the Team name pill.
+   The GHL navbar button (ghl/zyrex-ghl-bridge.html) uses the same two lines. */
+.zx-medium {
+  font-weight: 400;
+  -webkit-text-stroke: 0.035em currentColor;
+}
+
 /* Text selection in the brand gold (all sections) */
 ::selection {
   background: #ffcc00;

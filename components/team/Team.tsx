@@ -94,7 +94,7 @@ function Card({ name, role, photo, active, onPick }: { name: string; role: strin
                 {/* Name + role pills */}
                 <div className="absolute inset-x-0 bottom-[9%] flex translate-y-3 flex-col items-center gap-1 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-data-[active=true]:translate-y-0 group-data-[active=true]:opacity-100">
                     <span
-                        className="inline-flex h-[clamp(26px,2vw,30px)] w-fit items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent))] px-[clamp(12px,1vw,16px)] text-[clamp(10px,0.75vw,11px)] leading-none font-extrabold tracking-[0.12em] whitespace-nowrap text-black uppercase shadow-[0_6px_18px_rgba(255,204,0,0.22)]" // same gold and text as the "Book a call" button
+                        className="inline-flex h-[clamp(26px,2vw,30px)] w-fit items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent))] px-[clamp(12px,1vw,16px)] text-[clamp(10px,0.75vw,11px)] leading-none zx-medium tracking-[0.12em] whitespace-nowrap text-black uppercase shadow-[0_6px_18px_rgba(255,204,0,0.22)]" // same gold and text as the "Book a call" button
                     >
                         {name}
                     </span>
