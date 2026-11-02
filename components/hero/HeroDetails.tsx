@@ -32,7 +32,10 @@ function Avatars() {
             src="/hero/clients-avatars.svg"
             alt="Happy clients"
             draggable={false}
-            className="mb-3.5 h-[clamp(36px,2.5vw,47px)] w-auto max-w-full"
+            // Visible part (left 76%) = ~90% of the card's inner width: 0.9 / 0.76 ≈ 118%; the clipped right part may overflow.
+            // Counter-rotated against the card's rotate-6 (straight on hover too, when the card goes to 0),
+            // pivoting on the center of the visible part.
+            className="mb-3.5 h-auto w-[118%] max-w-none origin-[38%_50%] -rotate-6 transition-[rotate] duration-500 group-hover:rotate-0"
             style={{ clipPath: "inset(0 24% 0 0)" }}
         />
     );
