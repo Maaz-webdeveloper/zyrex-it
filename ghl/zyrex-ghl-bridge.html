@@ -97,7 +97,7 @@
     align-items: center;
     gap: 16px;
     height: 64px;
-    padding: 0 10px 0 22px;
+    padding: 0 22px; /* right gap (to the gold button) = left gap (to the logo) */
     border: 1px solid rgba(255, 204, 0, 0.22);
     border-radius: 999px;
     background:
@@ -147,12 +147,12 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    height: 44px;
-    padding: 0 50px 0 22px;
+    height: 38px;
+    padding: 0 42px 0 18px;
     border-radius: 999px;
     background: linear-gradient(135deg, #ffdd65, #ffcc00);
     color: #000;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -163,11 +163,11 @@
   .zx-nav-cta i {
     position: absolute;
     top: 50%;
-    right: 5px;
+    right: 4px;
     display: grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background: #000;
     color: #ffcc00;
@@ -213,12 +213,12 @@
     font-size: 15px;
   }
   .zx-nav-drop a:hover, .zx-nav-drop a:focus-visible { color: #ffcc00; background: rgba(255, 204, 0, 0.06); }
-  /* Mobile: slim bar with only the logo and the menu button; "Book a call" lives in the dropdown */
+  /* Mobile: slim bar with only the logo and the menu button; the "Contact" button lives in the dropdown */
   @media (max-width: 767px) {
     .zx-nav { top: 12px; width: calc(100% - 24px); }
     .zx-nav-bar { height: 50px; gap: 10px; padding: 0 5px 0 16px; }
     .zx-nav-logo { --h: 40px; }
-    .zx-nav-links, .zx-nav-right > .zx-nav-contact, .zx-nav-right > .zx-nav-cta { display: none; }
+    .zx-nav-links, .zx-nav-right > .zx-nav-cta { display: none; }
     .zx-nav-right { margin-left: auto; }
     .zx-nav-menu-btn { display: flex; width: 40px; height: 40px; }
     .zx-nav-drop { top: calc(100% + 6px); padding: 8px; border-radius: 20px; }
@@ -567,8 +567,7 @@
   /* ---------- 6. Sticky navbar: hidden on the hero, slides in when scrolling up ---------- */
   // Change the links here. Each one smooth-scrolls to the GHL section with that id.
   var NAV_LINKS = [['About', '#about'], ['Services', '#services'], ['Portfolio', '#portfolio'], ['Team', '#team'], ['Blog', '#blog']];
-  var NAV_CONTACT = ['Contact', '#contact'];
-  var NAV_CTA = ['Book a call', '#contact'];
+  var NAV_CTA = ['Contact', '#contact']; // gold button (desktop bar + bottom of the mobile dropdown)
   var NAV_LOGO = EMBED_ORIGIN + '/hero/logo.png';
   var NAV_SHOW_AFTER = 8; // px of upward scroll before it slides in (ignores tiny movements)
 
@@ -622,11 +621,10 @@
         '<a class="zx-nav-logo" href="#top" data-zx-to="#top" aria-label="ZYREX IT, back to top"><img src="' + NAV_LOGO + '" alt="ZYREX IT" draggable="false"></a>' +
         '<ul class="zx-nav-links">' + NAV_LINKS.map(function (l) { return '<li>' + link(l, 'zx-nav-link') + '</li>'; }).join('') + '</ul>' +
         '<div class="zx-nav-right">' +
-          link(NAV_CONTACT, 'zx-nav-link zx-nav-contact') +
           '<a class="zx-nav-cta" href="' + NAV_CTA[1] + '" data-zx-to="' + NAV_CTA[1] + '">' + NAV_CTA[0] + arrow + '</a>' +
           '<button class="zx-nav-menu-btn" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>' +
         '</div>' +
-        '<div class="zx-nav-drop">' + NAV_LINKS.concat([NAV_CONTACT]).map(function (l) { return link(l, ''); }).join('') +
+        '<div class="zx-nav-drop">' + NAV_LINKS.map(function (l) { return link(l, ''); }).join('') +
           '<a class="zx-nav-cta" href="' + NAV_CTA[1] + '" data-zx-to="' + NAV_CTA[1] + '">' + NAV_CTA[0] + arrow + '</a>' +
         '</div>' +
       '</div>';
