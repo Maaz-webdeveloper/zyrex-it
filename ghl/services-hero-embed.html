@@ -1,0 +1,22 @@
+<!-- ═══════════════════════════════════════════════════════════
+     ZYREX IT | Services page hero (heading + expanding service cards)
+     Paste into ONE Custom HTML element at the top of the Services page.
+
+     Iframe: /embed/services-hero. The bridge (zyrex-ghl-bridge.html) sets its height and the
+     screen height it uses, so the bridge must be on this page too (right after the preloader).
+     The empty #services-hero div is a scroll target, like the other sections.
+     ═══════════════════════════════════════════════════════════ -->
+<div id="services-hero"></div>
+<style>
+  .zx-services-hero { display: block; margin: 0; padding: 0; background: #0a0a0a; line-height: 0; font-size: 0; }
+  .zx-services-hero iframe { display: block; width: 100%; margin: 0; padding: 0; border: 0; }
+</style>
+<div class="zx-services-hero">
+  <iframe
+    src="https://zyrex-it.vercel.app/embed/services-hero"
+    data-zyrex-embed="/embed/services-hero"
+    title="ZYREX IT services"
+    scrolling="no"
+    frameborder="0"
+  ></iframe>
+</div>

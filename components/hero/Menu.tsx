@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { lockParentScroll, scrollParentTo } from "@/lib/embed";
+import { CORE_SERVICES, ServiceIcon } from "@/components/services/core";
 
 const MENU_ITEMS = [
     { label: "Home", href: "#top" },
@@ -15,13 +16,8 @@ const MENU_ITEMS = [
     { label: "Contact", href: "#contact" },
 ];
 
-// Our 4 core services (desktop panel boxes + mobile list)
-const SERVICES = [
-    { name: "Content Creation", text: "Reels, ads, videos and creatives that convert", icon: ["M3 6h12v12H3z", "M15 10l6-3v10l-6-3"] },
-    { name: "Web App & Funnel", text: "Websites, web apps and sales funnels built to convert", icon: ["M3 4h18v14H3z", "M3 8h18", "M8 21h8", "M12 18v3"] },
-    { name: "Automation & CRM", text: "GoHighLevel CRM, follow-ups and smart workflows", icon: ["M4 4h6v6H4z", "M14 14h6v6h-6z", "M10 7h4a3 3 0 0 1 3 3v4"] },
-    { name: "Business & Social Management", text: "Social media and day-to-day business growth, handled", icon: ["M3 3v18h18", "M7 15l4-4 3 3 5-6", "M15 8h4v4"] },
-];
+// Our 4 core services (desktop panel boxes + mobile list), shared with the Services page hero
+const SERVICES = CORE_SERVICES;
 
 const FOOT_LINKS = [
     { label: "hello@zyrexit.com", href: "mailto:hello@zyrexit.com" },
@@ -49,25 +45,6 @@ type MenuProps = {
     origin: { x: number; y: number } | null; // where the circle opens from (the button)
     onClose: () => void;
 };
-
-function ServiceIcon({ paths, size = 18 }: { paths: string[]; size?: number }) {
-    return (
-        <svg
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.8}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ width: size, height: size }}
-        >
-            {paths.map((d) => (
-                <path key={d} d={d} />
-            ))}
-        </svg>
-    );
-}
 
 export default function Menu({ open, origin, onClose }: MenuProps) {
     const [mega, setMega] = useState(false); // desktop: services panel
