@@ -25,10 +25,17 @@ const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
 const AUTOPLAY_DELAY = 3000; // ms between cards
 
 // Layout per card distance from the center: [center, first side card, second side card]
-const FLOW = {
+// Mobile: side cards tucked close, peeking in from the screen edges.
+const FLOW_MOBILE = {
     x: [0, 0.62, 1.06], // sideways, × card width
     scale: [1, 0.82, 0.66],
     dim: [0, 0.42, 0.68], // darkness
+};
+// Desktop (768px+): spread wide, each side card only slightly behind its neighbour so most of the face shows.
+const FLOW_DESKTOP = {
+    x: [0, 0.72, 1.31],
+    scale: [1, 0.8, 0.64],
+    dim: [0, 0.34, 0.56],
 };
 const FADE_FROM = 2; // cards further than this fade out...
 const FADE_TO = 2.7; // ...and are gone here
@@ -144,6 +151,7 @@ export default function Team() {
         const count = TEAM.length;
         const position = api.scrollProgress() * count;
         const cardW = slots.current[0]?.offsetWidth ?? 0;
+        const FLOW = window.innerWidth >= 768 ? FLOW_DESKTOP : FLOW_MOBILE;
 
         slots.current.forEach((slot, i) => {
             const offset = ((i - position + count * 1.5) % count) - count / 2; // shortest way round the loop
@@ -301,7 +309,7 @@ export default function Team() {
             </div>
 
             {/* Carousel. Embla's track is invisible; the stage on top of it shows the cards. */}
-            <div className="relative mx-auto mt-[clamp(40px,3.6vw,56px)] mb-[clamp(8px,1vw,16px)] [--card-h:calc(var(--card-w)*58/41)] [--card-w:min(clamp(210px,20vw,330px),calc(var(--zx-vh,100svh)*0.4))] max-[767px]:[--card-w:min(60vw,280px)]">
+            <div className="relative mx-auto mt-[clamp(40px,3.6vw,56px)] mb-[clamp(8px,1vw,16px)] [--card-h:calc(var(--card-w)*58/41)] [--card-w:min(26vw,calc(var(--zx-vh,100svh)*0.44),640px)] max-[767px]:[--card-w:min(60vw,280px)]">
                 <div ref={emblaRef} className="relative mx-auto h-(--card-h) w-(--card-w) cursor-grab touch-pan-y select-none active:cursor-grabbing">
                     <div aria-hidden="true" className="flex h-full">
                         {TEAM.map((member) => (
