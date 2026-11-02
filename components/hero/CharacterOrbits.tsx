@@ -54,8 +54,15 @@ const CARDS: Card[] = [
 const MOBILE_CARDS = [0, 1, 3, 5, 7, 9].map((i) => CARDS[i]);
 
 const GOLD = "linear-gradient(135deg, #ffdd65, #ffcc00)";
-// Clean frosted glass (no gold tint); only the front copy gets backdrop blur
+// Clean frosted glass (no gold tint)
 const GLASS_BG = "linear-gradient(160deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05))";
+// Front copy: no backdrop blur (too heavy on 3D strips), a light dark tint under the glass gives the frosted look instead
+const GLASS_BG_FRONT = `${GLASS_BG}, rgba(22, 22, 22, 0.38)`;
+
+// Curved cards: each card is cut into this many vertical strips, each one turned a little around the ring
+// center, so together they bend along the ring's circle. Neighbouring strip edges meet exactly (chord math in measure()).
+const STRIPS = 6;
+const CURVE = 1; // 1 = cards bend exactly like the ring; lower = flatter (e.g. 0.7), higher = stronger
 
 function Face({ card, glass }: { card: Card; glass?: boolean }) {
     if (card.type === "image") {
@@ -73,8 +80,8 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
     }
     return (
         <div
-            className={`relative flex w-[clamp(130px,11vw,220px)] items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(10px,1vw,16px)] p-[clamp(8px,0.8vw,14px)] max-[899px]:w-[96px] max-[899px]:gap-[6px] max-[899px]:p-[7px] shadow-[0_14px_40px_rgba(0,0,0,0.6)] ${glass ? "backdrop-blur-md" : ""}`}
-            style={{ background: GLASS_BG, border: "1px solid rgba(255, 255, 255, 0.18)" }}
+            className={`relative flex w-[clamp(130px,11vw,220px)] items-center gap-[clamp(7px,0.7vw,12px)] rounded-[clamp(10px,1vw,16px)] p-[clamp(8px,0.8vw,14px)] max-[899px]:w-[96px] max-[899px]:gap-[6px] max-[899px]:p-[7px] shadow-[0_14px_40px_rgba(0,0,0,0.6)]`}
+            style={{ background: glass ? GLASS_BG_FRONT : GLASS_BG, border: "1px solid rgba(255, 255, 255, 0.18)" }}
         >
             {/* Thin white highlight along the top edge */}
             <span
@@ -109,6 +116,49 @@ function Face({ card, glass }: { card: Card; glass?: boolean }) {
                     {card.text}
                 </span>
             </span>
+        </div>
+    );
+}
+
+// One card bent along the ring: an invisible copy gives the card its size, the strips draw it.
+// Strip j shows its slice of the card and is turned around a point var(--zx-r) behind the card (the ring center),
+// by (j - middle) × --zx-da-*, so the strips sit on the ring's circle.
+// Back copy: the card is flipped (rotateY 180) to face the viewer from the far side, so the curve bends the other way.
+function CurvedCard({ card, back }: { card: Card; back: boolean }) {
+    const kind = card.type === "image" ? "img" : "info";
+    const r = "var(--zx-rc, 220px)"; // bend radius (ring radius / CURVE)
+    return (
+        <div style={{ transformStyle: "preserve-3d", transform: back ? "rotateY(180deg)" : undefined }}>
+            <div data-face-sizer={kind} style={{ visibility: "hidden" }}>
+                <Face card={card} />
+            </div>
+            {Array.from({ length: STRIPS }, (_, j) => {
+                const k = j - (STRIPS - 1) / 2; // strip position from the middle
+                const shift = STRIPS / 2 - (j + 0.5); // in strip widths: moves the strip to the card center first
+                const angle = `calc(var(--zx-da-${kind}, 0deg) * ${back ? -k : k})`;
+                const transform = back
+                    ? `translateX(${shift * 100}%) translateZ(${r}) rotateY(${angle}) translateZ(calc(${r} * -1))`
+                    : `translateX(${shift * 100}%) translateZ(calc(${r} * -1)) rotateY(${angle}) translateZ(${r})`;
+                return (
+                    <div
+                        key={j}
+                        className="absolute inset-y-0"
+                        style={{
+                            left: `${(j * 100) / STRIPS}%`,
+                            width: `${100 / STRIPS}%`,
+                            overflowX: "clip", // cut the slice sideways only, the shadow below stays
+                            transform,
+                            backfaceVisibility: "hidden",
+                            WebkitBackfaceVisibility: "hidden",
+                            opacity: back ? 0.4 : 0.85, // front: slightly see-through so the face stays visible
+                        }}
+                    >
+                        <div className="absolute top-0" style={{ left: `${-j * 100}%`, width: `${STRIPS * 100}%` }}>
+                            <Face card={card} glass={!back} />
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 }
@@ -165,17 +215,8 @@ function Ring({
                                 transform: `translate(-50%, ${cards === MOBILE_CARDS ? "-50%" : i % 2 ? ROW_GAP : `calc(-100% - ${ROW_GAP})`}) rotateY(${(i * 360) / cards.length}deg) translateZ(var(--zx-r, 220px))`,
                             }}
                         >
-                            <div
-                                style={{
-                                    backfaceVisibility: "hidden",
-                                    WebkitBackfaceVisibility: "hidden",
-                                    // back copy: show the card only while it is on the far side
-                                    transform: back ? "rotateY(180deg)" : undefined,
-                                    opacity: back ? 0.4 : 0.85, // front: slightly see-through so the face stays visible
-                                }}
-                            >
-                                <Face card={card} glass={!back} />
-                            </div>
+                            {/* back copy: each strip shows only while it is on the far side (flip + backface hidden) */}
+                            <CurvedCard card={card} back={back} />
                         </div>
                     ))}
                 </div>
@@ -237,8 +278,21 @@ export default function CharacterOrbits() {
                 r = RING_MOBILE.radius * W;
                 while (r > 0 && Math.hypot(r, half) * (PERSPECTIVE / (PERSPECTIVE - r)) > room) r -= 2;
             }
-            wrapper.style.setProperty("--zx-r", `${Math.max(r, 0)}px`);
+            r = Math.max(r, 0);
+            wrapper.style.setProperty("--zx-r", `${r}px`);
             wrapper.style.setProperty("--zx-line", isMobile ? "2.1" : "2.3"); // gold line diameter, × radius
+
+            // Curved cards: angle between two strips, so a strip (a chord of the ring) spans exactly its share of
+            // the circle and neighbouring strip edges meet with no gap
+            const rc = r > 0 ? r / CURVE : 0;
+            wrapper.style.setProperty("--zx-rc", `${rc}px`);
+            (["info", "img"] as const).forEach((kind) => {
+                const sizer = wrapper.querySelector<HTMLElement>(`[data-face-sizer="${kind}"]`);
+                if (!sizer) return;
+                const sw = sizer.offsetWidth / STRIPS;
+                const deg = rc > 0 ? (2 * Math.asin(Math.min(1, sw / (2 * rc))) * 180) / Math.PI : 0;
+                wrapper.style.setProperty(`--zx-da-${kind}`, `${deg.toFixed(4)}deg`);
+            });
         };
         measure();
 
@@ -249,6 +303,8 @@ export default function CharacterOrbits() {
 
         const ro = new ResizeObserver(measure);
         ro.observe(wrapper);
+        // Card sizes change with the screen (and at the mobile switch): re-measure the strip angles
+        wrapper.querySelectorAll("[data-face-sizer]").forEach((el) => ro.observe(el));
         img.addEventListener("load", measure);
 
         // Pause while the hero is off-screen
