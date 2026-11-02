@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { lockParentScroll, scrollParentTo } from "@/lib/embed";
-import GoldButton from "@/components/ui/GoldButton";
 
 const MENU_ITEMS = [
     { label: "Home", href: "#top" },
@@ -40,6 +39,10 @@ const BOX_BG = "linear-gradient(160deg, rgba(30, 27, 18, 0.92), rgba(12, 12, 10,
 const BOX_GLOW = "radial-gradient(circle at 15% 0%, rgba(255, 204, 0, 0.26), transparent 65%)";
 const SHINE = "linear-gradient(90deg, #ffcc00 0%, #ffdd65 25%, #fff3b0 50%, #ffdd65 75%, #ffcc00 100%)"; // same as the heading shine
 const PANEL_OFFSET_Y = 48; // desktop panel starts this many px above the "Services" row
+const PANEL_FOOT_GAP = 24; // min space between the panel and the footer links
+// Moving neon light on the panel border: a bright gold streak (white-hot core) + a softer one opposite
+const PANEL_EDGE_LIGHT =
+    "conic-gradient(from 0deg, transparent 0deg, rgba(255, 204, 0, 0.15) 20deg, #ffcc00 42deg, #fff3b0 50deg, #ffcc00 58deg, transparent 80deg, transparent 180deg, rgba(255, 204, 0, 0.55) 225deg, transparent 260deg, transparent 360deg)";
 
 type MenuProps = {
     open: boolean;
@@ -72,6 +75,7 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const servicesRef = useRef<HTMLLIElement>(null);
     const panelRef = useRef<HTMLElement>(null);
+    const footRef = useRef<HTMLDivElement>(null);
     const canHover = useRef(false); // true only on devices with a real mouse
 
     useEffect(() => {
@@ -94,18 +98,24 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
         return () => window.removeEventListener("keydown", onKey);
     }, [open, onClose]);
 
-    // Keep the desktop panel lined up with the "Services" row
+    // Keep the desktop panel lined up with the "Services" row, inside the screen and above the footer links
     useEffect(() => {
         const place = () => {
             const row = servicesRef.current;
             const panel = panelRef.current;
-            if (!row || !panel) return;
-            // Line up with "Services", but keep the whole panel inside the screen
+            const foot = footRef.current;
+            if (!row || !panel || !foot) return;
             const wrapTop = (panel.offsetParent as HTMLElement | null)?.getBoundingClientRect().top ?? 0;
+            const minTop = 24 - wrapTop; // 24px below the screen top
+            // Bottom limit: the footer links (or the screen bottom, whichever is higher)
+            const bottom = Math.min(window.innerHeight - 24, foot.getBoundingClientRect().top - PANEL_FOOT_GAP) - wrapTop;
+            // Short screens: shrink the panel so it always fits between the two limits
+            const room = bottom - minTop;
+            const scale = panel.offsetHeight > room ? room / panel.offsetHeight : 1;
+            panel.style.scale = scale < 1 ? String(scale) : "";
+            const height = panel.offsetHeight * scale;
             const wanted = row.offsetTop - PANEL_OFFSET_Y;
-            const maxTop = window.innerHeight - 24 - wrapTop - panel.offsetHeight;
-            const minTop = 24 - wrapTop;
-            panel.style.top = `${Math.max(minTop, Math.min(wanted, maxTop))}px`;
+            panel.style.top = `${Math.max(minTop, Math.min(wanted, bottom - height))}px`;
         };
         place();
         window.addEventListener("resize", place);
@@ -280,23 +290,41 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                         })}
                     </ul>
 
-                    {/* ===== Desktop: Services mega panel (4 service boxes + CTA bar) ===== */}
+                    {/* ===== Desktop: Services mega panel (label + 4 service boxes, moving neon edge) ===== */}
                     <aside
                         ref={panelRef}
                         aria-label="Our services"
                         onMouseEnter={showMega}
                         onMouseLeave={hideMegaSoon}
-                        className={`absolute left-[calc(100%+clamp(32px,4vw,64px))] hidden w-[clamp(560px,54vw,900px)] transition-[clip-path,opacity,translate] duration-700 ${EASE} min-[1024px]:block ${megaVisible ? "pointer-events-auto translate-x-0 opacity-100" : "pointer-events-none -translate-x-4 opacity-0"
+                        className={`absolute left-[calc(100%+clamp(32px,4vw,64px))] hidden origin-top-left w-[clamp(560px,54vw,900px)] transition-[clip-path,opacity,translate] duration-700 ${EASE} min-[1024px]:block ${megaVisible ? "pointer-events-auto translate-x-0 opacity-100" : "pointer-events-none -translate-x-4 opacity-0"
                             }`}
                         style={{ clipPath: megaVisible ? "inset(0 0 0 0 round 24px)" : "inset(0 100% 0 0 round 24px)" }}
                     >
                         <div
-                            className="rounded-[24px] p-px shadow-[0_30px_80px_rgba(0,0,0,0.6),0_0_70px_rgba(255,204,0,0.08)]"
+                            className="relative overflow-hidden rounded-[24px] p-[1.5px] shadow-[0_30px_80px_rgba(0,0,0,0.6),0_0_70px_rgba(255,204,0,0.08)]"
                             style={{ background: PANEL_EDGE }}
                         >
-                            <div className="overflow-hidden rounded-[23px] backdrop-blur-xl" style={{ background: PANEL_BG }}>
+                            {/* Neon light that travels around the border (only while open, off for reduced motion) */}
+                            <div
+                                aria-hidden="true"
+                                className={`pointer-events-none absolute top-1/2 left-1/2 aspect-square w-[150%] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-700 motion-reduce:hidden ${megaVisible ? "animate-zx-spin opacity-100" : "opacity-0"
+                                    }`}
+                                style={{ background: PANEL_EDGE_LIGHT }}
+                            />
+                            <div
+                                className="relative overflow-hidden rounded-[22.5px] p-[clamp(20px,1.8vw,28px)] backdrop-blur-xl"
+                                style={{ background: PANEL_BG }}
+                            >
+                                {/* Header: small label + count */}
+                                <div className="mb-[clamp(14px,1.3vw,20px)] flex items-center gap-3 text-[12px] tracking-[0.3em] uppercase">
+                                    <span className="h-px w-6 rounded-full" style={{ background: GOLD }} />
+                                    <span className="text-white/60">Our Services</span>
+                                    <span className="h-px flex-1 bg-linear-to-r from-white/10 to-transparent" />
+                                    <span className="text-accent/80">0{SERVICES.length}</span>
+                                </div>
+
                                 {/* 4 core services: 2x2 grid of equal boxes */}
-                                <ul className="grid grid-cols-2 gap-[clamp(12px,1.2vw,18px)] p-[clamp(16px,1.6vw,24px)]">
+                                <ul className="grid grid-cols-2 gap-[clamp(12px,1.2vw,18px)]">
                                     {SERVICES.map((s, i) => (
                                         <li
                                             key={s.name}
@@ -348,16 +376,6 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                                         </li>
                                     ))}
                                 </ul>
-
-                                {/* CTA bar */}
-                                <div className="flex items-center justify-between gap-4 border-t border-white/10 bg-white/[0.02] px-[clamp(20px,2vw,28px)] py-4">
-                                    <span className="text-[clamp(14px,1vw,16px)] text-white/60">
-                                        Not sure what you need? <span className="text-white">Let&apos;s talk it through.</span>
-                                    </span>
-                                    <GoldButton href="#contact" onClick={go("#contact")}>
-                                        Book a free call
-                                    </GoldButton>
-                                </div>
                             </div>
                         </div>
                     </aside>
@@ -365,6 +383,7 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
 
                 {/* Footer links */}
                 <div
+                    ref={footRef}
                     className={`mt-10 flex flex-wrap gap-x-8 gap-y-3 text-[13px] tracking-[0.08em] text-white/70 transition-opacity duration-700 ${open ? "opacity-100 delay-[900ms]" : "opacity-0"
                         }`}
                 >

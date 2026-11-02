@@ -12,6 +12,12 @@
   --animate-zx-shine: zx-shine 8s linear infinite alternate;
   --animate-zx-float: zx-float 6s ease-in-out infinite;
   --animate-zx-marquee: zx-marquee 45s linear infinite;
+  --animate-zx-spin: zx-spin 6s linear infinite;
+}
+
+/* Rotating edge light (hero menu Services panel) */
+@keyframes zx-spin {
+  to { rotate: 360deg; }
 }
 
 /* Site font: Garet (loaded in app/layout.tsx) */
