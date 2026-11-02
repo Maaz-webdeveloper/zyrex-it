@@ -213,15 +213,30 @@
     font-size: 15px;
   }
   .zx-nav-drop a:hover, .zx-nav-drop a:focus-visible { color: #ffcc00; background: rgba(255, 204, 0, 0.06); }
+  /* Mobile: slim bar with only the logo and the menu button; "Book a call" lives in the dropdown */
   @media (max-width: 767px) {
-    .zx-nav { top: 10px; width: calc(100% - 20px); }
-    .zx-nav-bar { height: 56px; gap: 10px; padding: 0 7px 0 16px; }
-    .zx-nav-logo { --h: 50px; }
-    .zx-nav-links, .zx-nav-contact { display: none; }
-    .zx-nav-right { gap: 8px; margin-left: auto; }
-    .zx-nav-cta { height: 40px; padding: 0 44px 0 14px; font-size: 10.5px; letter-spacing: 0.1em; }
-    .zx-nav-cta i { width: 30px; height: 30px; }
-    .zx-nav-menu-btn { display: flex; }
+    .zx-nav { top: 12px; width: calc(100% - 24px); }
+    .zx-nav-bar { height: 50px; gap: 10px; padding: 0 5px 0 16px; }
+    .zx-nav-logo { --h: 40px; }
+    .zx-nav-links, .zx-nav-right > .zx-nav-contact, .zx-nav-right > .zx-nav-cta { display: none; }
+    .zx-nav-right { margin-left: auto; }
+    .zx-nav-menu-btn { display: flex; width: 40px; height: 40px; }
+    .zx-nav-drop { top: calc(100% + 6px); padding: 8px; border-radius: 20px; }
+    .zx-nav-drop a { padding: 0 14px; line-height: 46px; } /* 46px tall: comfortable to tap */
+    .zx-nav-drop .zx-nav-cta {
+      display: flex;
+      justify-content: center;
+      height: 48px;
+      margin-top: 8px;
+      padding: 0 46px;
+      border-radius: 999px;
+      color: #000;
+      font-size: 12px;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffdd65, #ffcc00);
+    }
+    .zx-nav-drop .zx-nav-cta:hover, .zx-nav-drop .zx-nav-cta:focus-visible { color: #000; background: linear-gradient(135deg, #ffdd65, #ffcc00); }
+    .zx-nav-drop .zx-nav-cta i { width: 38px; height: 38px; }
     .zx-nav.is-open .zx-nav-drop { display: block; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -601,7 +616,9 @@
           '<a class="zx-nav-cta" href="' + NAV_CTA[1] + '" data-zx-to="' + NAV_CTA[1] + '">' + NAV_CTA[0] + arrow + '</a>' +
           '<button class="zx-nav-menu-btn" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>' +
         '</div>' +
-        '<div class="zx-nav-drop">' + NAV_LINKS.concat([NAV_CONTACT]).map(function (l) { return link(l, ''); }).join('') + '</div>' +
+        '<div class="zx-nav-drop">' + NAV_LINKS.concat([NAV_CONTACT]).map(function (l) { return link(l, ''); }).join('') +
+          '<a class="zx-nav-cta" href="' + NAV_CTA[1] + '" data-zx-to="' + NAV_CTA[1] + '">' + NAV_CTA[0] + arrow + '</a>' +
+        '</div>' +
       '</div>';
     document.body.appendChild(nav);
 
