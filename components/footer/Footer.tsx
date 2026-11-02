@@ -48,7 +48,7 @@ export default function Footer() {
                             src={FOOTER_BRAND.logo}
                             alt="ZYREX IT"
                             draggable={false}
-                            className="mt-[calc(var(--logo-h)*-0.3)] mb-[calc(var(--logo-h)*-0.25)] ml-[calc(var(--logo-h)*-0.3)] h-(--logo-h) w-auto max-w-none [--logo-h:clamp(104px,10.5vw,150px)]"
+                            className="mt-[calc(var(--logo-h)*-0.3)] mb-[calc(var(--logo-h)*-0.25)] ml-[calc(var(--logo-h)*-0.336)] h-(--logo-h) w-auto max-w-none self-start [--logo-h:clamp(104px,10.5vw,150px)]"
                         />
 
                         <p className="mt-6 max-w-[24rem] text-[clamp(15px,1.15vw,17px)] leading-[1.6] text-balance text-white/70">{FOOTER_BRAND.text}</p>
