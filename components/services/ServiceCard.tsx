@@ -16,28 +16,31 @@ const n = (i: number) => String(i).padStart(2, "0");
 /**
  * One service card. Normal: full height, used in the list (mobile, reduced motion).
  * stacked: fills its box and scales with the screen height, used in the pinned desktop stack.
+ * slide: as tall as the tallest card, with the button at the bottom, used in the mobile slider.
  */
 export default function ServiceCard({
     service,
     index,
     stacked,
+    slide,
     style,
 }: {
     service: Service;
     index: number;
     stacked?: boolean;
+    slide?: boolean;
     style?: CSSProperties;
 }) {
     return (
         <article
             data-service-card=""
             className={`rounded-[28px] p-px shadow-[0_30px_80px_rgba(0,0,0,0.55)] ${
-                stacked ? "absolute inset-x-0 top-0 h-(--card-h) origin-top will-change-transform" : "origin-bottom"
+                stacked ? "absolute inset-x-0 top-0 h-(--card-h) origin-top will-change-transform" : slide ? "h-full" : "origin-bottom"
             }`}
             style={{ background: stacked ? `${CARD_EDGE}, #0a0a0a` : CARD_EDGE, ...style }}
         >
             <div
-                className={`grid overflow-hidden rounded-[27px] md:grid-cols-[1fr_1.1fr] ${stacked ? "h-full" : ""}`}
+                className={slide ? "flex h-full flex-col overflow-hidden rounded-[27px]" : `grid overflow-hidden rounded-[27px] md:grid-cols-[1fr_1.1fr] ${stacked ? "h-full" : ""}`}
                 style={{ background: stacked ? CARD_BG_SOLID : CARD_BG }}
             >
                 {/* Text */}
@@ -45,7 +48,9 @@ export default function ServiceCard({
                     className={
                         stacked
                             ? "flex min-h-0 flex-col justify-center p-[clamp(20px,4.2vh,56px)]"
-                            : "order-2 flex flex-col justify-center p-[clamp(24px,3.2vw,56px)] md:order-1"
+                            : slide
+                              ? "order-2 flex flex-1 flex-col p-6"
+                              : "order-2 flex flex-col justify-center p-[clamp(24px,3.2vw,56px)] md:order-1"
                     }
                 >
                     <span className="text-[13px] tracking-[0.12em] text-white/60">
@@ -81,6 +86,9 @@ export default function ServiceCard({
                         {service.text}
                     </p>
 
+                    {/* Slider: pushes the button to the bottom, so it lines up on every card */}
+                    {slide && <span aria-hidden="true" className="min-h-8 grow" />}
+
                     <a
                         href="#contact"
                         onClick={(e) => {
@@ -88,7 +96,7 @@ export default function ServiceCard({
                             scrollParentTo("#contact");
                         }}
                         className={`group/cta relative inline-flex h-[46px] w-fit shrink-0 items-center rounded-full pr-[52px] pl-6 text-[12px] font-extrabold tracking-[0.12em] text-black uppercase transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(255,204,0,0.35)] ${
-                            stacked ? "mt-[clamp(14px,3vh,32px)]" : "mt-8"
+                            stacked ? "mt-[clamp(14px,3vh,32px)]" : slide ? "" : "mt-8"
                         }`}
                         style={{ background: GOLD }}
                     >
@@ -106,7 +114,9 @@ export default function ServiceCard({
                     className={
                         stacked
                             ? "relative min-h-0"
-                            : "relative order-1 aspect-[4/3] md:order-2 md:aspect-auto md:min-h-[clamp(420px,38vw,640px)]"
+                            : slide
+                              ? "relative order-1 aspect-[4/3] shrink-0"
+                              : "relative order-1 aspect-[4/3] md:order-2 md:aspect-auto md:min-h-[clamp(420px,38vw,640px)]"
                     }
                 >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
