@@ -162,27 +162,26 @@ export default function Services() {
     return (
         <section ref={rootRef} className="relative w-full overflow-hidden bg-[#0a0a0a] px-5 py-[clamp(72px,9vw,140px)] text-white">
             <div className="mx-auto max-w-[80rem]">
-                {/* Heading */}
-                <div className="grid gap-6 md:grid-cols-[1.2fr_1fr] md:items-end">
-                    <div>
-                        <span className="inline-block rounded-full border border-accent/50 px-4 py-1.5 text-[12px] tracking-[0.2em] text-white uppercase">
-                            {SERVICES_COPY.label}
+                {/* Heading (same pattern as Team) */}
+                <div className="mx-auto flex max-w-[72rem] flex-col items-center text-center">
+                    <span className="rounded-full border border-accent/70 px-5 py-2 text-[11px] font-normal tracking-[0.18em] text-white uppercase">
+                        {SERVICES_COPY.label}
+                    </span>
+                    <h2 className="mt-6 text-[clamp(2.2rem,3.6vw,4rem)] leading-[1.08] font-normal tracking-[-0.02em] max-[480px]:text-[length:calc((100vw-40px)*0.082)] min-[900px]:whitespace-nowrap">
+                        {SERVICES_COPY.heading}{" "}
+                        <br className="min-[900px]:hidden" />
+                        <span
+                            className="animate-zx-shine bg-clip-text font-normal text-transparent"
+                            style={{
+                                backgroundImage: "linear-gradient(90deg, #ffcc00 0%, #ffdd65 25%, #fff3b0 50%, #ffdd65 75%, #ffcc00 100%)",
+                                backgroundSize: "200% 100%",
+                                WebkitTextStroke: "0.024em transparent", // Garet has no 500/600: this thickens the letters; bg-clip-text fills the stroke with the gold shine, so no outline
+                            }}
+                        >
+                            {SERVICES_COPY.headingAccent}
                         </span>
-                        <h2 className="mt-6 text-[clamp(32px,4vw,60px)] leading-[1.08] font-normal tracking-[-0.02em]">
-                            {SERVICES_COPY.heading}
-                            <br />
-                            <span
-                                className="animate-zx-shine bg-clip-text text-transparent"
-                                style={{
-                                    backgroundImage: "linear-gradient(90deg, #ffcc00 0%, #ffdd65 25%, #fff3b0 50%, #ffdd65 75%, #ffcc00 100%)",
-                                    backgroundSize: "200% 100%",
-                                }}
-                            >
-                                {SERVICES_COPY.headingAccent}
-                            </span>
-                        </h2>
-                    </div>
-                    <p className="max-w-[30rem] text-[clamp(15px,1.1vw,17px)] leading-[1.65] text-white/65 md:justify-self-end">
+                    </h2>
+                    <p className="mt-5 max-w-[46rem] text-[clamp(14px,1.15vw,17px)] leading-[1.65] text-balance text-white/75">
                         {SERVICES_COPY.text}
                     </p>
                 </div>
