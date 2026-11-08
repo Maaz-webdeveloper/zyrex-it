@@ -41,7 +41,18 @@
   /* Solid dark under every embed: a transparent iframe shows whatever the GHL
      container behind it is, and a repaint during scroll can flash white there.
      Every /embed/* section is dark, so this never breaks a look. */
-  iframe[data-zyrex-embed] { display: block; width: 100%; background: #000; border: 0; }
+  iframe[data-zyrex-embed] { display: block; width: 100%; border: 0; }
+  /* Each embed gets the section's own background so no black patch flashes
+     before the iframe content paints (hero gradient -> #0b0b0b, footer -> #000). */
+  iframe[data-zyrex-embed="/embed/hero"] { background: #0b0b0b; }
+  iframe[data-zyrex-embed="/embed/integrations"] { background: #0a0a0a; }
+  iframe[data-zyrex-embed="/embed/team"] { background: #141414; }
+  iframe[data-zyrex-embed="/embed/pillars"] { background: #0a0a0a; }
+  iframe[data-zyrex-embed="/embed/pillars-stage"] { background: #0a0a0a; }
+  iframe[data-zyrex-embed="/embed/services"] { background: #0a0a0a; }
+  iframe[data-zyrex-embed="/embed/services-stage"] { background: #0a0a0a; }
+  iframe[data-zyrex-embed="/embed/services-hero"] { background: #0a0a0a; }
+  iframe[data-zyrex-embed="/embed/footer"] { background: #000; }
   /* The GHL page chrome around the embeds: keep it dark too, so no white gap
      appears between sections or while the iframe height is being resized. */
   html, body { background: #000 !important; }
