@@ -37,7 +37,7 @@ export default function Integrations() {
                         .to(q('[data-reveal="band"]'), { autoAlpha: 1, y: 0, duration: 1.2 }, 0.4)
                         .to(q('[data-reveal="feature"]'), { autoAlpha: 1, y: 0, stagger: 0.1 }, 0.7);
                 },
-                { threshold: 0.2 }
+                { threshold: 0, rootMargin: "0px 0px 25% 0px" }
             );
             io.observe(root);
             return () => io.disconnect();

@@ -251,7 +251,7 @@ export default function Team() {
                         .to(q('[data-reveal="card"]'), { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08 }, 0.35)
                         .to(q('[data-reveal="dots"]'), { autoAlpha: 1, y: 0 }, 0.6);
                 },
-                { threshold: 0.2 }
+                { threshold: 0, rootMargin: "0px 0px 25% 0px" }
             );
             io.observe(root);
             return () => io.disconnect();
