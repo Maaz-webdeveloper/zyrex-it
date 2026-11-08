@@ -12,7 +12,7 @@ const SHINE_STYLE = {
   backgroundSize: "200% 100%",
   // Garet has only 400/800: 400 + a thin stroke reads as a medium weight; bg-clip-text fills the stroke with the shine, so no outline.
   // The stroke doesn't change letter widths, so the mobile 2-line fit is unaffected.
-    WebkitTextStroke: "0.05em var(--color-accent)",
+    WebkitTextStroke: "0.05em transparent",
 } as const;
 
 export default function HeroCopy() {
