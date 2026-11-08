@@ -298,9 +298,18 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                                         style={{ background: PANEL_EDGE }}
                                     >
                                         <span
-                                            className="relative flex h-full min-h-[clamp(250px,21vw,330px)] flex-col justify-between overflow-hidden rounded-[17px] p-[clamp(18px,1.4vw,24px)]"
+                                            className="relative flex h-full min-h-[clamp(175px,14vw,230px)] flex-col overflow-hidden rounded-[17px] p-[clamp(14px,1.2vw,20px)]"
                                             style={{ background: BOX_BG }}
                                         >
+                                            {/* Soft gold radial glow in the top-left corner (faint, brightens on hover) */}
+                                            <span
+                                                aria-hidden="true"
+                                                className="pointer-events-none absolute inset-0 opacity-[0.08] transition-opacity duration-500 group-hover/svc:opacity-[0.16]"
+                                                style={{
+                                                    background: "radial-gradient(circle at 0% 0%, rgba(255, 204, 0, 0.5), transparent 60%)",
+                                                }}
+                                            />
+
                                             {/* Gold glow that fades in on hover */}
                                             <span
                                                 aria-hidden="true"
@@ -310,27 +319,27 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
 
                                             {/* Top: Icon tile + Arrow in top right */}
                                             <div className="relative flex items-start justify-between">
-                                                <span className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-[12px] border border-accent/25 bg-accent/10 text-accent transition-[color,border-color,box-shadow] duration-300 group-hover/svc:border-transparent group-hover/svc:text-black group-hover/svc:shadow-[0_8px_24px_rgba(255,204,0,0.35)]">
+                                                <span className="relative grid size-14 shrink-0 place-items-center overflow-hidden rounded-[14px] border border-accent/25 bg-accent/10 text-accent transition-[color,border-color,box-shadow] duration-300 group-hover/svc:border-transparent group-hover/svc:text-black group-hover/svc:shadow-[0_8px_24px_rgba(255,204,0,0.35)]">
                                                     <span
                                                         aria-hidden="true"
-                                                        className="absolute inset-0 scale-0 rounded-[12px] transition-transform duration-300 group-hover/svc:scale-100"
-                                                        style={{ background: GOLD }}
+                                                        className="absolute inset-0 origin-left scale-x-0 rounded-[14px] transition-transform duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/svc:scale-x-100"
+                                                        style={{ background: "linear-gradient(90deg, var(--color-accent-light), var(--color-accent))" }}
                                                     />
                                                     <span className="relative">
-                                                        <ServiceIcon paths={s.icon} size={20} />
+                                                        <ServiceIcon paths={s.icon} size={22} />
                                                     </span>
                                                 </span>
                                                 <span
                                                     aria-hidden="true"
-                                                    className="-translate-x-2 text-accent opacity-0 transition duration-300 group-hover/svc:translate-x-0 group-hover/svc:opacity-100"
+                                                    className="relative z-10 -translate-x-2 text-accent opacity-0 transition duration-300 group-hover/svc:translate-x-0 group-hover/svc:opacity-100"
                                                 >
                                                     →
                                                 </span>
                                             </div>
 
-                                            {/* Bottom: Title + text */}
-                                            <div className="relative mt-auto pt-6">
-                                                <span className="block text-[clamp(15px,1.15vw,19px)] leading-tight zx-medium text-white">{s.name}</span>
+                                            {/* Title + text: top-aligned after a fixed gap so every card shares one baseline */}
+                                            <div className="mt-4">
+                                                <span className="block text-[clamp(15px,1.15vw,19px)] leading-tight zx-medium text-white min-h-[2.5em]">{s.name}</span>
                                                 <span className="mt-2 block text-[clamp(12px,0.85vw,14px)] leading-snug text-white/60">{s.text}</span>
                                             </div>
                                         </span>
