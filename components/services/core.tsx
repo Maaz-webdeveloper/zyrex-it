@@ -24,8 +24,8 @@ export const CORE_SERVICES: CoreService[] = [
         icon: ["M3 6h12v12H3z", "M15 10l6-3v10l-6-3"],
     },
     {
-        name: "Web App & Funnel",
-        text: "Websites, web apps and sales funnels built to convert",
+        name: "Web, App & Funnel",
+        text: "Websites, web apps and funnels built to convert",
         description:
             "Fast websites, custom web apps and sales funnels designed around your goals, so every visitor has a clear path to becoming a lead.",
         image: img("web"),

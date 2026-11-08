@@ -36,9 +36,6 @@ const BOX_GLOW = "radial-gradient(circle at 15% 0%, rgba(255, 204, 0, 0.26), tra
 const SHINE = "linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-light) 25%, var(--color-accent-light) 50%, var(--color-accent-light) 75%, var(--color-accent) 100%)"; // same as the heading shine, theme gold shades only (no white)
 const PANEL_OFFSET_Y = 48; // desktop panel starts this many px above the "Services" row
 const PANEL_FOOT_GAP = 24; // min space between the panel and the footer links
-// Moving neon light on the panel border: a bright gold streak (white-hot core) + a softer one opposite
-const PANEL_EDGE_LIGHT =
-    "conic-gradient(from 0deg, transparent 0deg, rgba(255, 204, 0, 0.15) 20deg, #ffcc00 42deg, #fff3b0 50deg, #ffcc00 58deg, transparent 80deg, transparent 180deg, rgba(255, 204, 0, 0.55) 225deg, transparent 260deg, transparent 360deg)";
 
 type MenuProps = {
     open: boolean;
@@ -267,94 +264,80 @@ export default function Menu({ open, origin, onClose }: MenuProps) {
                         })}
                     </ul>
 
-                    {/* ===== Desktop: Services mega panel (label + 4 service boxes, moving neon edge) ===== */}
+                    {/* ===== Desktop: Services mega panel (label + 4 portrait service cards side-by-side) ===== */}
                     <aside
                         ref={panelRef}
                         aria-label="Our services"
                         onMouseEnter={showMega}
                         onMouseLeave={hideMegaSoon}
-                        className={`absolute left-[calc(100%+clamp(32px,4vw,64px))] hidden origin-top-left w-[clamp(560px,54vw,900px)] transition-[clip-path,opacity,translate] duration-700 ${EASE} min-[1024px]:block ${megaVisible ? "pointer-events-auto translate-x-0 opacity-100" : "pointer-events-none -translate-x-4 opacity-0"
+                        className={`absolute left-[calc(100%+clamp(32px,4vw,64px))] hidden origin-top-left w-[clamp(640px,56vw,960px)] transition-[clip-path,opacity,translate] duration-700 ${EASE} min-[1024px]:block ${megaVisible ? "pointer-events-auto translate-x-0 opacity-100" : "pointer-events-none -translate-x-4 opacity-0"
                             }`}
-                        style={{ clipPath: megaVisible ? "inset(0 0 0 0 round 24px)" : "inset(0 100% 0 0 round 24px)" }}
+                        style={{ clipPath: megaVisible ? "inset(-20px -20px -20px -20px)" : "inset(-20px 100% -20px -20px)" }}
                     >
-                        <div
-                            className="relative overflow-hidden rounded-[24px] p-[1.5px] shadow-[0_30px_80px_rgba(0,0,0,0.6),0_0_70px_rgba(255,204,0,0.08)]"
-                            style={{ background: PANEL_EDGE }}
-                        >
-                            {/* Neon light that travels around the border (only while open, off for reduced motion) */}
-                            <div
-                                aria-hidden="true"
-                                className={`pointer-events-none absolute top-1/2 left-1/2 aspect-square w-[150%] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-700 motion-reduce:hidden ${megaVisible ? "animate-zx-spin opacity-100" : "opacity-0"
-                                    }`}
-                                style={{ background: PANEL_EDGE_LIGHT }}
-                            />
-                            <div
-                                className="relative overflow-hidden rounded-[22.5px] p-[clamp(20px,1.8vw,28px)] backdrop-blur-xl"
-                                style={{ background: PANEL_BG }}
-                            >
-                                {/* Header: small label + count */}
-                                <div className="mb-[clamp(14px,1.3vw,20px)] flex items-center gap-3 text-[12px] tracking-[0.3em] uppercase">
-                                    <span className="h-px w-6 rounded-full" style={{ background: GOLD }} />
-                                    <span className="text-white/60">Our Services</span>
-                                    <span className="h-px flex-1 bg-linear-to-r from-white/10 to-transparent" />
-                                    <span className="text-accent/80">0{SERVICES.length}</span>
-                                </div>
+                        {/* Header: small label + count */}
+                        <div className="mb-[clamp(14px,1.3vw,20px)] flex items-center gap-3 text-[12px] tracking-[0.3em] uppercase">
+                            <span className="h-px w-6 rounded-full" style={{ background: GOLD }} />
+                            <span className="text-white/60">Our Services</span>
+                            <span className="h-px flex-1 bg-linear-to-r from-white/10 to-transparent" />
+                            <span className="text-accent/80">0{SERVICES.length}</span>
+                        </div>
 
-                                {/* 4 core services: 2x2 grid of equal boxes */}
-                                <ul className="grid grid-cols-2 gap-[clamp(12px,1.2vw,18px)]">
-                                    {SERVICES.map((s, i) => (
-                                        <li
-                                            key={s.name}
-                                            className={`transition-[opacity,translate] duration-500 ${megaVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-                                                }`}
-                                            style={{ transitionDelay: megaVisible ? `${0.15 + i * 0.06}s` : "0s" }}
+                        {/* 4 core services: 4 portrait cards side-by-side */}
+                        <ul className="grid grid-cols-4 gap-[clamp(12px,1vw,16px)]">
+                            {SERVICES.map((s, i) => (
+                                <li
+                                    key={s.name}
+                                    className={`transition-[opacity,translate] duration-500 ${megaVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                                        }`}
+                                    style={{ transitionDelay: megaVisible ? `${0.15 + i * 0.06}s` : "0s" }}
+                                >
+                                    <a
+                                        href="#services"
+                                        onClick={go("#services")}
+                                        className="group/svc block h-full rounded-[18px] p-px transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(0,0,0,0.45),0_0_36px_rgba(255,204,0,0.22)]"
+                                        style={{ background: PANEL_EDGE }}
+                                    >
+                                        <span
+                                            className="relative flex h-full min-h-[clamp(250px,21vw,330px)] flex-col justify-between overflow-hidden rounded-[17px] p-[clamp(18px,1.4vw,24px)]"
+                                            style={{ background: BOX_BG }}
                                         >
-                                            <a
-                                                href="#services"
-                                                onClick={go("#services")}
-                                                className="group/svc block h-full rounded-[18px] p-px transition-[translate,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(0,0,0,0.45),0_0_36px_rgba(255,204,0,0.22)]"
-                                                style={{ background: PANEL_EDGE }}
-                                            >
-                                                <span
-                                                    className="relative flex h-full flex-col overflow-hidden rounded-[17px] p-[clamp(18px,1.6vw,26px)]"
-                                                    style={{ background: BOX_BG }}
-                                                >
-                                                    {/* Gold glow that fades in on hover */}
+                                            {/* Gold glow that fades in on hover */}
+                                            <span
+                                                aria-hidden="true"
+                                                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover/svc:opacity-100"
+                                                style={{ background: BOX_GLOW }}
+                                            />
+
+                                            {/* Top: Icon tile + Arrow in top right */}
+                                            <div className="relative flex items-start justify-between">
+                                                <span className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-[12px] border border-accent/25 bg-accent/10 text-accent transition-[color,border-color,box-shadow] duration-300 group-hover/svc:border-transparent group-hover/svc:text-black group-hover/svc:shadow-[0_8px_24px_rgba(255,204,0,0.35)]">
                                                     <span
                                                         aria-hidden="true"
-                                                        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover/svc:opacity-100"
-                                                        style={{ background: BOX_GLOW }}
+                                                        className="absolute inset-0 scale-0 rounded-[12px] transition-transform duration-300 group-hover/svc:scale-100"
+                                                        style={{ background: GOLD }}
                                                     />
-
-                                                    {/* Icon tile: gold fill on hover */}
-                                                    <span className="relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-[12px] border border-accent/25 bg-accent/10 text-accent transition-[color,border-color,box-shadow] duration-300 group-hover/svc:border-transparent group-hover/svc:text-black group-hover/svc:shadow-[0_8px_24px_rgba(255,204,0,0.35)]">
-                                                        <span
-                                                            aria-hidden="true"
-                                                            className="absolute inset-0 scale-0 rounded-[12px] transition-transform duration-300 group-hover/svc:scale-100"
-                                                            style={{ background: GOLD }}
-                                                        />
-                                                        <span className="relative">
-                                                            <ServiceIcon paths={s.icon} size={22} />
-                                                        </span>
+                                                    <span className="relative">
+                                                        <ServiceIcon paths={s.icon} size={20} />
                                                     </span>
-
-                                                    <span className="relative mt-5 flex items-start justify-between gap-3">
-                                                        <span className="text-[clamp(16px,1.3vw,21px)] leading-tight font-extrabold text-white">{s.name}</span>
-                                                        <span
-                                                            aria-hidden="true"
-                                                            className="-translate-x-2 text-accent opacity-0 transition duration-300 group-hover/svc:translate-x-0 group-hover/svc:opacity-100"
-                                                        >
-                                                            →
-                                                        </span>
-                                                    </span>
-                                                    <span className="relative mt-2 text-[clamp(13px,0.95vw,15px)] leading-snug text-white/60">{s.text}</span>
                                                 </span>
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
+                                                <span
+                                                    aria-hidden="true"
+                                                    className="-translate-x-2 text-accent opacity-0 transition duration-300 group-hover/svc:translate-x-0 group-hover/svc:opacity-100"
+                                                >
+                                                    →
+                                                </span>
+                                            </div>
+
+                                            {/* Bottom: Title + text */}
+                                            <div className="relative mt-auto pt-6">
+                                                <span className="block text-[clamp(15px,1.15vw,19px)] leading-tight zx-medium text-white">{s.name}</span>
+                                                <span className="mt-2 block text-[clamp(12px,0.85vw,14px)] leading-snug text-white/60">{s.text}</span>
+                                            </div>
+                                        </span>
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
                     </aside>
                 </div>
 
