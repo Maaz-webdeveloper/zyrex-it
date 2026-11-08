@@ -33,7 +33,7 @@ const PANEL_EDGE =
 const PANEL_BG = "linear-gradient(160deg, rgba(26, 24, 18, 0.95), rgba(10, 10, 10, 0.94))";
 const BOX_BG = "linear-gradient(160deg, rgba(30, 27, 18, 0.92), rgba(12, 12, 10, 0.95))";
 const BOX_GLOW = "radial-gradient(circle at 15% 0%, rgba(255, 204, 0, 0.26), transparent 65%)";
-const SHINE = "linear-gradient(90deg, #ffcc00 0%, #ffdd65 25%, #fff3b0 50%, #ffdd65 75%, #ffcc00 100%)"; // same as the heading shine
+const SHINE = "linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-light) 25%, var(--color-accent-light) 50%, var(--color-accent-light) 75%, var(--color-accent) 100%)"; // same as the heading shine, theme gold shades only (no white)
 const PANEL_OFFSET_Y = 48; // desktop panel starts this many px above the "Services" row
 const PANEL_FOOT_GAP = 24; // min space between the panel and the footer links
 // Moving neon light on the panel border: a bright gold streak (white-hot core) + a softer one opposite
