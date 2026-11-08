@@ -83,19 +83,31 @@ export default function EmbedShell({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    let lastHeight = -1;
+    let pending = false;
+    // Batch every height update into one rAF: a ResizeObserver can fire several times
+    // during a scroll/resize, and each postMessage forces a layout on the GHL page.
     const send = () => {
+      pending = false;
       const height = Math.ceil(el.getBoundingClientRect().height);
+      if (height === lastHeight) return; // only report a real change (kills jitter/rounding flicker)
+      lastHeight = height;
       if (process.env.NODE_ENV === "development") console.log("[embed] height:", height);
       sendToParent({ type: MSG.height, id: pathname, height });
     };
-    send();
-    const ro = new ResizeObserver(send);
+    const schedule = () => {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(send);
+    };
+    schedule();
+    const ro = new ResizeObserver(schedule);
     ro.observe(el);
-    window.addEventListener("load", send);
-    document.fonts?.ready.then(send);
+    window.addEventListener("load", schedule);
+    document.fonts?.ready.then(schedule);
     return () => {
       ro.disconnect();
-      window.removeEventListener("load", send);
+      window.removeEventListener("load", schedule);
     };
   }, [pathname]);
 

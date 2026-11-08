@@ -23,7 +23,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={garet.variable}>
+      <meta name="color-scheme" content="dark" />
       <body className="antialiased" suppressHydrationWarning>{children}</body>
-    </html> 
+    </html>
   );
 }

@@ -52,6 +52,8 @@ body {
   background: #1d1d1d;
   color: #ffffff;
   font-family: var(--font-garet), Arial, sans-serif;
+  /* Dark UI inside the GHL iframes: no light scrollbar / form controls flashing white */
+  color-scheme: dark;
 }
 
 /* Section off-screen (set by EmbedShell): CSS animations rest */

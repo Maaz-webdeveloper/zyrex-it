@@ -38,7 +38,7 @@
     font-family: "Garet", Arial, sans-serif !important;
   }
   /* Without this an iframe sits on the text baseline, leaving a small gap below it */
-  iframe[data-zyrex-embed] { display: block; }
+  iframe[data-zyrex-embed] { display: block; width: 100%; background: transparent; border: 0; vertical-align: top; }
   /* Lenis basics (own version: no rule that blocks clicks on iframes) */
   html.lenis, html.lenis body { height: auto; }
   html.lenis.lenis-stopped { overflow: clip; }
