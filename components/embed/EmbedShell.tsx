@@ -85,8 +85,10 @@ export default function EmbedShell({ children }: { children: React.ReactNode }) 
     if (!el) return;
     let lastHeight = -1;
     let pending = false;
-    // Batch every height update into one rAF: a ResizeObserver can fire several times
-    // during a scroll/resize, and each postMessage forces a layout on the GHL page.
+    // Growing (content loads, an animation expands): send immediately so the iframe
+    // never lags behind and leaves a blank white strip at the bottom.
+    // Shrinking (animation collapses, menu closes): batch into one rAF — a momentary
+    // overshoot is harmless and avoids a storm of postMessages.
     const send = () => {
       pending = false;
       const height = Math.ceil(el.getBoundingClientRect().height);
@@ -100,14 +102,25 @@ export default function EmbedShell({ children }: { children: React.ReactNode }) 
       pending = true;
       requestAnimationFrame(send);
     };
-    schedule();
-    const ro = new ResizeObserver(schedule);
+    const report = () => {
+      const height = Math.ceil(el.getBoundingClientRect().height);
+      if (height > lastHeight) {
+        // grew: skip the rAF, tell the GHL page at once
+        lastHeight = height;
+        if (process.env.NODE_ENV === "development") console.log("[embed] height:", height);
+        sendToParent({ type: MSG.height, id: pathname, height });
+      } else {
+        schedule(); // same height or smaller: batched
+      }
+    };
+    report();
+    const ro = new ResizeObserver(report);
     ro.observe(el);
-    window.addEventListener("load", schedule);
-    document.fonts?.ready.then(schedule);
+    window.addEventListener("load", report);
+    document.fonts?.ready.then(report);
     return () => {
       ro.disconnect();
-      window.removeEventListener("load", schedule);
+      window.removeEventListener("load", report);
     };
   }, [pathname]);
 

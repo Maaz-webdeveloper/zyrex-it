@@ -38,7 +38,16 @@
     font-family: "Garet", Arial, sans-serif !important;
   }
   /* Without this an iframe sits on the text baseline, leaving a small gap below it */
-  iframe[data-zyrex-embed] { display: block; width: 100%; background: transparent; border: 0; vertical-align: top; }
+  /* Solid dark under every embed: a transparent iframe shows whatever the GHL
+     container behind it is, and a repaint during scroll can flash white there.
+     Every /embed/* section is dark, so this never breaks a look. */
+  iframe[data-zyrex-embed] { display: block; width: 100%; background: #000; border: 0; }
+  /* The GHL page chrome around the embeds: keep it dark too, so no white gap
+     appears between sections or while the iframe height is being resized. */
+  html, body { background: #000 !important; }
+  #app, [class*="c-section"], [class*="c-row"], [class*="c-column"], [class*="c-wrapper"], [class*="hl_page"] {
+    background: #000 !important;
+  }
   /* Lenis basics (own version: no rule that blocks clicks on iframes) */
   html.lenis, html.lenis body { height: auto; }
   html.lenis.lenis-stopped { overflow: clip; }
