@@ -360,6 +360,11 @@
   @media (max-width: 419px) {
     .zx-callbar-text .zx-full { display: none; }
     .zx-callbar-text .zx-short { display: inline; }
+    /* Short text = slimmer bar: less padding, tighter gap, smaller type and button */
+    .zx-callbar { padding: 3px 3px 3px 12px; gap: 8px; }
+    .zx-callbar-text { font-size: 12px; }
+    .zx-callbar .zx-callbar-btn { height: 34px; padding: 0 30px 0 14px; font-size: 9px; }
+    .zx-callbar .zx-callbar-btn i { width: 26px; height: 26px; }
   }
   /* Reduced motion: fade only, no slide */
   @media (prefers-reduced-motion: reduce) {
