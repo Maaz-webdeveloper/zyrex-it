@@ -28,7 +28,7 @@ const AUTOPLAY_DELAY = 3000; // ms between cards
 // x offsets are wide enough that no card ever overlaps its neighbour — every card keeps its own silhouette.
 // Mobile: fewer side cards fit on screen, so the fade range starts closer (1.5) and ends sooner (2.2).
 const FLOW_MOBILE = {
-    x: [0, 0.95, 1.62], // sideways, × card width
+    x: [0, 0.95, 1.70], // sideways, × card width
     scale: [1, 0.82, 0.6],
     dim: [0, 0.42, 0.68], // darkness
     fadeFrom: 1.5, // cards further than this fade out...
