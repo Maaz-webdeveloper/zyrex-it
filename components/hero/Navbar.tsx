@@ -20,7 +20,7 @@ export default function Navbar({ open, onToggle }: NavbarProps) {
             <a
                 href="#top"
                 aria-label="ZYREX IT, back to top"
-                className="block [--logo-h:37px] sm:[--logo-h:45px] lg:[--logo-h:60px] ml-[calc(2px-var(--logo-h)*0.3343)] -translate-y-[calc(var(--logo-h)*0.0232+0.8px)]"
+                className="block [--logo-h:37px] sm:[--logo-h:45px] lg:[--logo-h:66px] ml-[calc(2px-var(--logo-h)*0.3343)] -translate-y-[calc(var(--logo-h)*0.0232+0.8px)]"
                 onClick={(e) => {
                     e.preventDefault();
                     if (open) onToggle();
