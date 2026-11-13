@@ -25,20 +25,23 @@ gsap.registerPlugin(useGSAP);
 const AUTOPLAY_DELAY = 3000; // ms between cards
 
 // Layout per card distance from the center: [center, first side card, second side card]
-// Mobile: side cards tucked close, peeking in from the screen edges.
+// x offsets are wide enough that no card ever overlaps its neighbour — every card keeps its own silhouette.
+// Mobile: fewer side cards fit on screen, so the fade range starts closer (1.5) and ends sooner (2.2).
 const FLOW_MOBILE = {
-    x: [0, 0.62, 1.06], // sideways, × card width
-    scale: [1, 0.82, 0.66],
+    x: [0, 0.95, 1.62], // sideways, × card width
+    scale: [1, 0.82, 0.6],
     dim: [0, 0.42, 0.68], // darkness
+    fadeFrom: 1.5, // cards further than this fade out...
+    fadeTo: 2.2, // ...and are gone here
 };
-// Desktop (768px+): spread wide, each side card only slightly behind its neighbour so most of the face shows.
+// Desktop (768px+): spread wide, each side card sits clear of its neighbour so most of the face shows.
 const FLOW_DESKTOP = {
-    x: [0, 0.72, 1.31],
+    x: [0, 0.95, 1.70],
     scale: [1, 0.8, 0.64],
     dim: [0, 0.34, 0.56],
+    fadeFrom: 2,
+    fadeTo: 2.7,
 };
-const FADE_FROM = 2; // cards further than this fade out...
-const FADE_TO = 2.7; // ...and are gone here
 
 const clamp01 = (n: number) => Math.min(Math.max(n, 0), 1);
 // Value at a (possibly fractional) distance from the center
@@ -149,7 +152,7 @@ export default function Team() {
             const offset = ((i - position + count * 1.5) % count) - count / 2; // shortest way round the loop
             const d = Math.abs(offset);
             const x = Math.sign(offset) * flow(FLOW.x, d) * cardW;
-            const fade = clamp01((FADE_TO - d) / (FADE_TO - FADE_FROM));
+            const fade = clamp01((FLOW.fadeTo - d) / (FLOW.fadeTo - FLOW.fadeFrom));
 
             slot.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0) scale(${flow(FLOW.scale, d).toFixed(4)})`;
             slot.style.opacity = fade.toFixed(3);
